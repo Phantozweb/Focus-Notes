@@ -22,13 +22,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import {
-  User, Briefcase, History, Eye, Microscope, BookOpen, Edit3, Save, FileText, CalendarIcon, ScanEye
+  User, Briefcase, History, Eye, Microscope, BookOpen, Edit3, Save, FileText, CalendarIcon, ScanEye, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import type { FullOptometryCaseData } from '@/types/case';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { useRef, useState, useEffect, useCallback } from 'react';
+import type * as ScrollAreaPrimitive from '@radix-ui/react-scroll-area';
 
 
 const fullOptometryCaseSchema = z.object({
@@ -139,74 +141,72 @@ export default function LogNewCasePage() {
   const { toast } = useToast();
   const form = useForm<FullOptometryCaseFormValues>({
     resolver: zodResolver(fullOptometryCaseSchema),
-    defaultValues: {
-      patientId: '',
-      firstName: '',
-      lastName: '',
-      // dateOfBirth: undefined, // Will be handled by Controller
-      gender: '',
-      contactNumber: '',
-      email: '',
-      address: '',
-      chiefComplaint: '',
-      presentIllnessHistory: '',
-      pastOcularHistory: '',
-      pastMedicalHistory: '',
-      familyOcularHistory: '',
-      familyMedicalHistory: '',
-      medications: '',
-      allergies: '',
-      visualAcuityUncorrectedOD: '',
-      visualAcuityUncorrectedOS: '',
-      visualAcuityCorrectedOD: '',
-      visualAcuityCorrectedOS: '',
-      pupils: '',
-      extraocularMotility: '',
-      intraocularPressureOD: '',
-      intraocularPressureOS: '',
-      confrontationVisualFields: '',
-      manifestRefractionOD: '',
-      manifestRefractionOS: '',
-      cycloplegicRefractionOD: '',
-      cycloplegicRefractionOS: '',
-      currentSpectacleRx: '',
-      currentContactLensRx: '',
-      lidsLashesOD: '',
-      lidsLashesOS: '',
-      conjunctivaScleraOD: '',
-      conjunctivaScleraOS: '',
-      corneaOD: '',
-      corneaOS: '',
-      anteriorChamberOD: '',
-      anteriorChamberOS: '',
-      irisOD: '',
-      irisOS: '',
-      lensOD: '',
-      lensOS: '',
-      vitreousOD: '',
-      vitreousOS: '',
-      opticDiscOD: '',
-      opticDiscOS: '',
-      cupDiscRatioOD: '',
-      cupDiscRatioOS: '',
-      maculaOD: '',
-      maculaOS: '',
-      vesselsOD: '',
-      vesselsOS: '',
-      peripheryOD: '',
-      peripheryOS: '',
-      octFindings: '',
-      visualFieldFindings: '',
-      fundusPhotographyFindings: '',
-      otherInvestigations: '',
-      assessment: '',
-      plan: '',
-      prognosis: '',
-      followUp: '',
-      internalNotes: '',
-      reflection: '',
+    defaultValues: { /* Omitted for brevity, same as before */
+      patientId: '', firstName: '', lastName: '', gender: '', contactNumber: '', email: '', address: '', chiefComplaint: '', presentIllnessHistory: '', pastOcularHistory: '', pastMedicalHistory: '', familyOcularHistory: '', familyMedicalHistory: '', medications: '', allergies: '', visualAcuityUncorrectedOD: '', visualAcuityUncorrectedOS: '', visualAcuityCorrectedOD: '', visualAcuityCorrectedOS: '', pupils: '', extraocularMotility: '', intraocularPressureOD: '', intraocularPressureOS: '', confrontationVisualFields: '', manifestRefractionOD: '', manifestRefractionOS: '', cycloplegicRefractionOD: '', cycloplegicRefractionOS: '', currentSpectacleRx: '', currentContactLensRx: '', lidsLashesOD: '', lidsLashesOS: '', conjunctivaScleraOD: '', conjunctivaScleraOS: '', corneaOD: '', corneaOS: '', anteriorChamberOD: '', anteriorChamberOS: '', irisOD: '', irisOS: '', lensOD: '', lensOS: '', vitreousOD: '', vitreousOS: '', opticDiscOD: '', opticDiscOS: '', cupDiscRatioOD: '', cupDiscRatioOS: '', maculaOD: '', maculaOS: '', vesselsOD: '', vesselsOS: '', peripheryOD: '', peripheryOS: '', octFindings: '', visualFieldFindings: '', fundusPhotographyFindings: '', otherInvestigations: '', assessment: '', plan: '', prognosis: '', followUp: '', internalNotes: '', reflection: '',
     },
   });
+
+  const tabsViewportRef = useRef<HTMLDivElement | null>(null);
+  const scrollAreaRootRef = useRef<React.ElementRef<typeof ScrollArea> | null>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false); // Default to false, will be updated
+  const SCROLL_AMOUNT = 250; // Pixels to scroll
+
+  const checkScrollability = useCallback(() => {
+    const viewport = tabsViewportRef.current;
+    if (viewport) {
+      const { scrollLeft, scrollWidth, clientWidth } = viewport;
+      setCanScrollLeft(scrollLeft > 5); // Add a small tolerance
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 5); // Add a small tolerance
+    } else {
+      setCanScrollLeft(false);
+      setCanScrollRight(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (scrollAreaRootRef.current) {
+      const viewportElement = scrollAreaRootRef.current.querySelector<HTMLDivElement>(
+        ':scope > div[data-radix-scroll-area-viewport]'
+      );
+      if (viewportElement) {
+        tabsViewportRef.current = viewportElement;
+      }
+    }
+
+    const viewport = tabsViewportRef.current;
+    if (viewport) {
+      checkScrollability();
+      viewport.addEventListener('scroll', checkScrollability, { passive: true });
+      window.addEventListener('resize', checkScrollability);
+
+      // Check scrollability after a short delay to ensure layout is stable
+      const timer = setTimeout(checkScrollability, 100);
+
+      return () => {
+        viewport.removeEventListener('scroll', checkScrollability);
+        window.removeEventListener('resize', checkScrollability);
+        clearTimeout(timer);
+      };
+    }
+  }, [checkScrollability]);
+
+
+  const handleTabScroll = (direction: 'left' | 'right') => {
+    const viewport = tabsViewportRef.current;
+    if (viewport) {
+      const currentScrollLeft = viewport.scrollLeft;
+      const newScrollLeft =
+        direction === 'left'
+          ? currentScrollLeft - SCROLL_AMOUNT
+          : currentScrollLeft + SCROLL_AMOUNT;
+
+      viewport.scrollTo({
+        left: newScrollLeft,
+        behavior: 'smooth',
+      });
+    }
+  };
 
   function onSubmit(data: FullOptometryCaseFormValues) {
     console.log(data); 
@@ -293,21 +293,50 @@ export default function LogNewCasePage() {
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                 <Tabs defaultValue="patientInfo" className="w-full">
-                  <ScrollArea orientation="horizontal" className="w-full pb-2">
-                    <TabsList className="mb-6 border-b border-border whitespace-nowrap justify-start pr-6">
-                      <TabsTrigger value="patientInfo"><User className="mr-2 h-4 w-4" />Patient Info</TabsTrigger>
-                      <TabsTrigger value="chiefComplaint"><Briefcase className="mr-2 h-4 w-4" />Chief Complaint</TabsTrigger>
-                      <TabsTrigger value="history"><History className="mr-2 h-4 w-4" />History</TabsTrigger>
-                      <TabsTrigger value="examination"><Eye className="mr-2 h-4 w-4" />Examination</TabsTrigger>
-                      <TabsTrigger value="slitLamp"><Microscope className="mr-2 h-4 w-4" />Slit Lamp</TabsTrigger>
-                      <TabsTrigger value="posteriorSegment"><ScanEye className="mr-2 h-4 w-4" />Posterior Segment</TabsTrigger>
-                      <TabsTrigger value="investigations"><BookOpen className="mr-2 h-4 w-4" />Investigations</TabsTrigger>
-                      <TabsTrigger value="assessmentPlan"><Edit3 className="mr-2 h-4 w-4" />Assessment & Plan</TabsTrigger>
-                      <TabsTrigger value="notesReflection"><FileText className="mr-2 h-4 w-4" />Notes & Reflection</TabsTrigger>
-                    </TabsList>
-                  </ScrollArea>
+                  
+                  <div className="flex items-center space-x-1 mb-2">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-9 w-9 shrink-0"
+                      onClick={() => handleTabScroll('left')}
+                      disabled={!canScrollLeft}
+                      aria-label="Scroll tabs left"
+                    >
+                      <ChevronLeft className="h-5 w-5" />
+                    </Button>
 
-                  <ScrollArea className="h-[calc(100vh-25rem)] pr-4"> 
+                    <ScrollArea
+                      orientation="horizontal"
+                      className="flex-grow w-full pb-0 [&_div[data-orientation='horizontal']]:hidden" // Hide default scrollbar
+                      ref={scrollAreaRootRef}
+                    >
+                      <TabsList className="border-b border-border whitespace-nowrap justify-start pr-6">
+                        <TabsTrigger value="patientInfo"><User className="mr-2 h-4 w-4" />Patient Info</TabsTrigger>
+                        <TabsTrigger value="chiefComplaint"><Briefcase className="mr-2 h-4 w-4" />Chief Complaint</TabsTrigger>
+                        <TabsTrigger value="history"><History className="mr-2 h-4 w-4" />History</TabsTrigger>
+                        <TabsTrigger value="examination"><Eye className="mr-2 h-4 w-4" />Examination</TabsTrigger>
+                        <TabsTrigger value="slitLamp"><Microscope className="mr-2 h-4 w-4" />Slit Lamp</TabsTrigger>
+                        <TabsTrigger value="posteriorSegment"><ScanEye className="mr-2 h-4 w-4" />Posterior Segment</TabsTrigger>
+                        <TabsTrigger value="investigations"><BookOpen className="mr-2 h-4 w-4" />Investigations</TabsTrigger>
+                        <TabsTrigger value="assessmentPlan"><Edit3 className="mr-2 h-4 w-4" />Assessment & Plan</TabsTrigger>
+                        <TabsTrigger value="notesReflection"><FileText className="mr-2 h-4 w-4" />Notes & Reflection</TabsTrigger>
+                      </TabsList>
+                    </ScrollArea>
+                    
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-9 w-9 shrink-0"
+                      onClick={() => handleTabScroll('right')}
+                      disabled={!canScrollRight}
+                      aria-label="Scroll tabs right"
+                    >
+                      <ChevronRight className="h-5 w-5" />
+                    </Button>
+                  </div>
+
+                  <ScrollArea className="h-[calc(100vh-26rem)] pr-4"> {/* Adjusted height slightly for tab controls */}
                     <TabsContent value="patientInfo" className="space-y-6 pt-2">
                       <SectionTitle title="Patient Information" icon={User} />
                       {renderFormField('patientId', 'Patient ID (Optional)', 'e.g., P00123')}
@@ -459,5 +488,3 @@ export default function LogNewCasePage() {
     </MainLayout>
   );
 }
-
-    
