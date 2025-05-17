@@ -293,7 +293,7 @@ export default function LogNewCasePage() {
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                 <Tabs defaultValue="patientInfo" className="w-full">
-                  <ScrollArea orientation="horizontal" className="pb-2">
+                  <ScrollArea orientation="horizontal" className="w-full pb-2">
                     <TabsList className="mb-6 border-b border-border whitespace-nowrap">
                       <TabsTrigger value="patientInfo"><User className="mr-2 h-4 w-4" />Patient Info</TabsTrigger>
                       <TabsTrigger value="chiefComplaint"><Briefcase className="mr-2 h-4 w-4" />Chief Complaint</TabsTrigger>
@@ -307,7 +307,7 @@ export default function LogNewCasePage() {
                     </TabsList>
                   </ScrollArea>
 
-                  <ScrollArea className="h-[calc(100vh-25rem)] pr-4"> {/* Adjusted height for better mobile experience */}
+                  <ScrollArea className="h-[calc(100vh-25rem)] pr-4"> 
                     <TabsContent value="patientInfo" className="space-y-6 pt-2">
                       <SectionTitle title="Patient Information" icon={User} />
                       {renderFormField('patientId', 'Patient ID (Optional)', 'e.g., P00123')}
@@ -399,7 +399,6 @@ export default function LogNewCasePage() {
                          {renderFormField('currentContactLensRx', 'Current Contact Lens Rx', 'Details of current contact lenses', true, 2)}
                     </TabsContent>
 
-
                     <TabsContent value="slitLamp" className="space-y-6 pt-2">
                       <SectionTitle title="Slit Lamp Examination" icon={Microscope} />
                       {renderDoubleFormField('lidsLashesOD', 'lidsLashesOS', 'Lids & Lashes', 'WNL', 'WNL', true, 2)}
@@ -460,4 +459,3 @@ export default function LogNewCasePage() {
     </MainLayout>
   );
 }
-
