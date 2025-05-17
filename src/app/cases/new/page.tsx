@@ -22,7 +22,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import {
-  User, Briefcase, History, Eye, Microscope, Bot, BookOpen, Edit3, Save, FileText, CalendarIcon
+  User, Briefcase, History, Eye, Microscope, BookOpen, Edit3, Save, FileText, CalendarIcon, ScanEye
 } from 'lucide-react';
 import type { FullOptometryCaseData } from '@/types/case';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -303,7 +303,7 @@ export default function LogNewCasePage() {
                       <TabsTrigger value="history"><History className="mr-2 h-4 w-4" />History</TabsTrigger>
                       <TabsTrigger value="examination"><Eye className="mr-2 h-4 w-4" />Examination</TabsTrigger>
                       <TabsTrigger value="slitLamp"><Microscope className="mr-2 h-4 w-4" />Slit Lamp</TabsTrigger>
-                      <TabsTrigger value="posteriorSegment"><Bot className="mr-2 h-4 w-4" />Posterior Segment</TabsTrigger>
+                      <TabsTrigger value="posteriorSegment"><ScanEye className="mr-2 h-4 w-4" />Posterior Segment</TabsTrigger>
                       <TabsTrigger value="investigations"><BookOpen className="mr-2 h-4 w-4" />Investigations</TabsTrigger>
                       <TabsTrigger value="assessmentPlan"><Edit3 className="mr-2 h-4 w-4" />Assessment & Plan</TabsTrigger>
                       <TabsTrigger value="notesReflection"><FileText className="mr-2 h-4 w-4" />Notes & Reflection</TabsTrigger>
@@ -414,7 +414,7 @@ export default function LogNewCasePage() {
                     </TabsContent>
 
                     <TabsContent value="posteriorSegment" className="space-y-6">
-                      <SectionTitle title="Posterior Segment Examination" icon={Bot} />
+                      <SectionTitle title="Posterior Segment Examination" icon={ScanEye} />
                       {renderDoubleFormField('vitreousOD', 'vitreousOS', 'Vitreous', 'Clear, PVD', 'Clear', true, 2)}
                       {renderDoubleFormField('opticDiscOD', 'opticDiscOS', 'Optic Disc', 'Pink, sharp margins', 'Pink, sharp margins', true, 2)}
                       {renderDoubleFormField('cupDiscRatioOD', 'cupDiscRatioOS', 'Cup/Disc Ratio', '0.3', '0.35', false)}
