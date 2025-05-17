@@ -294,7 +294,7 @@ export default function LogNewCasePage() {
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                 <Tabs defaultValue="patientInfo" className="w-full">
                   <ScrollArea orientation="horizontal" className="w-full pb-2">
-                    <TabsList className="mb-6 border-b border-border whitespace-nowrap">
+                    <TabsList className="mb-6 border-b border-border whitespace-nowrap justify-start pr-6">
                       <TabsTrigger value="patientInfo"><User className="mr-2 h-4 w-4" />Patient Info</TabsTrigger>
                       <TabsTrigger value="chiefComplaint"><Briefcase className="mr-2 h-4 w-4" />Chief Complaint</TabsTrigger>
                       <TabsTrigger value="history"><History className="mr-2 h-4 w-4" />History</TabsTrigger>
@@ -459,3 +459,5 @@ export default function LogNewCasePage() {
     </MainLayout>
   );
 }
+
+    
