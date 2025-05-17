@@ -307,7 +307,7 @@ export default function LogNewCasePage() {
                     </TabsList>
                   </ScrollArea>
 
-                  <ScrollArea className="h-[calc(100vh-22rem)] pr-4"> {/* Adjusted height slightly for TabsList margin */}
+                  <ScrollArea className="h-[calc(100vh-25rem)] pr-4"> {/* Adjusted height for better mobile experience */}
                     <TabsContent value="patientInfo" className="space-y-6 pt-2">
                       <SectionTitle title="Patient Information" icon={User} />
                       {renderFormField('patientId', 'Patient ID (Optional)', 'e.g., P00123')}
@@ -460,3 +460,4 @@ export default function LogNewCasePage() {
     </MainLayout>
   );
 }
+
