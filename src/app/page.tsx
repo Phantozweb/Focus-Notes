@@ -1,187 +1,165 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
-import type { OptometryCase, AnalyzedOptometryCase } from '@/types/case';
-import useLocalStorage from '@/hooks/use-local-storage';
-import { exportToCsv } from '@/lib/csv-export';
-import { analyzeOptometryCase, AnalyzeOptometryCaseInput } from '@/ai/flows/analyze-optometry-case';
-
-import { MainLayout } from '@/components/layout/main-layout';
-import { CaseList } from '@/components/case-list';
-import { CaseForm } from '@/components/case-form';
-import { CaseDetailModal } from '@/components/case-detail-modal';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { useToast } from "@/hooks/use-toast";
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Loader } from '@/components/ui/loader'; // Added import for Loader
-import { PlusCircle } from 'lucide-react';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { MainLayout } from '@/components/layout/main-layout';
+import { Info, FilePlus2, ListChecks, PlusCircle, ExternalLink, BookOpenCheck } from 'lucide-react';
+import { useToast } from "@/hooks/use-toast";
 
 export default function HomePage() {
-  const [cases, setCases] = useLocalStorage<AnalyzedOptometryCase[]>('optometryCases', []);
-  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
-  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  const [selectedCaseForDetail, setSelectedCaseForDetail] = useState<AnalyzedOptometryCase | null>(null);
-  const [isLoadingAnalysis, setIsLoadingAnalysis] = useState(false);
-  const [isSavingCase, setIsSavingCase] = useState(false);
-  const [hydrated, setHydrated] = useState(false);
-
   const { toast } = useToast();
 
-  useEffect(() => {
-    setHydrated(true);
-  }, []);
-
-  const handleLogNewCase = () => {
-    setIsFormModalOpen(true);
+  // Placeholder actions for buttons
+  const handleLearnMore = () => {
+    toast({
+      title: "Explore Focus.AI",
+      description: "Detailed information about our AI integration is coming soon!",
+    });
   };
 
-  const handleSaveCase = (data: Omit<OptometryCase, 'id' | 'timestamp'>) => {
-    setIsSavingCase(true);
-    try {
-      const newCase: AnalyzedOptometryCase = {
-        ...data,
-        id: crypto.randomUUID(),
-        timestamp: Date.now(),
-      };
-      setCases(prevCases => [newCase, ...prevCases]);
-      toast({ title: "Case Saved", description: "New optometry case successfully logged." });
-      setIsFormModalOpen(false);
-    } catch (error) {
-      console.error("Error saving case:", error);
-      toast({ variant: "destructive", title: "Save Error", description: "Failed to save the case." });
-    } finally {
-      setIsSavingCase(false);
-    }
+  const handleNewCase = () => {
+    // In a real app, this would navigate to a new case page or open a modal
+    // For now, we use the existing `onLogNewCase` functionality if available or toast.
+    // As `onLogNewCase` was removed from Header/MainLayout, we'll just toast.
+    toast({
+      title: "Log New Case",
+      description: "The form to log a new optometry case will be available here.",
+    });
   };
 
-  const handleDeleteCase = (caseId: string) => {
-    setCases(prevCases => prevCases.filter(c => c.id !== caseId));
-    toast({ title: "Case Deleted", description: "The case has been removed." });
-    if (selectedCaseForDetail?.id === caseId) {
-      setIsDetailModalOpen(false);
-      setSelectedCaseForDetail(null);
-    }
+  const handleViewCases = () => {
+    // In a real app, this would navigate to the case list page
+    toast({
+      title: "View All Cases",
+      description: "The page displaying all optometry cases will be available here.",
+    });
   };
 
-  const handleViewDetails = (caseData: AnalyzedOptometryCase) => {
-    setSelectedCaseForDetail(caseData);
-    setIsDetailModalOpen(true);
-  };
-
-  const handleAnalyzeCase = async (caseId: string) => {
-    const caseToAnalyze = cases.find(c => c.id === caseId);
-    if (!caseToAnalyze) {
-      toast({ variant: "destructive", title: "Error", description: "Case not found for analysis." });
-      return;
-    }
-
-    setIsLoadingAnalysis(true);
-    if (selectedCaseForDetail?.id === caseId) { // Ensure modal reflects loading if it's the current one
-       setSelectedCaseForDetail(prev => prev ? {...prev, analysisError: undefined } : null);
-    }
-
-
-    try {
-      const analysisInput: AnalyzeOptometryCaseInput = {
-        visualAcuity: caseToAnalyze.visualAcuity,
-        refraction: caseToAnalyze.refraction,
-        ocularHealthStatus: caseToAnalyze.ocularHealthStatus,
-        additionalNotes: caseToAnalyze.additionalNotes || '',
-      };
-      const analysisResult = await analyzeOptometryCase(analysisInput);
-      
-      setCases(prevCases =>
-        prevCases.map(c =>
-          c.id === caseId ? { ...c, analysis: analysisResult, analysisError: undefined } : c
-        )
-      );
-      
-      if (selectedCaseForDetail?.id === caseId) {
-        setSelectedCaseForDetail(prev => prev ? { ...prev, analysis: analysisResult, analysisError: undefined } : null);
-      }
-      toast({ title: "Analysis Complete", description: "AI analysis has been added to the case." });
-
-    } catch (error) {
-      console.error("Error analyzing case:", error);
-      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred during AI analysis.";
-      setCases(prevCases =>
-        prevCases.map(c =>
-          c.id === caseId ? { ...c, analysis: undefined, analysisError: errorMessage } : c
-        )
-      );
-      if (selectedCaseForDetail?.id === caseId) {
-         setSelectedCaseForDetail(prev => prev ? { ...prev, analysis: undefined, analysisError: errorMessage } : null);
-      }
-      toast({ variant: "destructive", title: "Analysis Failed", description: errorMessage });
-    } finally {
-      setIsLoadingAnalysis(false);
-    }
-  };
-
-  const handleExportCases = () => {
-    if (cases.length === 0) {
-      toast({ title: "No Cases", description: "There are no cases to export."});
-      return;
-    }
-    try {
-      exportToCsv('focuscase_ai_exports', cases);
-      toast({ title: "Export Successful", description: "Cases have been exported to CSV."});
-    } catch (error) {
-      console.error("Error exporting cases:", error);
-      toast({ variant: "destructive", title: "Export Failed", description: "Could not export cases."});
-    }
-  };
-
-  if (!hydrated) {
-    // Render a loading state or null until hydrated to prevent hydration mismatch
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center">
-        <Loader size={48} text="Loading FocusCase AI..." />
-      </div>
-    );
-  }
 
   return (
-    <MainLayout onLogNewCase={handleLogNewCase}>
-      <CaseList
-        cases={cases}
-        onSelectCase={handleViewDetails}
-        onAnalyzeCase={handleAnalyzeCase}
-        onDeleteCase={handleDeleteCase}
-        onExportCases={handleExportCases}
-        onLogNewCase={handleLogNewCase}
-        analyzingCaseId={isLoadingAnalysis ? selectedCaseForDetail?.id : null}
-      />
+    <MainLayout>
+      {/* Hero Section */}
+      <section className="py-20 md:py-28 text-center bg-gradient-to-br from-primary/10 via-background to-background">
+        <div className="container mx-auto px-6">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-primary mb-6 animate-fade-in-down">
+            Focus CaseX
+          </h1>
+          <p className="text-lg sm:text-xl md:text-2xl text-foreground/80 mb-10 max-w-3xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+            Welcome to Focus CaseX<br />Your professional platform for optometry case management and learning.
+          </p>
+        </div>
+      </section>
 
-      <Dialog open={isFormModalOpen} onOpenChange={setIsFormModalOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="text-2xl">Log New Optometry Case</DialogTitle>
-            <DialogDescription>
-              Fill in the details below to add a new case.
-            </DialogDescription>
-          </DialogHeader>
-          <CaseForm
-            onSubmit={handleSaveCase}
-            onCancel={() => setIsFormModalOpen(false)}
-            isLoading={isSavingCase}
-          />
-        </DialogContent>
-      </Dialog>
+      {/* Focus.AI Integrated Tool Section */}
+      <section className="py-16 md:py-24 bg-secondary/20">
+        <div className="container mx-auto px-6">
+          <div className="flex flex-col md:flex-row items-center gap-10 md:gap-16">
+            <div className="md:w-1/2 order-2 md:order-1">
+              <h2 className="text-3xl md:text-4xl font-semibold text-primary mb-5">
+                <BookOpenCheck className="inline-block h-10 w-10 mr-3 text-accent" />
+                Focus.AI Integrated Tool
+              </h2>
+              <p className="text-lg text-foreground/75 mb-8 leading-relaxed">
+                Revolutionize your learning experience. Our AI seamlessly analyzes traditional optometry cases, transforming them into dynamic, insightful learning opportunities. Enhance your diagnostic skills and stay at the forefront of optometric knowledge.
+              </p>
+              <Button size="lg" onClick={handleLearnMore} className="shadow-lg hover:shadow-primary/30 transition-shadow">
+                <Info className="mr-2 h-5 w-5" /> Learn more
+              </Button>
+            </div>
+            <div className="md:w-1/2 order-1 md:order-2 flex justify-center">
+              <Image
+                src="https://placehold.co/500x350.png"
+                alt="AI powered learning illustration"
+                data-ai-hint="AI education medical"
+                width={500}
+                height={350}
+                className="rounded-xl shadow-2xl object-cover transform hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
 
-      {selectedCaseForDetail && (
-        <CaseDetailModal
-          caseData={selectedCaseForDetail}
-          isOpen={isDetailModalOpen}
-          onClose={() => {
-            setIsDetailModalOpen(false);
-            // setTimeout(() => setSelectedCaseForDetail(null), 300); // Delay clearing to allow modal fade out
-          }}
-          onAnalyze={handleAnalyzeCase}
-          isLoadingAnalysis={isLoadingAnalysis && selectedCaseForDetail?.id === cases.find(c => c.analysisError !== undefined || c.analysis !== undefined)?.id}
-        />
-      )}
+      {/* Action Cards Section */}
+      <section className="py-16 md:py-24">
+        <div className="container mx-auto px-6">
+          <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
+            <Card className="shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col bg-card rounded-xl overflow-hidden transform hover:-translate-y-1">
+              <CardHeader className="bg-primary/5 p-6">
+                <div className="flex items-center gap-4">
+                  <FilePlus2 className="h-10 w-10 text-primary" />
+                  <div>
+                    <CardTitle className="text-2xl text-primary">Log New Case</CardTitle>
+                    <p className="text-sm text-muted-foreground">Efficient Data Entry</p>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="flex-grow p-6">
+                <p className="text-foreground/70 mb-6">
+                  Create a new optometry case record with complete patient details, findings, and AI-assisted analysis options. Streamline your workflow and build a comprehensive case library.
+                </p>
+              </CardContent>
+              <CardFooter className="p-6 bg-transparent border-t">
+                <Button className="w-full shadow-md hover:shadow-lg" size="lg" onClick={handleNewCase}>
+                  <PlusCircle className="mr-2 h-5 w-5" /> New Case
+                </Button>
+              </CardFooter>
+            </Card>
+
+            <Card className="shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col bg-card rounded-xl overflow-hidden transform hover:-translate-y-1">
+              <CardHeader className="bg-primary/5 p-6">
+                <div className="flex items-center gap-4">
+                  <ListChecks className="h-10 w-10 text-primary" />
+                   <div>
+                    <CardTitle className="text-2xl text-primary">View All Cases</CardTitle>
+                    <p className="text-sm text-muted-foreground">Comprehensive Overview</p>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="flex-grow p-6">
+                <p className="text-foreground/70 mb-6">
+                  Access and manage your existing optometry case records. Review detailed information, track progress, and leverage insights from past cases for continuous learning and improved patient care.
+                </p>
+              </CardContent>
+              <CardFooter className="p-6 bg-transparent border-t">
+                <Button className="w-full shadow-md hover:shadow-lg" variant="outline" size="lg" onClick={handleViewCases}>
+                  <ExternalLink className="mr-2 h-5 w-5" /> View Cases
+                </Button>
+              </CardFooter>
+            </Card>
+          </div>
+        </div>
+      </section>
+       <style jsx global>{`
+        @keyframes fade-in-down {
+          from {
+            opacity: 0;
+            transform: translateY(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @keyframes fade-in-up {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fade-in-down {
+          animation: fade-in-down 0.6s ease-out forwards;
+        }
+        .animate-fade-in-up {
+          animation: fade-in-up 0.6s ease-out forwards;
+        }
+      `}</style>
     </MainLayout>
   );
 }

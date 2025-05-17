@@ -1,19 +1,17 @@
 import type {Metadata} from 'next';
-import { Inter } from 'next/font/google'; // Using Inter as a professional sans-serif font
+import { Inter } from 'next/font/google';
 import './globals.css';
-import { Toaster } from "@/components/ui/toaster"; // Import Toaster
+import { Toaster } from "@/components/ui/toaster";
 import { Providers } from './providers';
-
 
 const inter = Inter({
   subsets: ['latin'],
-  variable: '--font-geist-sans', // Using geist-sans variable for inter to keep shadcn happy
+  variable: '--font-geist-sans',
 });
 
-
 export const metadata: Metadata = {
-  title: 'FocusCase AI',
-  description: 'Log optometry cases, analyze with AI, and gain insights.',
+  title: 'Focus CaseX',
+  description: 'Your professional platform for optometry case management and learning.',
 };
 
 export default function RootLayout({
