@@ -140,7 +140,6 @@ export default function LogNewCasePage() {
   const form = useForm<FullOptometryCaseFormValues>({
     resolver: zodResolver(fullOptometryCaseSchema),
     defaultValues: {
-      // Initialize default values for all fields
       patientId: '',
       firstName: '',
       lastName: '',
@@ -210,13 +209,11 @@ export default function LogNewCasePage() {
   });
 
   function onSubmit(data: FullOptometryCaseFormValues) {
-    console.log(data); // Placeholder for actual submission
+    console.log(data); 
     toast({
       title: 'Case Submitted (Simulated)',
       description: 'Case data logged to console. Implement actual save logic.',
     });
-    // Potentially reset form or navigate
-    // form.reset(); 
   }
 
   const renderFormField = (name: keyof FullOptometryCaseFormValues, label: string, placeholder?: string, isTextarea: boolean = false, rows?: number) => (
@@ -297,7 +294,7 @@ export default function LogNewCasePage() {
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                 <Tabs defaultValue="patientInfo" className="w-full">
                   <ScrollArea orientation="horizontal" className="pb-2">
-                    <TabsList className="mb-6 border-b border-border">
+                    <TabsList className="mb-6 border-b border-border whitespace-nowrap">
                       <TabsTrigger value="patientInfo"><User className="mr-2 h-4 w-4" />Patient Info</TabsTrigger>
                       <TabsTrigger value="chiefComplaint"><Briefcase className="mr-2 h-4 w-4" />Chief Complaint</TabsTrigger>
                       <TabsTrigger value="history"><History className="mr-2 h-4 w-4" />History</TabsTrigger>
@@ -310,8 +307,8 @@ export default function LogNewCasePage() {
                     </TabsList>
                   </ScrollArea>
 
-                  <ScrollArea className="h-[calc(100vh-20rem)] pr-4"> {/* Adjust height as needed */}
-                    <TabsContent value="patientInfo" className="space-y-6">
+                  <ScrollArea className="h-[calc(100vh-22rem)] pr-4"> {/* Adjusted height slightly for TabsList margin */}
+                    <TabsContent value="patientInfo" className="space-y-6 pt-2">
                       <SectionTitle title="Patient Information" icon={User} />
                       {renderFormField('patientId', 'Patient ID (Optional)', 'e.g., P00123')}
                       {renderFormField('firstName', 'First Name', 'e.g., John')}
@@ -364,13 +361,13 @@ export default function LogNewCasePage() {
                       {renderFormField('address', 'Address', 'e.g., 123 Main St, Anytown, USA', true, 3)}
                     </TabsContent>
 
-                    <TabsContent value="chiefComplaint" className="space-y-6">
+                    <TabsContent value="chiefComplaint" className="space-y-6 pt-2">
                       <SectionTitle title="Chief Complaint" icon={Briefcase} />
                       {renderFormField('chiefComplaint', 'Chief Complaint', 'e.g., Blurry vision at distance for 2 weeks', true, 4)}
                       {renderFormField('presentIllnessHistory', 'History of Present Illness', 'Details about the onset, duration, severity, etc.', true, 5)}
                     </TabsContent>
 
-                    <TabsContent value="history" className="space-y-6">
+                    <TabsContent value="history" className="space-y-6 pt-2">
                       <SectionTitle title="Medical and Ocular History" icon={History} />
                       {renderFormField('pastOcularHistory', 'Past Ocular History', 'e.g., Previous eye surgeries, conditions like glaucoma, AMD', true, 4)}
                       {renderFormField('pastMedicalHistory', 'Past Medical History', 'e.g., Diabetes, Hypertension, Thyroid issues', true, 4)}
@@ -380,7 +377,7 @@ export default function LogNewCasePage() {
                       {renderFormField('allergies', 'Allergies', 'e.g., Penicillin (rash), NKDA', true, 3)}
                     </TabsContent>
 
-                     <TabsContent value="examination" className="space-y-6">
+                     <TabsContent value="examination" className="space-y-6 pt-2">
                         <SectionTitle title="Clinical Examination" icon={Eye} />
                         <h4 className="text-md font-medium text-muted-foreground mb-2">Visual Acuity (Uncorrected)</h4>
                         {renderDoubleFormField('visualAcuityUncorrectedOD', 'visualAcuityUncorrectedOS', 'UCVA', 'e.g., 20/40', 'e.g., 20/50')}
@@ -403,7 +400,7 @@ export default function LogNewCasePage() {
                     </TabsContent>
 
 
-                    <TabsContent value="slitLamp" className="space-y-6">
+                    <TabsContent value="slitLamp" className="space-y-6 pt-2">
                       <SectionTitle title="Slit Lamp Examination" icon={Microscope} />
                       {renderDoubleFormField('lidsLashesOD', 'lidsLashesOS', 'Lids & Lashes', 'WNL', 'WNL', true, 2)}
                       {renderDoubleFormField('conjunctivaScleraOD', 'conjunctivaScleraOS', 'Conjunctiva & Sclera', 'Clear, quiet', 'Clear, quiet', true, 2)}
@@ -413,7 +410,7 @@ export default function LogNewCasePage() {
                       {renderDoubleFormField('lensOD', 'lensOS', 'Lens', 'Clear / Grade 1 NS', 'Clear / Grade 1 NS', true, 2)}
                     </TabsContent>
 
-                    <TabsContent value="posteriorSegment" className="space-y-6">
+                    <TabsContent value="posteriorSegment" className="space-y-6 pt-2">
                       <SectionTitle title="Posterior Segment Examination" icon={ScanEye} />
                       {renderDoubleFormField('vitreousOD', 'vitreousOS', 'Vitreous', 'Clear, PVD', 'Clear', true, 2)}
                       {renderDoubleFormField('opticDiscOD', 'opticDiscOS', 'Optic Disc', 'Pink, sharp margins', 'Pink, sharp margins', true, 2)}
@@ -423,7 +420,7 @@ export default function LogNewCasePage() {
                       {renderDoubleFormField('peripheryOD', 'peripheryOS', 'Periphery (Dilated)', 'Flat, no breaks or lesions', 'Flat, no breaks or lesions', true, 3)}
                     </TabsContent>
 
-                    <TabsContent value="investigations" className="space-y-6">
+                    <TabsContent value="investigations" className="space-y-6 pt-2">
                       <SectionTitle title="Special Investigations & Imaging" icon={BookOpen} />
                       {renderFormField('octFindings', 'OCT Findings', 'e.g., Macular OCT: Normal retinal layers OU. RNFL OCT: Within normal limits OU.', true, 4)}
                       {renderFormField('visualFieldFindings', 'Visual Field Findings', 'e.g., Humphrey 24-2 SITA-Standard: Reliable, no significant defects OU.', true, 4)}
@@ -431,7 +428,7 @@ export default function LogNewCasePage() {
                       {renderFormField('otherInvestigations', 'Other Investigations', 'e.g., Corneal Topography, Pachymetry, A-scan etc.', true, 4)}
                     </TabsContent>
 
-                    <TabsContent value="assessmentPlan" className="space-y-6">
+                    <TabsContent value="assessmentPlan" className="space-y-6 pt-2">
                       <SectionTitle title="Assessment & Plan" icon={Edit3} />
                       {renderFormField('assessment', 'Assessment / Diagnoses', '1. Myopia OU\n2. Presbyopia OU\n3. Dry Eye Syndrome OU (Mild)', true, 5)}
                       {renderFormField('plan', 'Plan', '1. Rx Spectacles: ...\n2. Artificial Tears QID OU\n3. Patient education on ...\n4. RTC 1 year or PRN', true, 6)}
@@ -439,7 +436,7 @@ export default function LogNewCasePage() {
                       {renderFormField('followUp', 'Follow Up Instructions', 'e.g., Return in 1 year for comprehensive exam, or sooner if symptoms worsen.', true, 3)}
                     </TabsContent>
                     
-                    <TabsContent value="notesReflection" className="space-y-6">
+                    <TabsContent value="notesReflection" className="space-y-6 pt-2">
                       <SectionTitle title="Internal Notes & Reflection" icon={FileText} />
                       {renderFormField('internalNotes', 'Internal Notes (Not for Patient)', 'e.g., Consider differential XYZ if no improvement.', true, 4)}
                       {renderFormField('reflection', 'Personal Reflection/Learning Points', 'e.g., This case highlights the importance of cycloplegic refraction in young myopes.', true, 4)}
@@ -463,4 +460,3 @@ export default function LogNewCasePage() {
     </MainLayout>
   );
 }
-
