@@ -5,31 +5,20 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { MainLayout } from '@/components/layout/main-layout';
-import { FilePlus2, ListChecks, PlusCircle, ExternalLink } from 'lucide-react'; // Info and BookOpenCheck removed
+import { FilePlus2, ListChecks, PlusCircle, ExternalLink } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
+import { useRouter } from 'next/navigation';
 
 export default function HomePage() {
   const { toast } = useToast();
-
-  // Placeholder actions for buttons
-  // handleLearnMore function removed as its section is deleted
+  const router = useRouter();
 
   const handleNewCase = () => {
-    // In a real app, this would navigate to a new case page or open a modal
-    // For now, we use the existing `onLogNewCase` functionality if available or toast.
-    // As `onLogNewCase` was removed from Header/MainLayout, we'll just toast.
-    toast({
-      title: "Log New Case",
-      description: "The form to log a new optometry case will be available here.",
-    });
+    router.push('/cases/new');
   };
 
   const handleViewCases = () => {
-    // In a real app, this would navigate to the case list page
-    toast({
-      title: "View All Cases",
-      description: "The page displaying all optometry cases will be available here.",
-    });
+    router.push('/cases');
   };
 
 
@@ -46,8 +35,6 @@ export default function HomePage() {
           </p>
         </div>
       </section>
-
-      {/* Focus.AI Integrated Tool Section - REMOVED */}
 
       {/* Action Cards Section */}
       <section className="py-16 md:py-24">
