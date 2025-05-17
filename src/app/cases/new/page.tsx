@@ -22,7 +22,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import {
-  User, Briefcase, History, Eye, Microscope, BookOpen, Edit3, Save, FileText, CalendarIcon, ScanEye, ChevronLeft, ChevronRight
+  User, Briefcase, History, Eye, Microscope, BookOpen, Edit3, Save, FileText as FileTextIcon, CalendarIcon, ScanEye, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import type { FullOptometryCaseData } from '@/types/case';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -147,17 +147,17 @@ export default function LogNewCasePage() {
   });
 
   const tabsViewportRef = useRef<HTMLDivElement | null>(null);
-  const scrollAreaRootRef = useRef<React.ElementRef<typeof ScrollArea> | null>(null);
+  const scrollAreaRootRef = useRef<React.ElementRef<typeof ScrollAreaPrimitive.Root> | null>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false); // Default to false, will be updated
+  const [canScrollRight, setCanScrollRight] = useState(false);
   const SCROLL_AMOUNT = 250; // Pixels to scroll
 
   const checkScrollability = useCallback(() => {
     const viewport = tabsViewportRef.current;
     if (viewport) {
       const { scrollLeft, scrollWidth, clientWidth } = viewport;
-      setCanScrollLeft(scrollLeft > 5); // Add a small tolerance
-      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 5); // Add a small tolerance
+      setCanScrollLeft(scrollLeft > 5); 
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 5);
     } else {
       setCanScrollLeft(false);
       setCanScrollRight(false);
@@ -179,8 +179,6 @@ export default function LogNewCasePage() {
       checkScrollability();
       viewport.addEventListener('scroll', checkScrollability, { passive: true });
       window.addEventListener('resize', checkScrollability);
-
-      // Check scrollability after a short delay to ensure layout is stable
       const timer = setTimeout(checkScrollability, 100);
 
       return () => {
@@ -286,7 +284,7 @@ export default function LogNewCasePage() {
         <Card className="shadow-xl">
           <CardHeader>
             <CardTitle className="text-3xl font-bold text-primary flex items-center">
-              <FileText className="mr-3 h-8 w-8" /> Log New Optometry Case
+              <FileTextIcon className="mr-3 h-8 w-8" /> Log New Optometry Case
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -308,7 +306,7 @@ export default function LogNewCasePage() {
 
                     <ScrollArea
                       orientation="horizontal"
-                      className="flex-grow w-full pb-0 [&_div[data-orientation='horizontal']]:hidden" // Hide default scrollbar
+                      className="flex-grow w-full pb-0 [&>[data-radix-scroll-area-scrollbar][data-orientation='horizontal']]:hidden"
                       ref={scrollAreaRootRef}
                     >
                       <TabsList className="border-b border-border whitespace-nowrap justify-start pr-6">
@@ -320,7 +318,7 @@ export default function LogNewCasePage() {
                         <TabsTrigger value="posteriorSegment"><ScanEye className="mr-2 h-4 w-4" />Posterior Segment</TabsTrigger>
                         <TabsTrigger value="investigations"><BookOpen className="mr-2 h-4 w-4" />Investigations</TabsTrigger>
                         <TabsTrigger value="assessmentPlan"><Edit3 className="mr-2 h-4 w-4" />Assessment & Plan</TabsTrigger>
-                        <TabsTrigger value="notesReflection"><FileText className="mr-2 h-4 w-4" />Notes & Reflection</TabsTrigger>
+                        <TabsTrigger value="notesReflection"><FileTextIcon className="mr-2 h-4 w-4" />Notes & Reflection</TabsTrigger>
                       </TabsList>
                     </ScrollArea>
                     
@@ -336,7 +334,7 @@ export default function LogNewCasePage() {
                     </Button>
                   </div>
 
-                  <ScrollArea className="h-[calc(100vh-26rem)] pr-4"> {/* Adjusted height slightly for tab controls */}
+                  <ScrollArea className="h-[calc(100vh-26rem)] pr-4">
                     <TabsContent value="patientInfo" className="space-y-6 pt-2">
                       <SectionTitle title="Patient Information" icon={User} />
                       {renderFormField('patientId', 'Patient ID (Optional)', 'e.g., P00123')}
@@ -465,7 +463,7 @@ export default function LogNewCasePage() {
                     </TabsContent>
                     
                     <TabsContent value="notesReflection" className="space-y-6 pt-2">
-                      <SectionTitle title="Internal Notes & Reflection" icon={FileText} />
+                      <SectionTitle title="Internal Notes & Reflection" icon={FileTextIcon} />
                       {renderFormField('internalNotes', 'Internal Notes (Not for Patient)', 'e.g., Consider differential XYZ if no improvement.', true, 4)}
                       {renderFormField('reflection', 'Personal Reflection/Learning Points', 'e.g., This case highlights the importance of cycloplegic refraction in young myopes.', true, 4)}
                     </TabsContent>
@@ -488,3 +486,4 @@ export default function LogNewCasePage() {
     </MainLayout>
   );
 }
+
