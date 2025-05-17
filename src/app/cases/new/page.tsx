@@ -156,8 +156,9 @@ export default function LogNewCasePage() {
     const viewport = tabsViewportRef.current;
     if (viewport) {
       const { scrollLeft, scrollWidth, clientWidth } = viewport;
-      setCanScrollLeft(scrollLeft > 5); 
-      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 5);
+      // Use Math.floor/ceil for robust comparison with floating point scrollLeft values
+      setCanScrollLeft(Math.floor(scrollLeft) > 0);
+      setCanScrollRight(Math.ceil(scrollLeft) < scrollWidth - clientWidth);
     } else {
       setCanScrollLeft(false);
       setCanScrollRight(false);
@@ -165,6 +166,7 @@ export default function LogNewCasePage() {
   }, []);
 
   useEffect(() => {
+    // Attempt to get the viewport element from the ScrollArea root ref
     if (scrollAreaRootRef.current) {
       const viewportElement = scrollAreaRootRef.current.querySelector<HTMLDivElement>(
         ':scope > div[data-radix-scroll-area-viewport]'
@@ -176,16 +178,27 @@ export default function LogNewCasePage() {
 
     const viewport = tabsViewportRef.current;
     if (viewport) {
+      // Initial check for scrollability
       checkScrollability();
+      
+      // Add event listeners
       viewport.addEventListener('scroll', checkScrollability, { passive: true });
-      window.addEventListener('resize', checkScrollability);
-      const timer = setTimeout(checkScrollability, 100);
+      window.addEventListener('resize', checkScrollability); // For layout changes
 
+      // Delayed check for initial render settling
+      const timer = setTimeout(checkScrollability, 150); // Slightly increased delay
+
+      // Cleanup function
       return () => {
         viewport.removeEventListener('scroll', checkScrollability);
         window.removeEventListener('resize', checkScrollability);
         clearTimeout(timer);
       };
+    } else {
+      // Fallback: If viewport is not found initially, re-check after a delay
+      // This helps if the ScrollArea's internal DOM isn't ready immediately
+      const retryTimer = setTimeout(checkScrollability, 300);
+      return () => clearTimeout(retryTimer);
     }
   }, [checkScrollability]);
 
@@ -203,6 +216,8 @@ export default function LogNewCasePage() {
         left: newScrollLeft,
         behavior: 'smooth',
       });
+      // checkScrollability might be called too soon here if scroll is async,
+      // the 'scroll' event listener will handle the update.
     }
   };
 
@@ -334,7 +349,7 @@ export default function LogNewCasePage() {
                     </Button>
                   </div>
 
-                  <ScrollArea className="h-[calc(100vh-26rem)] pr-4">
+                  <ScrollArea className="h-[calc(100vh-26rem)] pr-4"> {/* This handles vertical scroll for tab content */}
                     <TabsContent value="patientInfo" className="space-y-6 pt-2">
                       <SectionTitle title="Patient Information" icon={User} />
                       {renderFormField('patientId', 'Patient ID (Optional)', 'e.g., P00123')}
