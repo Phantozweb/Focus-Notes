@@ -5,19 +5,14 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { MainLayout } from '@/components/layout/main-layout';
-import { Info, FilePlus2, ListChecks, PlusCircle, ExternalLink, BookOpenCheck } from 'lucide-react';
+import { FilePlus2, ListChecks, PlusCircle, ExternalLink } from 'lucide-react'; // Info and BookOpenCheck removed
 import { useToast } from "@/hooks/use-toast";
 
 export default function HomePage() {
   const { toast } = useToast();
 
   // Placeholder actions for buttons
-  const handleLearnMore = () => {
-    toast({
-      title: "Explore Focus.AI",
-      description: "Detailed information about our AI integration is coming soon!",
-    });
-  };
+  // handleLearnMore function removed as its section is deleted
 
   const handleNewCase = () => {
     // In a real app, this would navigate to a new case page or open a modal
@@ -52,35 +47,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Focus.AI Integrated Tool Section */}
-      <section className="py-16 md:py-24 bg-secondary/20">
-        <div className="container mx-auto px-6">
-          <div className="flex flex-col md:flex-row items-center gap-10 md:gap-16">
-            <div className="md:w-1/2 order-2 md:order-1">
-              <h2 className="text-3xl md:text-4xl font-semibold text-primary mb-5">
-                <BookOpenCheck className="inline-block h-10 w-10 mr-3 text-accent" />
-                Focus.AI Integrated Tool
-              </h2>
-              <p className="text-lg text-foreground/75 mb-8 leading-relaxed">
-                Revolutionize your learning experience. Our AI seamlessly analyzes traditional optometry cases, transforming them into dynamic, insightful learning opportunities. Enhance your diagnostic skills and stay at the forefront of optometric knowledge.
-              </p>
-              <Button size="lg" onClick={handleLearnMore} className="shadow-lg hover:shadow-primary/30 transition-shadow">
-                <Info className="mr-2 h-5 w-5" /> Learn more
-              </Button>
-            </div>
-            <div className="md:w-1/2 order-1 md:order-2 flex justify-center">
-              <Image
-                src="https://placehold.co/500x350.png"
-                alt="AI powered learning illustration"
-                data-ai-hint="AI education medical"
-                width={500}
-                height={350}
-                className="rounded-xl shadow-2xl object-cover transform hover:scale-105 transition-transform duration-300"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Focus.AI Integrated Tool Section - REMOVED */}
 
       {/* Action Cards Section */}
       <section className="py-16 md:py-24">
