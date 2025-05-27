@@ -1,21 +1,17 @@
 
 import type { AnalyzeOptometryCaseOutput } from '@/ai/flows/analyze-optometry-case';
 
+// This remains for the AI flow input/output, but is less central now
 export interface OptometryCase {
-  id: string;
-  timestamp: number;
+  id: string; // This will be the StoredOptometryCase ID
+  timestamp: number; // This will be the StoredOptometryCase timestamp
   visualAcuity: string;
   refraction: string;
   ocularHealthStatus: string;
   additionalNotes?: string;
 }
 
-export interface AnalyzedOptometryCase extends OptometryCase {
-  analysis?: AnalyzeOptometryCaseOutput;
-  analysisError?: string;
-}
-
-// New type for the comprehensive EMR-style form
+// Form data structure - used by the Zod schema in cases/new/page.tsx
 export interface FullOptometryCaseData {
   // Patient Info
   patientId?: string;
@@ -101,4 +97,17 @@ export interface FullOptometryCaseData {
   // Notes & Reflection
   internalNotes?: string;
   reflection?: string;
+}
+
+// This is the main type that will be stored in localStorage and listed
+export interface StoredOptometryCase extends FullOptometryCaseData {
+  id: string;
+  timestamp: number;
+  analysis?: AnalyzeOptometryCaseOutput; // For AI analysis results
+  analysisError?: string; // If AI analysis fails
+}
+
+// This type can be used for the detail modal if we want to keep the simple AI analysis structure
+export interface AnalyzedOptometryCase extends StoredOptometryCase {
+  // StoredOptometryCase already includes analysis fields
 }

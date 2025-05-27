@@ -23,7 +23,7 @@ import { useToast } from '@/hooks/use-toast';
 import {
   User, Briefcase, History, Eye, Microscope, BookOpen, Edit3, Save, FileText as FileTextIcon, CalendarIcon, ScanEye, ChevronLeft, ChevronRight, NotebookPen, ArrowLeft, Sparkles, Loader2
 } from 'lucide-react';
-import type { FullOptometryCaseData } from '@/types/case';
+import type { FullOptometryCaseData, StoredOptometryCase } from '@/types/case';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
@@ -32,6 +32,16 @@ import { useRef, useState, useEffect, useCallback } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useRouter } from 'next/navigation';
 import { extractCaseInsights, type ExtractCaseInsightsInput } from '@/ai/flows/extract-case-insights';
+import useLocalStorage from '@/hooks/use-local-storage';
+
+const dateOrString = z.union([z.date(), z.string()]).refine(value => {
+  if (value instanceof Date) return true;
+  if (typeof value === 'string') return !isNaN(new Date(value).getTime());
+  return false;
+}, { message: "Invalid date format" }).transform(value => {
+  if (value instanceof Date) return value;
+  return new Date(value);
+});
 
 
 const fullOptometryCaseSchema = z.object({
@@ -39,7 +49,7 @@ const fullOptometryCaseSchema = z.object({
   patientId: z.string().optional(),
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
-  dateOfBirth: z.date({ required_error: "Date of birth is required" }),
+  dateOfBirth: dateOrString.refine(val => val instanceof Date && !isNaN(val.getTime()), { message: "Date of birth is required" }),
   gender: z.string().optional(),
   contactNumber: z.string().optional(),
   email: z.string().email({ message: "Invalid email address" }).optional().or(z.literal('')),
@@ -154,6 +164,10 @@ const TwoColumnField = ({ label, children }: { label: string; children: React.Re
   </div>
 );
 
+const defaultFormValues: FullOptometryCaseFormValues = { 
+  patientId: '', firstName: '', lastName: '', dateOfBirth: new Date(), gender: '', contactNumber: '', email: '', address: '', chiefComplaint: '', presentIllnessHistory: '', pastOcularHistory: '', pastMedicalHistory: '', familyOcularHistory: '', familyMedicalHistory: '', medications: '', allergies: '', visualAcuityUncorrectedOD: '', visualAcuityUncorrectedOS: '', visualAcuityCorrectedOD: '', visualAcuityCorrectedOS: '', pupils: '', extraocularMotility: '', intraocularPressureOD: '', intraocularPressureOS: '', confrontationVisualFields: '', manifestRefractionOD: '', manifestRefractionOS: '', cycloplegicRefractionOD: '', cycloplegicRefractionOS: '', currentSpectacleRx: '', currentContactLensRx: '', lidsLashesOD: '', lidsLashesOS: '', conjunctivaScleraOD: '', conjunctivaScleraOS: '', corneaOD: '', corneaOS: '', anteriorChamberOD: '', anteriorChamberOS: '', irisOD: '', irisOS: '', lensOD: '', lensOS: '', vitreousOD: '', vitreousOS: '', opticDiscOD: '', opticDiscOS: '', cupDiscRatioOD: '', cupDiscRatioOS: '', maculaOD: '', maculaOS: '', vesselsOD: '', vesselsOS: '', peripheryOD: '', peripheryOS: '', octFindings: '', visualFieldFindings: '', fundusPhotographyFindings: '', otherInvestigations: '', assessment: '', plan: '', prognosis: '', followUp: '', internalNotes: '', reflection: '',
+};
+
 
 export default function LogNewCasePage() {
   const { toast } = useToast();
@@ -162,12 +176,11 @@ export default function LogNewCasePage() {
   const [currentTabIndex, setCurrentTabIndex] = useState(0);
   const isScrollingProgrammatically = React.useRef(false);
   const [isAiLoading, setIsAiLoading] = useState(false);
+  const [storedCases, setStoredCases] = useLocalStorage<StoredOptometryCase[]>('optometryCases', []);
 
   const form = useForm<FullOptometryCaseFormValues>({
     resolver: zodResolver(fullOptometryCaseSchema),
-    defaultValues: { 
-      patientId: '', firstName: '', lastName: '', gender: '', contactNumber: '', email: '', address: '', chiefComplaint: '', presentIllnessHistory: '', pastOcularHistory: '', pastMedicalHistory: '', familyOcularHistory: '', familyMedicalHistory: '', medications: '', allergies: '', visualAcuityUncorrectedOD: '', visualAcuityUncorrectedOS: '', visualAcuityCorrectedOD: '', visualAcuityCorrectedOS: '', pupils: '', extraocularMotility: '', intraocularPressureOD: '', intraocularPressureOS: '', confrontationVisualFields: '', manifestRefractionOD: '', manifestRefractionOS: '', cycloplegicRefractionOD: '', cycloplegicRefractionOS: '', currentSpectacleRx: '', currentContactLensRx: '', lidsLashesOD: '', lidsLashesOS: '', conjunctivaScleraOD: '', conjunctivaScleraOS: '', corneaOD: '', corneaOS: '', anteriorChamberOD: '', anteriorChamberOS: '', irisOD: '', irisOS: '', lensOD: '', lensOS: '', vitreousOD: '', vitreousOS: '', opticDiscOD: '', opticDiscOS: '', cupDiscRatioOD: '', cupDiscRatioOS: '', maculaOD: '', maculaOS: '', vesselsOD: '', vesselsOS: '', peripheryOD: '', peripheryOS: '', octFindings: '', visualFieldFindings: '', fundusPhotographyFindings: '', otherInvestigations: '', assessment: '', plan: '', prognosis: '', followUp: '', internalNotes: '', reflection: '',
-    },
+    defaultValues: defaultFormValues,
   });
 
   const desktopTabsScrollAreaRef = useRef<HTMLDivElement>(null); 
@@ -281,8 +294,8 @@ export default function LogNewCasePage() {
     const observerCallback = (entries: IntersectionObserverEntry[]) => {
       if (isScrollingProgrammatically.current) return;
 
-      const entry = entries[0]; 
-      if (entry.isIntersecting) {
+      const entry = entries.find(e => e.isIntersecting); 
+      if (entry) {
         const intersectingTabIndex = TABS_CONFIG.findIndex(tab => tab.ref.current === entry.target);
         setCurrentTabIndex(prevCurrentTabIndex => {
           if (intersectingTabIndex !== -1 && intersectingTabIndex !== prevCurrentTabIndex) {
@@ -332,13 +345,21 @@ export default function LogNewCasePage() {
     const values = form.getValues();
     const visualAcuity = `OD: ${values.visualAcuityCorrectedOD || 'N/A'}, OS: ${values.visualAcuityCorrectedOS || 'N/A'}`;
     const refraction = `OD: ${values.manifestRefractionOD || 'N/A'}, OS: ${values.manifestRefractionOS || 'N/A'}`;
-    const ocularHealthStatus = values.assessment || 'No assessment provided.'; // Using assessment as a proxy
+    
+    let ocularHealthStatus = values.assessment;
+    if (!ocularHealthStatus || ocularHealthStatus.trim() === '') {
+      // Fallback if assessment is empty, try to construct from posterior segment details
+      const odHealth = [values.opticDiscOD, values.maculaOD, values.vesselsOD, values.peripheryOD].filter(Boolean).join(', ');
+      const osHealth = [values.opticDiscOS, values.maculaOS, values.vesselsOS, values.peripheryOS].filter(Boolean).join(', ');
+      ocularHealthStatus = `OD Health: ${odHealth || 'Not specified'}. OS Health: ${osHealth || 'Not specified'}.`;
+    }
+    
     const additionalNotes = `${values.chiefComplaint || ''}\n${values.presentIllnessHistory || ''}`.trim();
 
-    if (!ocularHealthStatus || !additionalNotes) {
+    if (!ocularHealthStatus || ocularHealthStatus.trim() === '' || !additionalNotes) {
         toast({
             title: "Missing Information",
-            description: "Please fill in Chief Complaint, Present Illness History, and Assessment before generating AI insights.",
+            description: "Please fill in Chief Complaint, Present Illness History, and Assessment (or posterior segment details) before generating AI insights.",
             variant: "destructive",
         });
         setIsAiLoading(false);
@@ -374,11 +395,20 @@ export default function LogNewCasePage() {
 
 
   function onSubmit(data: FullOptometryCaseFormValues) {
-    console.log(data); 
+    const newCase: StoredOptometryCase = {
+      ...data,
+      dateOfBirth: new Date(data.dateOfBirth), // Ensure it's a Date object
+      id: Date.now().toString(), // Simple unique ID
+      timestamp: Date.now(),
+    };
+    setStoredCases([...storedCases, newCase]);
     toast({
-      title: 'Case Submitted (Simulated)',
-      description: 'Case data logged to console. Implement actual save logic.',
+      title: 'Case Saved Successfully!',
+      description: `Case for ${data.firstName} ${data.lastName} has been saved.`,
     });
+    form.reset(defaultFormValues); // Reset form to default values
+    // Optionally navigate away or scroll to top
+    // router.push('/cases'); 
   }
 
   const renderFormField = (name: keyof FullOptometryCaseFormValues, label: string, placeholder?: string, isTextarea: boolean = false, rows?: number) => (
@@ -390,9 +420,9 @@ export default function LogNewCasePage() {
           <TwoColumnField label={label}>
             <FormControl>
               {isTextarea ? (
-                <Textarea placeholder={placeholder || `Enter ${label.toLowerCase()}...`} {...field} rows={rows || 3} className="resize-y" />
+                <Textarea placeholder={placeholder || `Enter ${label.toLowerCase()}...`} {...field} value={field.value || ''} rows={rows || 3} className="resize-y" />
               ) : (
-                <Input placeholder={placeholder || `Enter ${label.toLowerCase()}...`} {...field} />
+                <Input placeholder={placeholder || `Enter ${label.toLowerCase()}...`} {...field} value={field.value || ''} />
               )}
             </FormControl>
             <FormMessage />
@@ -414,9 +444,9 @@ export default function LogNewCasePage() {
               <FormLabel className="text-xs text-muted-foreground">OD (Right Eye)</FormLabel>
               <FormControl>
                 {isTextarea ? (
-                  <Textarea placeholder={placeholderOD || `OD...`} {...field} rows={rows || 2} className="resize-y" />
+                  <Textarea placeholder={placeholderOD || `OD...`} {...field} value={field.value || ''} rows={rows || 2} className="resize-y" />
                 ) : (
-                  <Input placeholder={placeholderOD || `OD...`} {...field} />
+                  <Input placeholder={placeholderOD || `OD...`} {...field} value={field.value || ''} />
                 )}
               </FormControl>
               <FormMessage />
@@ -431,9 +461,9 @@ export default function LogNewCasePage() {
               <FormLabel className="text-xs text-muted-foreground">OS (Left Eye)</FormLabel>
               <FormControl>
                 {isTextarea ? (
-                  <Textarea placeholder={placeholderOS || `OS...`} {...field} rows={rows || 2} className="resize-y" />
+                  <Textarea placeholder={placeholderOS || `OS...`} {...field} value={field.value || ''} rows={rows || 2} className="resize-y" />
                 ) : (
-                  <Input placeholder={placeholderOS || `OS...`} {...field} />
+                  <Input placeholder={placeholderOS || `OS...`} {...field} value={field.value || ''} />
                 )}
               </FormControl>
               <FormMessage />
@@ -582,8 +612,8 @@ export default function LogNewCasePage() {
                                 <PopoverContent className="w-auto p-0" align="start">
                                 <Calendar
                                     mode="single"
-                                    selected={field.value}
-                                    onSelect={field.onChange}
+                                    selected={field.value instanceof Date ? field.value : undefined}
+                                    onSelect={(date) => field.onChange(date || new Date())}
                                     disabled={(date) =>
                                     date > new Date() || date < new Date("1900-01-01")
                                     }
@@ -689,7 +719,7 @@ export default function LogNewCasePage() {
                 </div>
 
                 <div className="flex justify-end space-x-3 pt-8 mt-8 border-t border-border">
-                  <Button type="button" variant="outline" onClick={() => form.reset()}>
+                  <Button type="button" variant="outline" onClick={() => form.reset(defaultFormValues)}>
                     Clear Form
                   </Button>
                   <Button type="submit" className="bg-primary hover:bg-primary/90">
@@ -705,4 +735,3 @@ export default function LogNewCasePage() {
   );
 }
     
-

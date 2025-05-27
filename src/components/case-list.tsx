@@ -1,28 +1,34 @@
+
 'use client';
 
-import type { OptometryCase } from '@/types/case';
-import { CaseCard } from './case-card';
+// This file is not directly used anymore after /app/cases/page.tsx was updated to include its logic.
+// However, it's good practice to keep it or remove it if it's truly obsolete.
+// For now, let's assume it might be repurposed or that its logic is now in /app/cases/page.tsx.
+// If it were to be used, it would look something like this:
+
+import type { StoredOptometryCase } from '@/types/case';
+import { CaseCard } from './case-card'; // Assuming CaseCard props are updated
 import { Button } from './ui/button';
 import { Download, PlusCircle } from 'lucide-react';
 
 interface CaseListProps {
-  cases: OptometryCase[];
-  onSelectCase: (caseData: OptometryCase) => void;
-  onAnalyzeCase: (caseId: string) => void;
+  cases: StoredOptometryCase[];
+  onSelectCase: (caseId: string) => void; // Changed to pass ID
+  // onAnalyzeCase: (caseId: string) => void; // Analysis is typically done in detail view
   onDeleteCase: (caseId: string) => void;
   onExportCases: () => void;
   onLogNewCase: () => void;
-  analyzingCaseId?: string | null;
+  // analyzingCaseId?: string | null; // This state is likely managed by the parent page
 }
 
 export function CaseList({
   cases,
   onSelectCase,
-  onAnalyzeCase,
+  // onAnalyzeCase,
   onDeleteCase,
   onExportCases,
   onLogNewCase,
-  analyzingCaseId,
+  // analyzingCaseId,
 }: CaseListProps) {
   if (cases.length === 0) {
     return (
@@ -52,9 +58,8 @@ export function CaseList({
             key={caseItem.id}
             caseData={caseItem}
             onViewDetails={onSelectCase}
-            onAnalyze={onAnalyzeCase}
             onDelete={onDeleteCase}
-            isAnalyzing={analyzingCaseId === caseItem.id}
+            // isAnalyzing={analyzingCaseId === caseItem.id} // This prop would be passed if CaseCard directly handled analysis indication
           />
         ))}
       </div>
