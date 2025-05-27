@@ -1,14 +1,9 @@
 
-import type { AnalyzeOptometryCaseOutput } from '@/ai/flows/analyze-optometry-case';
+import type { z } from 'genkit';
 
-// This remains for the AI flow input/output, but is less central now
-export interface OptometryCase {
-  id: string; // This will be the StoredOptometryCase ID
-  timestamp: number; // This will be the StoredOptometryCase timestamp
-  visualAcuity: string;
-  refraction: string;
-  ocularHealthStatus: string;
-  additionalNotes?: string;
+// Updated: Only caseInsights
+export interface AnalyzeOptometryCaseOutput {
+  caseInsights: string;
 }
 
 // Form data structure - used by the Zod schema in cases/new/page.tsx
@@ -103,11 +98,31 @@ export interface FullOptometryCaseData {
 export interface StoredOptometryCase extends FullOptometryCaseData {
   id: string;
   timestamp: number;
-  analysis?: AnalyzeOptometryCaseOutput; // For AI analysis results
+  analysis?: AnalyzeOptometryCaseOutput; // For AI analysis results (now only insights)
   analysisError?: string; // If AI analysis fails
 }
 
-// This type can be used for the detail modal if we want to keep the simple AI analysis structure
-export interface AnalyzedOptometryCase extends StoredOptometryCase {
-  // StoredOptometryCase already includes analysis fields
+// Type for chat messages on the frontend
+export interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  id: string;
+}
+
+// Type for chat history passed to Genkit flow
+// Matches Genkit/Gemini Content structure
+export interface GenkitChatMessage {
+  role: 'user' | 'model';
+  parts: Array<{ text: string }>;
+}
+
+// For the new AI flow input
+export interface AskFocusAiInput {
+  caseSummary: string;
+  userQuery: string;
+  chatHistory?: GenkitChatMessage[];
+}
+
+export interface AskFocusAiOutput {
+  aiResponse: string;
 }

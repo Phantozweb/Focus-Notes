@@ -1,7 +1,7 @@
 
 'use server';
 /**
- * @fileOverview Analyzes an optometry case to find connections to relevant research articles.
+ * @fileOverview Analyzes an optometry case to provide insights.
  *
  * - analyzeOptometryCase - A function that handles the optometry case analysis process.
  * - AnalyzeOptometryCaseInput - The input type for the analyzeOptometryCase function.
@@ -10,6 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import type { AnalyzeOptometryCaseOutput as ApiOutput } from '@/types/case'; // Use updated type
 
 const AnalyzeOptometryCaseInputSchema = z.object({
   visualAcuity: z.string().describe('The patient\'s visual acuity.'),
@@ -19,42 +20,31 @@ const AnalyzeOptometryCaseInputSchema = z.object({
 });
 export type AnalyzeOptometryCaseInput = z.infer<typeof AnalyzeOptometryCaseInputSchema>;
 
+// Updated Output Schema: Only caseInsights
 const AnalyzeOptometryCaseOutputSchema = z.object({
-  relevantResearchArticles: z.array(
-    z.object({
-      title: z.string().describe('The title of the research article.'),
-      summary: z.string().describe('A summary of the research article.'),
-      url: z.string().describe('The URL of the research article.'),
-    })
-  ).describe('A list of relevant research articles.'),
-  caseInsights: z.string().describe('Insights and connections to relevant research.'),
+  caseInsights: z.string().describe('Key insights derived from the case details.'),
 });
 export type AnalyzeOptometryCaseOutput = z.infer<typeof AnalyzeOptometryCaseOutputSchema>;
 
-export async function analyzeOptometryCase(input: AnalyzeOptometryCaseInput): Promise<AnalyzeOptometryCaseOutput> {
-  return analyzeOptometryCaseFlow(input);
+export async function analyzeOptometryCase(input: AnalyzeOptometryCaseInput): Promise<ApiOutput> {
+  const result = await analyzeOptometryCaseFlow(input);
+  return result as ApiOutput; // Cast to ensure frontend type matches
 }
 
 const prompt = ai.definePrompt({
   name: 'analyzeOptometryCasePrompt',
   input: {schema: AnalyzeOptometryCaseInputSchema},
   output: {schema: AnalyzeOptometryCaseOutputSchema},
-  prompt: `You are an expert optometrist specializing in analyzing optometry cases and finding connections to relevant research articles.
+  prompt: `You are an expert optometrist specializing in analyzing optometry cases to provide concise insights.
 
-You will use the following information about the patient case to identify relevant research and provide insights.
+You will use the following information about the patient case to generate key insights.
 
 Visual Acuity: {{{visualAcuity}}}
 Refraction: {{{refraction}}}
 Ocular Health Status: {{{ocularHealthStatus}}}
 Additional Notes: {{{additionalNotes}}}
 
-Based on the case details, identify relevant research articles. For each identified article, you MUST provide:
-1. The accurate title of the article.
-2. A concise summary explaining its relevance to the current optometry case.
-3. The direct URL to access the article.
-Ensure that the title, summary, and URL provided for each entry in the 'relevantResearchArticles' array all correspond to the same specific research article.
-
-Also include overall case insights and connections to the research.
+Based on the case details, provide overall case insights. Focus on the most clinically relevant points.
 `,
 });
 
@@ -69,4 +59,3 @@ const analyzeOptometryCaseFlow = ai.defineFlow(
     return output!;
   }
 );
-
