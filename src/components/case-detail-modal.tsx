@@ -96,8 +96,8 @@ export function CaseDetailModal({ caseData, isOpen, onClose, onAnalyze, isLoadin
           </DialogDescription>
         </DialogHeader>
         
-        <ScrollArea className="flex-grow"> {/* Removed pr-6 -mr-6 */}
-          <div className="space-y-8 py-4 pr-6"> {/* Added pr-6 here to compensate for scrollbar */}
+        <ScrollArea className="flex-grow min-h-0"> {/* Added min-h-0 */}
+          <div className="space-y-8 py-4 pr-6">
             
             <section>
               <h3 className="text-lg font-semibold mb-3 text-primary flex items-center"><UserCircle className="mr-2 h-5 w-5" />Patient Information</h3>
@@ -297,13 +297,14 @@ export function CaseDetailModal({ caseData, isOpen, onClose, onAnalyze, isLoadin
           </div>
         </ScrollArea>
         
-        <DialogFooter className="pt-4 border-t mt-auto flex-shrink-0">
+        <DialogFooter className="pt-4 border-t flex-shrink-0"> {/* Removed mt-auto */}
           <Button variant="outline" onClick={onClose}>Close</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
+    
 
     
 
