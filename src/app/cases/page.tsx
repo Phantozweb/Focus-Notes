@@ -6,10 +6,10 @@ import { MainLayout } from '@/components/layout/main-layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area'; // Import ScrollArea
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ListChecks, PlusCircle, FileSearch, Brain, Trash2, CalendarDays, Download, AlertTriangle, Loader2 } from 'lucide-react';
-import type { StoredOptometryCase, OptometryCase as AIInputCase } from '@/types/case';
+import { ArrowLeft, ListChecks, PlusCircle, FileSearch, Trash2, CalendarDays, Download, AlertTriangle, Loader2 } from 'lucide-react';
+import type { StoredOptometryCase, AnalyzeOptometryCaseInput } from '@/types/case';
 import useLocalStorage from '@/hooks/use-local-storage';
 import { useToast } from '@/hooks/use-toast';
 import { exportToCsv } from '@/lib/csv-export';
@@ -25,7 +25,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { analyzeOptometryCase, type AnalyzeOptometryCaseInput, type AnalyzeOptometryCaseOutput } from '@/ai/flows/analyze-optometry-case';
+import { analyzeOptometryCase, type AnalyzeOptometryCaseOutput } from '@/ai/flows/analyze-optometry-case';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 
@@ -123,7 +123,6 @@ export default function ViewCasesPage() {
       toast({ title: 'No Cases to Export', description: 'There are no cases logged to export.', variant: 'destructive' });
       return;
     }
-    // Map StoredOptometryCase to the simpler OptometryCase for CSV if needed, or export all fields
     const casesToExport = filteredCases.map(c => ({
         id: c.id,
         timestamp: c.timestamp,
@@ -199,7 +198,6 @@ export default function ViewCasesPage() {
         analysisError: c.analysisError || '',
     }));
 
-    // Dynamically generate headers based on the actual keys in the first case object
     const headers = casesToExport.length > 0 ? Object.keys(casesToExport[0]) : [];
     
     const csvRows = [
@@ -208,7 +206,7 @@ export default function ViewCasesPage() {
             headers.map(header => {
                 const value = (row as any)[header];
                 const stringValue = typeof value === 'string' ? value : JSON.stringify(value);
-                return `"${stringValue.replace(/"/g, '""')}"`; // Escape double quotes
+                return `"${stringValue.replace(/"/g, '""')}"`; 
             }).join(',')
         )
     ];
@@ -256,7 +254,7 @@ export default function ViewCasesPage() {
   };
 
   const filteredCases = React.useMemo(() => {
-    if (!searchTerm) return storedCases.sort((a, b) => b.timestamp - a.timestamp); // Sort by most recent first
+    if (!searchTerm) return storedCases.sort((a, b) => b.timestamp - a.timestamp);
     const lowerSearchTerm = searchTerm.toLowerCase();
     return storedCases.filter(c => 
       c.id.toLowerCase().includes(lowerSearchTerm) ||
@@ -271,7 +269,7 @@ export default function ViewCasesPage() {
 
   return (
     <MainLayout>
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex flex-col h-full">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex flex-col flex-1"> {/* Changed h-full to flex-1 */}
         {/* Fixed Top Section */}
         <div className="pt-8">
           <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
@@ -358,5 +356,3 @@ export default function ViewCasesPage() {
     </MainLayout>
   );
 }
-
-    
