@@ -1,6 +1,6 @@
 
 'use client';
-import * as React from 'react'; 
+import * as React from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
@@ -21,7 +21,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import {
-  User, Briefcase, History, Eye, Microscope, BookOpen, Edit3, Save, FileText as FileTextIcon, CalendarIcon, ScanEye, ChevronLeft, ChevronRight, NotebookPen
+  User, Briefcase, History, Eye, Microscope, BookOpen, Edit3, Save, FileText as FileTextIcon, CalendarIcon, ScanEye, ChevronLeft, ChevronRight, NotebookPen, ArrowLeft, Sparkles, Loader2
 } from 'lucide-react';
 import type { FullOptometryCaseData } from '@/types/case';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -30,6 +30,8 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useRef, useState, useEffect, useCallback } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useRouter } from 'next/navigation';
+import { extractCaseInsights, type ExtractCaseInsightsInput } from '@/ai/flows/extract-case-insights';
 
 
 const fullOptometryCaseSchema = z.object({
@@ -155,9 +157,11 @@ const TwoColumnField = ({ label, children }: { label: string; children: React.Re
 
 export default function LogNewCasePage() {
   const { toast } = useToast();
+  const router = useRouter();
   const isMobile = useIsMobile();
   const [currentTabIndex, setCurrentTabIndex] = useState(0);
   const isScrollingProgrammatically = React.useRef(false);
+  const [isAiLoading, setIsAiLoading] = useState(false);
 
   const form = useForm<FullOptometryCaseFormValues>({
     resolver: zodResolver(fullOptometryCaseSchema),
@@ -166,7 +170,6 @@ export default function LogNewCasePage() {
     },
   });
 
-  // Refs for desktop tab scrolling
   const desktopTabsScrollAreaRef = useRef<HTMLDivElement>(null); 
   const desktopTabsViewportRef = useRef<HTMLDivElement | null>(null); 
   const desktopTabsListRef = useRef<HTMLDivElement>(null); 
@@ -268,18 +271,17 @@ export default function LogNewCasePage() {
     }
   };
 
-  // Update current tab based on scroll position
   useEffect(() => {
     const observerOptions = {
       root: null,
-      rootMargin: '0px 0px -70% 0px', // Active if top of section is in top 30% of viewport
-      threshold: 0.1, // At least 10% of the section must be in this zone
+      rootMargin: '0px 0px -70% 0px',
+      threshold: 0.1, 
     };
 
-    const callback = (entries: IntersectionObserverEntry[]) => {
+    const observerCallback = (entries: IntersectionObserverEntry[]) => {
       if (isScrollingProgrammatically.current) return;
 
-      const entry = entries[0]; // Correct for one observer per element
+      const entry = entries[0]; 
       if (entry.isIntersecting) {
         const intersectingTabIndex = TABS_CONFIG.findIndex(tab => tab.ref.current === entry.target);
         setCurrentTabIndex(prevCurrentTabIndex => {
@@ -294,7 +296,7 @@ export default function LogNewCasePage() {
     const observers: IntersectionObserver[] = [];
     TABS_CONFIG.forEach(tabConfig => {
       if (tabConfig.ref.current) {
-        const observer = new IntersectionObserver(callback, observerOptions);
+        const observer = new IntersectionObserver(observerCallback, observerOptions);
         observer.observe(tabConfig.ref.current);
         observers.push(observer);
       }
@@ -303,10 +305,9 @@ export default function LogNewCasePage() {
     return () => {
       observers.forEach(observer => observer.disconnect());
     };
-  }, []); // Empty dependency array for stable observer setup
+  }, []); 
 
 
-  // This effect handles scrolling the *horizontal tabs list* when currentTabIndex changes (e.g. by vertical scroll)
   useEffect(() => {
     if (!isMobile && desktopTabsListRef.current && TABS_CONFIG[currentTabIndex]) {
       const tabElement = desktopTabsListRef.current.children[currentTabIndex] as HTMLElement;
@@ -317,15 +318,59 @@ export default function LogNewCasePage() {
         const scrollLeft = viewport.scrollLeft;
         const clientWidth = viewport.clientWidth;
 
-        // Check if tab is out of view and scroll if necessary
-        if (tabLeft < scrollLeft) { // Tab is to the left of the viewport
-          viewport.scrollTo({ left: tabLeft - 16, behavior: 'smooth' }); // Scroll to bring left edge into view with padding
-        } else if (tabRight > scrollLeft + clientWidth) { // Tab is to the right of the viewport
-          viewport.scrollTo({ left: tabRight - clientWidth + 16, behavior: 'smooth' }); // Scroll to bring right edge into view with padding
+        if (tabLeft < scrollLeft) { 
+          viewport.scrollTo({ left: tabLeft - 16, behavior: 'smooth' }); 
+        } else if (tabRight > scrollLeft + clientWidth) { 
+          viewport.scrollTo({ left: tabRight - clientWidth + 16, behavior: 'smooth' }); 
         }
       }
     }
   }, [currentTabIndex, isMobile]);
+
+  const handleAiInsightGeneration = async () => {
+    setIsAiLoading(true);
+    const values = form.getValues();
+    const visualAcuity = `OD: ${values.visualAcuityCorrectedOD || 'N/A'}, OS: ${values.visualAcuityCorrectedOS || 'N/A'}`;
+    const refraction = `OD: ${values.manifestRefractionOD || 'N/A'}, OS: ${values.manifestRefractionOS || 'N/A'}`;
+    const ocularHealthStatus = values.assessment || 'No assessment provided.'; // Using assessment as a proxy
+    const additionalNotes = `${values.chiefComplaint || ''}\n${values.presentIllnessHistory || ''}`.trim();
+
+    if (!ocularHealthStatus || !additionalNotes) {
+        toast({
+            title: "Missing Information",
+            description: "Please fill in Chief Complaint, Present Illness History, and Assessment before generating AI insights.",
+            variant: "destructive",
+        });
+        setIsAiLoading(false);
+        return;
+    }
+    
+    const input: ExtractCaseInsightsInput = {
+      visualAcuity,
+      refraction,
+      ocularHealthStatus,
+      additionalNotes,
+    };
+
+    try {
+      const result = await extractCaseInsights(input);
+      form.setValue('internalNotes', result.summary);
+      form.setValue('reflection', result.insights);
+      toast({
+        title: 'AI Insights Generated',
+        description: 'Internal notes and reflection fields have been populated by AI.',
+      });
+    } catch (error) {
+      console.error("Error generating AI insights:", error);
+      toast({
+        title: 'AI Insight Generation Failed',
+        description: 'Could not generate insights. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsAiLoading(false);
+    }
+  };
 
 
   function onSubmit(data: FullOptometryCaseFormValues) {
@@ -405,9 +450,16 @@ export default function LogNewCasePage() {
       <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <Card className="shadow-xl">
           <CardHeader className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm border-b pb-2">
-            <CardTitle className="text-3xl font-bold text-primary flex items-center mb-2">
-              <FileTextIcon className="mr-3 h-8 w-8" /> Log New Optometry Case
-            </CardTitle>
+            <div className="flex items-center justify-between mb-2">
+                <Button variant="ghost" size="icon" onClick={() => router.back()} className="mr-2">
+                    <ArrowLeft className="h-6 w-6 text-primary" />
+                    <span className="sr-only">Back</span>
+                </Button>
+                <CardTitle className="text-3xl font-bold text-primary flex items-center">
+                <FileTextIcon className="mr-3 h-8 w-8" /> Log New Optometry Case
+                </CardTitle>
+                <div className="w-10"></div> {/* Spacer to balance the back button */}
+            </div>
             
             <div className="h-14 flex items-center">
                 {isMobile ? (
@@ -628,6 +680,12 @@ export default function LogNewCasePage() {
                   <SectionTitle title={TABS_CONFIG[8].label} icon={TABS_CONFIG[8].icon} />
                   {renderFormField('internalNotes', 'Internal Notes (Not for Patient)', 'e.g., Consider differential XYZ if no improvement.', true, 4)}
                   {renderFormField('reflection', 'Personal Reflection/Learning Points', 'e.g., This case highlights the importance of cycloplegic refraction in young myopes.', true, 4)}
+                  <div className="flex justify-start pt-2">
+                    <Button type="button" onClick={handleAiInsightGeneration} disabled={isAiLoading} variant="outline">
+                      {isAiLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                      {isAiLoading ? 'Generating...' : 'Generate AI Draft for Notes & Reflection'}
+                    </Button>
+                  </div>
                 </div>
 
                 <div className="flex justify-end space-x-3 pt-8 mt-8 border-t border-border">
@@ -646,5 +704,5 @@ export default function LogNewCasePage() {
     </MainLayout>
   );
 }
-
     
+
