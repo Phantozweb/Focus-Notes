@@ -97,7 +97,7 @@ export function CaseDetailModal({ caseData, isOpen, onClose, onAnalyze, isLoadin
         </DialogHeader>
         
         <ScrollArea className="flex-grow min-h-0">
-          <div className="space-y-8 py-4 pr-6 h-full"> {/* Added h-full here */}
+          <div className="space-y-8 py-4 pr-4"> {/* Adjusted padding here, removed h-full */}
             
             <section>
               <h3 className="text-lg font-semibold mb-3 text-primary flex items-center"><UserCircle className="mr-2 h-5 w-5" />Patient Information</h3>
