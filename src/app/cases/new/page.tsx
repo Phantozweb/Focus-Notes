@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'; // Ensured Tabs is imported
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MainLayout } from '@/components/layout/main-layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -174,8 +174,15 @@ export default function LogNewCasePage() {
   const [canScrollDesktopRight, setCanScrollDesktopRight] = useState(false);
   const DESKTOP_SCROLL_AMOUNT = 250;
 
+  const isScrollingProgrammatically = React.useRef(false); // Moved to top level
+
   const scrollToSection = useCallback((sectionRef: React.RefObject<HTMLElement>) => {
+    isScrollingProgrammatically.current = true;
     sectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Set a timeout to reset the flag after the scroll likely completes
+    setTimeout(() => {
+        isScrollingProgrammatically.current = false;
+    }, 1000); // Adjust timeout as needed
   }, []);
 
   const handleTabChange = useCallback((index: number, isMobileNav: boolean) => {
@@ -209,8 +216,8 @@ export default function LogNewCasePage() {
       const scrollWidth = list.scrollWidth;
       const clientWidth = viewport.clientWidth;
       
-      setCanScrollDesktopLeft(scrollLeft > 0.5); 
-      setCanScrollDesktopRight(scrollWidth - clientWidth - scrollLeft > 0.5);
+      setCanScrollDesktopLeft(scrollLeft > 1); 
+      setCanScrollDesktopRight(scrollWidth - clientWidth - scrollLeft > 1);
     } else {
       setCanScrollDesktopLeft(false);
       setCanScrollDesktopRight(false);
@@ -239,6 +246,7 @@ export default function LogNewCasePage() {
                 clearTimeout(timer);
             };
         } else {
+            // If viewport not found immediately, try again after a short delay
             const retryTimer = setTimeout(checkDesktopScrollability, 300);
             return () => clearTimeout(retryTimer);
         }
@@ -262,18 +270,13 @@ export default function LogNewCasePage() {
     }
   };
 
-  // Mobile navigation is handled by handleTabChange with isMobileNav = true
-  // The mobile UI directly calls handleTabChange for prev/next.
-
   // Update current tab based on scroll position
   useEffect(() => {
     const observerOptions = {
-      root: null, 
-      rootMargin: '-40% 0px -60% 0px', 
-      threshold: 0.01, 
+      root: null, // observing relative to the viewport
+      rootMargin: '-40% 0px -60% 0px', // Triggers when section is roughly in the middle 20% of the viewport
+      threshold: 0.01, // Even a small part of the section is visible
     };
-
-    const isScrollingProgrammatically = React.useRef(false);
 
     const observerCallback = (entries: IntersectionObserverEntry[]) => {
       if (isScrollingProgrammatically.current) return;
@@ -288,21 +291,6 @@ export default function LogNewCasePage() {
       });
     };
     
-    const originalHandleTabChange = handleTabChange; // Keep a reference to the original
-    // Redefine handleTabChange (or use a new name) for programmatic calls
-    const programmaticHandleTabChange = (index: number, isMobileNav: boolean) => {
-        isScrollingProgrammatically.current = true;
-        originalHandleTabChange(index, isMobileNav);
-        setTimeout(() => {
-            isScrollingProgrammatically.current = false;
-        }, 1000); 
-    };
-    
-    // Use programmaticHandleTabChange for UI elements that trigger scrolls (like mobile nav buttons)
-    // The tab clicks on desktop might also need to use this or a similar mechanism if they also
-    // trigger scrolls that might fight with the IntersectionObserver.
-    // For this iteration, direct tab clicks still use `originalHandleTabChange`.
-
     const observers: IntersectionObserver[] = [];
     TABS_CONFIG.forEach(tab => {
       if (tab.ref.current) {
@@ -315,7 +303,7 @@ export default function LogNewCasePage() {
     return () => {
       observers.forEach(observer => observer.disconnect());
     };
-  }, [currentTabIndex, handleTabChange]); 
+  }, [currentTabIndex]); // Removed handleTabChange from dependencies as it's stable due to useCallback and relies on currentTabIndex
 
   function onSubmit(data: FullOptometryCaseFormValues) {
     console.log(data); 
@@ -456,10 +444,9 @@ export default function LogNewCasePage() {
                                     <TabsTrigger
                                     key={tab.value}
                                     value={tab.value} 
-                                    onClick={() => handleTabChange(index, false)} // onClick still triggers scroll
+                                    onClick={() => handleTabChange(index, false)}
                                     className={cn(
                                         "px-3 py-2 text-sm font-medium rounded-md",
-                                        // Active state will be handled by Tabs component, but we can keep this for visual consistency if needed
                                         currentTabIndex === index ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                                     )}
                                     >
