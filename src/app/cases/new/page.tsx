@@ -155,10 +155,14 @@ export default function LogNewCasePage() {
   const checkScrollability = useCallback(() => {
     const viewport = tabsViewportRef.current;
     if (viewport) {
-      const { scrollLeft, scrollWidth, clientWidth } = viewport;
-      // Use Math.floor/ceil for robust comparison with floating point scrollLeft values
-      setCanScrollLeft(Math.floor(scrollLeft) > 0);
-      setCanScrollRight(Math.ceil(scrollLeft) < scrollWidth - clientWidth);
+      const scrollLeft = viewport.scrollLeft;
+      const scrollWidth = viewport.scrollWidth;
+      const clientWidth = viewport.clientWidth;
+      
+      // Allow scrolling if there's more than a tiny bit (e.g., 1 pixel) left.
+      // This helps with floating point inaccuracies or sub-pixel rendering issues.
+      setCanScrollLeft(scrollLeft > 1);
+      setCanScrollRight(scrollWidth - clientWidth - scrollLeft > 1);
     } else {
       setCanScrollLeft(false);
       setCanScrollRight(false);
@@ -186,7 +190,7 @@ export default function LogNewCasePage() {
       window.addEventListener('resize', checkScrollability); // For layout changes
 
       // Delayed check for initial render settling
-      const timer = setTimeout(checkScrollability, 150); // Slightly increased delay
+      const timer = setTimeout(checkScrollability, 150); 
 
       // Cleanup function
       return () => {
@@ -216,8 +220,6 @@ export default function LogNewCasePage() {
         left: newScrollLeft,
         behavior: 'smooth',
       });
-      // checkScrollability might be called too soon here if scroll is async,
-      // the 'scroll' event listener will handle the update.
     }
   };
 
@@ -502,3 +504,4 @@ export default function LogNewCasePage() {
   );
 }
 
+    
