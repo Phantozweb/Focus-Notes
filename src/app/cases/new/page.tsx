@@ -157,6 +157,7 @@ export default function LogNewCasePage() {
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const [currentTabIndex, setCurrentTabIndex] = useState(0);
+  const isScrollingProgrammatically = React.useRef(false);
 
   const form = useForm<FullOptometryCaseFormValues>({
     resolver: zodResolver(fullOptometryCaseSchema),
@@ -174,21 +175,19 @@ export default function LogNewCasePage() {
   const [canScrollDesktopRight, setCanScrollDesktopRight] = useState(false);
   const DESKTOP_SCROLL_AMOUNT = 250;
 
-  const isScrollingProgrammatically = React.useRef(false); // Moved to top level
 
   const scrollToSection = useCallback((sectionRef: React.RefObject<HTMLElement>) => {
     isScrollingProgrammatically.current = true;
     sectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    // Set a timeout to reset the flag after the scroll likely completes
     setTimeout(() => {
         isScrollingProgrammatically.current = false;
-    }, 1000); // Adjust timeout as needed
+    }, 1000); 
   }, []);
 
-  const handleTabChange = useCallback((index: number, isMobileNav: boolean) => {
+ const handleTabChange = useCallback((index: number, isMobileNav: boolean) => {
     setCurrentTabIndex(index);
     scrollToSection(TABS_CONFIG[index].ref as React.RefObject<HTMLElement>);
-    if (!isMobileNav && desktopTabsListRef.current) {
+    if (!isMobileNav && !isMobile && desktopTabsListRef.current) {
       const tabElement = desktopTabsListRef.current.children[index] as HTMLElement;
       if (tabElement && desktopTabsViewportRef.current) {
         const viewport = desktopTabsViewportRef.current;
@@ -204,7 +203,7 @@ export default function LogNewCasePage() {
         }
       }
     }
-  }, [scrollToSection]);
+  }, [scrollToSection, isMobile]);
 
 
   const checkDesktopScrollability = useCallback(() => {
@@ -246,7 +245,6 @@ export default function LogNewCasePage() {
                 clearTimeout(timer);
             };
         } else {
-            // If viewport not found immediately, try again after a short delay
             const retryTimer = setTimeout(checkDesktopScrollability, 300);
             return () => clearTimeout(retryTimer);
         }
@@ -273,29 +271,31 @@ export default function LogNewCasePage() {
   // Update current tab based on scroll position
   useEffect(() => {
     const observerOptions = {
-      root: null, // observing relative to the viewport
-      rootMargin: '-40% 0px -60% 0px', // Triggers when section is roughly in the middle 20% of the viewport
-      threshold: 0.01, // Even a small part of the section is visible
+      root: null,
+      rootMargin: '0px 0px -70% 0px', // Active if top of section is in top 30% of viewport
+      threshold: 0.1, // At least 10% of the section must be in this zone
     };
 
-    const observerCallback = (entries: IntersectionObserverEntry[]) => {
+    const callback = (entries: IntersectionObserverEntry[]) => {
       if (isScrollingProgrammatically.current) return;
 
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const intersectingTabIndex = TABS_CONFIG.findIndex(tab => tab.ref.current === entry.target);
-          if (intersectingTabIndex !== -1 && intersectingTabIndex !== currentTabIndex) {
-             setCurrentTabIndex(intersectingTabIndex);
+      const entry = entries[0]; // Correct for one observer per element
+      if (entry.isIntersecting) {
+        const intersectingTabIndex = TABS_CONFIG.findIndex(tab => tab.ref.current === entry.target);
+        setCurrentTabIndex(prevCurrentTabIndex => {
+          if (intersectingTabIndex !== -1 && intersectingTabIndex !== prevCurrentTabIndex) {
+            return intersectingTabIndex;
           }
-        }
-      });
+          return prevCurrentTabIndex;
+        });
+      }
     };
-    
+
     const observers: IntersectionObserver[] = [];
-    TABS_CONFIG.forEach(tab => {
-      if (tab.ref.current) {
-        const observer = new IntersectionObserver(observerCallback, observerOptions);
-        observer.observe(tab.ref.current);
+    TABS_CONFIG.forEach(tabConfig => {
+      if (tabConfig.ref.current) {
+        const observer = new IntersectionObserver(callback, observerOptions);
+        observer.observe(tabConfig.ref.current);
         observers.push(observer);
       }
     });
@@ -303,7 +303,30 @@ export default function LogNewCasePage() {
     return () => {
       observers.forEach(observer => observer.disconnect());
     };
-  }, [currentTabIndex]); // Removed handleTabChange from dependencies as it's stable due to useCallback and relies on currentTabIndex
+  }, []); // Empty dependency array for stable observer setup
+
+
+  // This effect handles scrolling the *horizontal tabs list* when currentTabIndex changes (e.g. by vertical scroll)
+  useEffect(() => {
+    if (!isMobile && desktopTabsListRef.current && TABS_CONFIG[currentTabIndex]) {
+      const tabElement = desktopTabsListRef.current.children[currentTabIndex] as HTMLElement;
+      if (tabElement && desktopTabsViewportRef.current) {
+        const viewport = desktopTabsViewportRef.current;
+        const tabLeft = tabElement.offsetLeft;
+        const tabRight = tabLeft + tabElement.offsetWidth;
+        const scrollLeft = viewport.scrollLeft;
+        const clientWidth = viewport.clientWidth;
+
+        // Check if tab is out of view and scroll if necessary
+        if (tabLeft < scrollLeft) { // Tab is to the left of the viewport
+          viewport.scrollTo({ left: tabLeft - 16, behavior: 'smooth' }); // Scroll to bring left edge into view with padding
+        } else if (tabRight > scrollLeft + clientWidth) { // Tab is to the right of the viewport
+          viewport.scrollTo({ left: tabRight - clientWidth + 16, behavior: 'smooth' }); // Scroll to bring right edge into view with padding
+        }
+      }
+    }
+  }, [currentTabIndex, isMobile]);
+
 
   function onSubmit(data: FullOptometryCaseFormValues) {
     console.log(data); 
@@ -399,8 +422,8 @@ export default function LogNewCasePage() {
                             <ChevronLeft className="h-5 w-5" />
                         </Button>
                         <div className="text-center">
-                            <span className="text-sm font-medium text-primary">{TABS_CONFIG[currentTabIndex].label}</span>
-                            <span className="text-xs text-muted-foreground"> ({currentTabIndex + 1}/{TABS_CONFIG.length})</span>
+                            <span className="text-sm font-medium text-primary">{TABS_CONFIG[currentTabIndex]?.label}</span>
+                            <span className="text-xs text-muted-foreground"> ({TABS_CONFIG[currentTabIndex] ? currentTabIndex + 1 : 0}/{TABS_CONFIG.length})</span>
                         </div>
                         <Button
                             variant="outline"
@@ -414,7 +437,7 @@ export default function LogNewCasePage() {
                     </div>
                 ) : (
                      <Tabs 
-                        value={TABS_CONFIG[currentTabIndex].value} 
+                        value={TABS_CONFIG[currentTabIndex]?.value} 
                         onValueChange={(newTabValue) => {
                             const newIndex = TABS_CONFIG.findIndex(tab => tab.value === newTabValue);
                             if (newIndex !== -1) {
@@ -623,3 +646,5 @@ export default function LogNewCasePage() {
     </MainLayout>
   );
 }
+
+    
