@@ -88,16 +88,16 @@ export function CaseDetailModal({ caseData, isOpen, onClose, onAnalyze, isLoadin
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-6xl max-h-[90vh] flex flex-col">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-6xl max-h-[90vh] flex flex-col overflow-hidden">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle className="text-2xl text-primary">Case Details: {patientName}</DialogTitle>
           <DialogDescription>
             Review the patient's case information and AI-powered analysis. Logged on: {format(new Date(caseData.timestamp), 'PPPp')}
           </DialogDescription>
         </DialogHeader>
         
-        <ScrollArea className="flex-grow pr-6 -mr-6">
-          <div className="space-y-8 py-4">
+        <ScrollArea className="flex-grow"> {/* Removed pr-6 -mr-6 */}
+          <div className="space-y-8 py-4 pr-6"> {/* Added pr-6 here to compensate for scrollbar */}
             
             <section>
               <h3 className="text-lg font-semibold mb-3 text-primary flex items-center"><UserCircle className="mr-2 h-5 w-5" />Patient Information</h3>
@@ -297,12 +297,14 @@ export function CaseDetailModal({ caseData, isOpen, onClose, onAnalyze, isLoadin
           </div>
         </ScrollArea>
         
-        <DialogFooter className="pt-4 border-t mt-auto">
+        <DialogFooter className="pt-4 border-t mt-auto flex-shrink-0">
           <Button variant="outline" onClick={onClose}>Close</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
+
+    
 
     
