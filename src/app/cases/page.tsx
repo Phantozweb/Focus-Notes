@@ -5,6 +5,7 @@ import * as React from 'react';
 import { MainLayout } from '@/components/layout/main-layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, ListChecks, PlusCircle, FileSearch, Brain, Trash2, CalendarDays, Download, AlertTriangle, Loader2 } from 'lucide-react';
 import type { StoredOptometryCase, OptometryCase as AIInputCase } from '@/types/case';
@@ -94,7 +95,8 @@ function StoredCaseCard({ caseData, onViewDetails, onDelete }: CaseCardProps) {
 export default function ViewCasesPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const [storedCases, setStoredCases] = useLocalStorage<StoredOptometryCase[]>('optometryCases', []);
+  const memoizedInitialCases = React.useMemo<StoredOptometryCase[]>(() => [], []);
+  const [storedCases, setStoredCases] = useLocalStorage<StoredOptometryCase[]>('optometryCases', memoizedInitialCases);
   const [selectedCase, setSelectedCase] = React.useState<StoredOptometryCase | null>(null);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [isAnalyzing, setIsAnalyzing] = React.useState(false);

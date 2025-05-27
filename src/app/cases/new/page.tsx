@@ -176,7 +176,9 @@ export default function LogNewCasePage() {
   const [currentTabIndex, setCurrentTabIndex] = useState(0);
   const isScrollingProgrammatically = React.useRef(false);
   const [isAiLoading, setIsAiLoading] = useState(false);
-  const [storedCases, setStoredCases] = useLocalStorage<StoredOptometryCase[]>('optometryCases', []);
+  
+  const memoizedInitialStoredCases = React.useMemo<StoredOptometryCase[]>(() => [], []);
+  const [storedCases, setStoredCases] = useLocalStorage<StoredOptometryCase[]>('optometryCases', memoizedInitialStoredCases);
 
   const form = useForm<FullOptometryCaseFormValues>({
     resolver: zodResolver(fullOptometryCaseSchema),
