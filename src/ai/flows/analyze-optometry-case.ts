@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview Analyzes an optometry case to find connections to relevant research articles.
@@ -23,7 +24,7 @@ const AnalyzeOptometryCaseOutputSchema = z.object({
     z.object({
       title: z.string().describe('The title of the research article.'),
       summary: z.string().describe('A summary of the research article.'),
-      url: z.string().url().describe('The URL of the research article.'),
+      url: z.string().describe('The URL of the research article.'), // Removed .url() here
     })
   ).describe('A list of relevant research articles.'),
   caseInsights: z.string().describe('Insights and connections to relevant research.'),
