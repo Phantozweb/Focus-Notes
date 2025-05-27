@@ -24,7 +24,7 @@ const AnalyzeOptometryCaseOutputSchema = z.object({
     z.object({
       title: z.string().describe('The title of the research article.'),
       summary: z.string().describe('A summary of the research article.'),
-      url: z.string().describe('The URL of the research article.'), // Removed .url() here
+      url: z.string().describe('The URL of the research article.'),
     })
   ).describe('A list of relevant research articles.'),
   caseInsights: z.string().describe('Insights and connections to relevant research.'),
@@ -48,7 +48,13 @@ Refraction: {{{refraction}}}
 Ocular Health Status: {{{ocularHealthStatus}}}
 Additional Notes: {{{additionalNotes}}}
 
-Based on the case details, find relevant research articles and provide a summary of each article, including the title and URL.  Also include specific case insights and connections to the research.
+Based on the case details, identify relevant research articles. For each identified article, you MUST provide:
+1. The accurate title of the article.
+2. A concise summary explaining its relevance to the current optometry case.
+3. The direct URL to access the article.
+Ensure that the title, summary, and URL provided for each entry in the 'relevantResearchArticles' array all correspond to the same specific research article.
+
+Also include overall case insights and connections to the research.
 `,
 });
 
@@ -63,3 +69,4 @@ const analyzeOptometryCaseFlow = ai.defineFlow(
     return output!;
   }
 );
+
