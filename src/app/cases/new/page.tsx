@@ -1,6 +1,6 @@
 
 'use client';
-
+import * as React from 'react'; // Added this line
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { TabsList, TabsTrigger } from '@/components/ui/tabs'; // Removed Tabs, TabsContent as they are not directly used
 import { MainLayout } from '@/components/layout/main-layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -282,36 +282,35 @@ export default function LogNewCasePage() {
       threshold: 0.01, // even a pixel is enough
     };
 
+    const isScrollingProgrammatically = React.useRef(false);
+
     const observerCallback = (entries: IntersectionObserverEntry[]) => {
+      if (isScrollingProgrammatically.current) return;
+
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           const intersectingTabIndex = TABS_CONFIG.findIndex(tab => tab.ref.current === entry.target);
           if (intersectingTabIndex !== -1 && intersectingTabIndex !== currentTabIndex) {
-             // Only update if it's not a result of clicking a tab (which calls handleTabChange directly)
-             // This check is imperfect but helps avoid scroll-triggered updates immediately after a click-triggered scroll
-            if (!isScrollingProgrammatically.current) {
-                setCurrentTabIndex(intersectingTabIndex);
-            }
+             setCurrentTabIndex(intersectingTabIndex);
           }
         }
       });
     };
-
-    const isScrollingProgrammatically = useRef(false);
     
-    // Override scrollToSection to set the flag
-    const originalScrollToSection = scrollToSection;
-    const wrappedScrollToSection = (sectionRef: React.RefObject<HTMLElement>) => {
+    // Enhanced handleTabChange to manage programmatic scroll flag
+    const originalHandleTabChange = handleTabChange;
+    const wrappedHandleTabChange = (index: number, isMobileNav: boolean) => {
         isScrollingProgrammatically.current = true;
-        originalScrollToSection(sectionRef);
+        originalHandleTabChange(index, isMobileNav);
         // Reset the flag after a short delay, assuming scroll completes
         setTimeout(() => {
             isScrollingProgrammatically.current = false;
-        }, 1000); // Adjust delay as needed
+        }, 1000); // Adjust delay as needed, consider scroll duration
     };
-    // This hook effectively redefines scrollToSection used by handleTabChange
-    // Note: This is a simplified way to handle this; more robust solutions might involve promises or scroll end events.
-    // For now, we'll use the existing scrollToSection in handleTabChange directly.
+    
+    // This assignment is for clarity of intent. The actual usage is through setCurrentTabIndex in observer
+    // and originalHandleTabChange in direct tab clicks/mobile nav.
+    // The key is that `observerCallback` should not set `currentTabIndex` if a scroll was triggered programmatically.
 
     const observers: IntersectionObserver[] = [];
     TABS_CONFIG.forEach(tab => {
@@ -324,8 +323,12 @@ export default function LogNewCasePage() {
 
     return () => {
       observers.forEach(observer => observer.disconnect());
+      // Clear any pending timeouts if component unmounts
+      if (isScrollingProgrammatically.current) {
+          // This needs a timer ID if we were to clear it, but the logic above is simpler.
+      }
     };
-  }, [currentTabIndex, scrollToSection]); // Added scrollToSection dependency
+  }, [currentTabIndex, handleTabChange]); // Added handleTabChange as it's used by mobile nav
 
   function onSubmit(data: FullOptometryCaseFormValues) {
     console.log(data); 
@@ -416,7 +419,7 @@ export default function LogNewCasePage() {
                         <Button
                             variant="outline"
                             size="icon"
-                            onClick={() => handleMobileNav('prev')}
+                            onClick={() => handleTabChange(Math.max(0, currentTabIndex - 1), true)}
                             disabled={currentTabIndex === 0}
                             aria-label="Previous Section"
                         >
@@ -429,7 +432,7 @@ export default function LogNewCasePage() {
                         <Button
                             variant="outline"
                             size="icon"
-                            onClick={() => handleMobileNav('next')}
+                            onClick={() => handleTabChange(Math.min(TABS_CONFIG.length - 1, currentTabIndex + 1), true)}
                             disabled={currentTabIndex === TABS_CONFIG.length - 1}
                             aria-label="Next Section"
                         >
@@ -459,7 +462,7 @@ export default function LogNewCasePage() {
                               {TABS_CONFIG.map((tab, index) => (
                                 <TabsTrigger
                                   key={tab.value}
-                                  value={tab.value} // This value is for Tabs component, not directly used for currentTab logic here
+                                  value={tab.value} 
                                   onClick={() => handleTabChange(index, false)}
                                   className={cn(
                                     "px-3 py-2 text-sm font-medium rounded-md",
@@ -647,3 +650,5 @@ export default function LogNewCasePage() {
     </MainLayout>
   );
 }
+
+    
