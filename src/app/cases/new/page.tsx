@@ -1,6 +1,6 @@
 
 'use client';
-import * as React from 'react'; // Added this line
+import * as React from 'react'; 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { TabsList, TabsTrigger } from '@/components/ui/tabs'; // Removed Tabs, TabsContent as they are not directly used
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'; // Ensured Tabs is imported
 import { MainLayout } from '@/components/layout/main-layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -160,15 +160,15 @@ export default function LogNewCasePage() {
 
   const form = useForm<FullOptometryCaseFormValues>({
     resolver: zodResolver(fullOptometryCaseSchema),
-    defaultValues: { /* Omitted for brevity */
+    defaultValues: { 
       patientId: '', firstName: '', lastName: '', gender: '', contactNumber: '', email: '', address: '', chiefComplaint: '', presentIllnessHistory: '', pastOcularHistory: '', pastMedicalHistory: '', familyOcularHistory: '', familyMedicalHistory: '', medications: '', allergies: '', visualAcuityUncorrectedOD: '', visualAcuityUncorrectedOS: '', visualAcuityCorrectedOD: '', visualAcuityCorrectedOS: '', pupils: '', extraocularMotility: '', intraocularPressureOD: '', intraocularPressureOS: '', confrontationVisualFields: '', manifestRefractionOD: '', manifestRefractionOS: '', cycloplegicRefractionOD: '', cycloplegicRefractionOS: '', currentSpectacleRx: '', currentContactLensRx: '', lidsLashesOD: '', lidsLashesOS: '', conjunctivaScleraOD: '', conjunctivaScleraOS: '', corneaOD: '', corneaOS: '', anteriorChamberOD: '', anteriorChamberOS: '', irisOD: '', irisOS: '', lensOD: '', lensOS: '', vitreousOD: '', vitreousOS: '', opticDiscOD: '', opticDiscOS: '', cupDiscRatioOD: '', cupDiscRatioOS: '', maculaOD: '', maculaOS: '', vesselsOD: '', vesselsOS: '', peripheryOD: '', peripheryOS: '', octFindings: '', visualFieldFindings: '', fundusPhotographyFindings: '', otherInvestigations: '', assessment: '', plan: '', prognosis: '', followUp: '', internalNotes: '', reflection: '',
     },
   });
 
   // Refs for desktop tab scrolling
-  const desktopTabsScrollAreaRef = useRef<HTMLDivElement>(null); // Ref for the ScrollArea component itself
-  const desktopTabsViewportRef = useRef<HTMLDivElement | null>(null); // Ref for the actual scrollable viewport div
-  const desktopTabsListRef = useRef<HTMLDivElement>(null); // Ref for the TabsList
+  const desktopTabsScrollAreaRef = useRef<HTMLDivElement>(null); 
+  const desktopTabsViewportRef = useRef<HTMLDivElement | null>(null); 
+  const desktopTabsListRef = useRef<HTMLDivElement>(null); 
   
   const [canScrollDesktopLeft, setCanScrollDesktopLeft] = useState(false);
   const [canScrollDesktopRight, setCanScrollDesktopRight] = useState(false);
@@ -182,7 +182,6 @@ export default function LogNewCasePage() {
     setCurrentTabIndex(index);
     scrollToSection(TABS_CONFIG[index].ref as React.RefObject<HTMLElement>);
     if (!isMobileNav && desktopTabsListRef.current) {
-      // Ensure the selected tab is visible in the desktop scroll area
       const tabElement = desktopTabsListRef.current.children[index] as HTMLElement;
       if (tabElement && desktopTabsViewportRef.current) {
         const viewport = desktopTabsViewportRef.current;
@@ -192,9 +191,9 @@ export default function LogNewCasePage() {
         const clientWidth = viewport.clientWidth;
 
         if (tabLeft < scrollLeft) {
-          viewport.scrollTo({ left: tabLeft - 16, behavior: 'smooth' }); // 16px buffer
+          viewport.scrollTo({ left: tabLeft - 16, behavior: 'smooth' }); 
         } else if (tabRight > scrollLeft + clientWidth) {
-          viewport.scrollTo({ left: tabRight - clientWidth + 16, behavior: 'smooth' }); // 16px buffer
+          viewport.scrollTo({ left: tabRight - clientWidth + 16, behavior: 'smooth' });
         }
       }
     }
@@ -211,7 +210,7 @@ export default function LogNewCasePage() {
       const clientWidth = viewport.clientWidth;
       
       setCanScrollDesktopLeft(scrollLeft > 0.5); 
-      setCanScrollDesktopRight(scrollLeft + clientWidth < scrollWidth - 0.5);
+      setCanScrollDesktopRight(scrollWidth - clientWidth - scrollLeft > 0.5);
     } else {
       setCanScrollDesktopLeft(false);
       setCanScrollDesktopRight(false);
@@ -219,7 +218,6 @@ export default function LogNewCasePage() {
   }, []);
 
   useEffect(() => {
-    // Desktop tabs scroll setup
     if (!isMobile && desktopTabsScrollAreaRef.current) {
         const viewportElement = desktopTabsScrollAreaRef.current.querySelector<HTMLDivElement>(
             ':scope > div[data-radix-scroll-area-viewport]'
@@ -264,22 +262,15 @@ export default function LogNewCasePage() {
     }
   };
 
-  const handleMobileNav = (direction: 'prev' | 'next') => {
-    let newIndex = currentTabIndex;
-    if (direction === 'prev') {
-      newIndex = Math.max(0, currentTabIndex - 1);
-    } else {
-      newIndex = Math.min(TABS_CONFIG.length - 1, currentTabIndex + 1);
-    }
-    handleTabChange(newIndex, true);
-  };
-  
+  // Mobile navigation is handled by handleTabChange with isMobileNav = true
+  // The mobile UI directly calls handleTabChange for prev/next.
+
   // Update current tab based on scroll position
   useEffect(() => {
     const observerOptions = {
-      root: null, // relative to document viewport
-      rootMargin: '-40% 0px -60% 0px', // when section is in middle 20% of viewport
-      threshold: 0.01, // even a pixel is enough
+      root: null, 
+      rootMargin: '-40% 0px -60% 0px', 
+      threshold: 0.01, 
     };
 
     const isScrollingProgrammatically = React.useRef(false);
@@ -297,20 +288,20 @@ export default function LogNewCasePage() {
       });
     };
     
-    // Enhanced handleTabChange to manage programmatic scroll flag
-    const originalHandleTabChange = handleTabChange;
-    const wrappedHandleTabChange = (index: number, isMobileNav: boolean) => {
+    const originalHandleTabChange = handleTabChange; // Keep a reference to the original
+    // Redefine handleTabChange (or use a new name) for programmatic calls
+    const programmaticHandleTabChange = (index: number, isMobileNav: boolean) => {
         isScrollingProgrammatically.current = true;
         originalHandleTabChange(index, isMobileNav);
-        // Reset the flag after a short delay, assuming scroll completes
         setTimeout(() => {
             isScrollingProgrammatically.current = false;
-        }, 1000); // Adjust delay as needed, consider scroll duration
+        }, 1000); 
     };
     
-    // This assignment is for clarity of intent. The actual usage is through setCurrentTabIndex in observer
-    // and originalHandleTabChange in direct tab clicks/mobile nav.
-    // The key is that `observerCallback` should not set `currentTabIndex` if a scroll was triggered programmatically.
+    // Use programmaticHandleTabChange for UI elements that trigger scrolls (like mobile nav buttons)
+    // The tab clicks on desktop might also need to use this or a similar mechanism if they also
+    // trigger scrolls that might fight with the IntersectionObserver.
+    // For this iteration, direct tab clicks still use `originalHandleTabChange`.
 
     const observers: IntersectionObserver[] = [];
     TABS_CONFIG.forEach(tab => {
@@ -323,12 +314,8 @@ export default function LogNewCasePage() {
 
     return () => {
       observers.forEach(observer => observer.disconnect());
-      // Clear any pending timeouts if component unmounts
-      if (isScrollingProgrammatically.current) {
-          // This needs a timer ID if we were to clear it, but the logic above is simpler.
-      }
     };
-  }, [currentTabIndex, handleTabChange]); // Added handleTabChange as it's used by mobile nav
+  }, [currentTabIndex, handleTabChange]); 
 
   function onSubmit(data: FullOptometryCaseFormValues) {
     console.log(data); 
@@ -411,10 +398,8 @@ export default function LogNewCasePage() {
               <FileTextIcon className="mr-3 h-8 w-8" /> Log New Optometry Case
             </CardTitle>
             
-            {/* Navigation Area */}
-            <div className="h-14 flex items-center"> {/* Fixed height for nav area */}
+            <div className="h-14 flex items-center">
                 {isMobile ? (
-                    // Mobile Navigation
                     <div className="flex items-center justify-between w-full px-2">
                         <Button
                             variant="outline"
@@ -440,59 +425,68 @@ export default function LogNewCasePage() {
                         </Button>
                     </div>
                 ) : (
-                    // Desktop Tab Navigation
-                     <div className="flex items-center space-x-1 w-full">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-9 w-9 shrink-0"
-                          onClick={() => handleDesktopTabScroll('left')}
-                          disabled={!canScrollDesktopLeft}
-                          aria-label="Scroll tabs left"
-                        >
-                          <ChevronLeft className="h-5 w-5" />
-                        </Button>
-                        <ScrollArea
-                          orientation="horizontal"
-                          className="flex-grow w-full pb-0 [&>[data-radix-scroll-area-scrollbar][data-orientation='horizontal']]:hidden"
-                          ref={desktopTabsScrollAreaRef}
-                        >
-                            {/* The TabsList is the scrollable content */}
-                            <TabsList ref={desktopTabsListRef} className="border-b-0 whitespace-nowrap justify-start relative pl-1 pr-6">
-                              {TABS_CONFIG.map((tab, index) => (
-                                <TabsTrigger
-                                  key={tab.value}
-                                  value={tab.value} 
-                                  onClick={() => handleTabChange(index, false)}
-                                  className={cn(
-                                    "px-3 py-2 text-sm font-medium rounded-md",
-                                    currentTabIndex === index ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                                  )}
-                                >
-                                  <tab.icon className="mr-2 h-4 w-4" />{tab.label}
-                                </TabsTrigger>
-                              ))}
-                            </TabsList>
-                        </ScrollArea>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-9 w-9 shrink-0"
-                          onClick={() => handleDesktopTabScroll('right')}
-                          disabled={!canScrollDesktopRight}
-                          aria-label="Scroll tabs right"
-                        >
-                          <ChevronRight className="h-5 w-5" />
-                        </Button>
-                      </div>
+                     <Tabs 
+                        value={TABS_CONFIG[currentTabIndex].value} 
+                        onValueChange={(newTabValue) => {
+                            const newIndex = TABS_CONFIG.findIndex(tab => tab.value === newTabValue);
+                            if (newIndex !== -1) {
+                                handleTabChange(newIndex, false);
+                            }
+                        }}
+                        className="w-full"
+                     >
+                        <div className="flex items-center space-x-1 w-full">
+                            <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-9 w-9 shrink-0"
+                            onClick={() => handleDesktopTabScroll('left')}
+                            disabled={!canScrollDesktopLeft}
+                            aria-label="Scroll tabs left"
+                            >
+                            <ChevronLeft className="h-5 w-5" />
+                            </Button>
+                            <ScrollArea
+                            orientation="horizontal"
+                            className="flex-grow w-full pb-0 [&>[data-radix-scroll-area-scrollbar][data-orientation='horizontal']]:hidden"
+                            ref={desktopTabsScrollAreaRef}
+                            >
+                                <TabsList ref={desktopTabsListRef} className="border-b-0 whitespace-nowrap justify-start relative pl-1 pr-6">
+                                {TABS_CONFIG.map((tab, index) => (
+                                    <TabsTrigger
+                                    key={tab.value}
+                                    value={tab.value} 
+                                    onClick={() => handleTabChange(index, false)} // onClick still triggers scroll
+                                    className={cn(
+                                        "px-3 py-2 text-sm font-medium rounded-md",
+                                        // Active state will be handled by Tabs component, but we can keep this for visual consistency if needed
+                                        currentTabIndex === index ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                                    )}
+                                    >
+                                    <tab.icon className="mr-2 h-4 w-4" />{tab.label}
+                                    </TabsTrigger>
+                                ))}
+                                </TabsList>
+                            </ScrollArea>
+                            <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-9 w-9 shrink-0"
+                            onClick={() => handleDesktopTabScroll('right')}
+                            disabled={!canScrollDesktopRight}
+                            aria-label="Scroll tabs right"
+                            >
+                            <ChevronRight className="h-5 w-5" />
+                            </Button>
+                        </div>
+                     </Tabs>
                 )}
             </div>
           </CardHeader>
-          <CardContent className="pt-6"> {/* Add padding top to separate content from sticky header */}
+          <CardContent className="pt-6"> 
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-0"> {/* No space here, sections manage their own margin */}
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-0"> 
                 
-                {/* Patient Info Section */}
                 <div ref={TABS_CONFIG[0].ref as React.RefObject<HTMLDivElement>} className="space-y-6 py-2">
                   <SectionTitle title={TABS_CONFIG[0].label} icon={TABS_CONFIG[0].icon} />
                   {renderFormField('patientId', 'Patient ID (Optional)', 'e.g., P00123')}
@@ -546,14 +540,12 @@ export default function LogNewCasePage() {
                   {renderFormField('address', 'Address', 'e.g., 123 Main St, Anytown, USA', true, 3)}
                 </div>
 
-                {/* Chief Complaint Section */}
                 <div ref={TABS_CONFIG[1].ref as React.RefObject<HTMLDivElement>} className="space-y-6 py-2">
                   <SectionTitle title={TABS_CONFIG[1].label} icon={TABS_CONFIG[1].icon} />
                   {renderFormField('chiefComplaint', 'Chief Complaint', 'e.g., Blurry vision at distance for 2 weeks', true, 4)}
                   {renderFormField('presentIllnessHistory', 'History of Present Illness', 'Details about the onset, duration, severity, etc.', true, 5)}
                 </div>
 
-                {/* History Section */}
                 <div ref={TABS_CONFIG[2].ref as React.RefObject<HTMLDivElement>} className="space-y-6 py-2">
                   <SectionTitle title={TABS_CONFIG[2].label} icon={TABS_CONFIG[2].icon} />
                   {renderFormField('pastOcularHistory', 'Past Ocular History', 'e.g., Previous eye surgeries, conditions like glaucoma, AMD', true, 4)}
@@ -564,7 +556,6 @@ export default function LogNewCasePage() {
                   {renderFormField('allergies', 'Allergies', 'e.g., Penicillin (rash), NKDA', true, 3)}
                 </div>
                 
-                {/* Examination Section */}
                 <div ref={TABS_CONFIG[3].ref as React.RefObject<HTMLDivElement>} className="space-y-6 py-2">
                     <SectionTitle title={TABS_CONFIG[3].label} icon={TABS_CONFIG[3].icon} />
                     <h4 className="text-md font-medium text-muted-foreground mb-2">Visual Acuity (Uncorrected)</h4>
@@ -587,7 +578,6 @@ export default function LogNewCasePage() {
                         {renderFormField('currentContactLensRx', 'Current Contact Lens Rx', 'Details of current contact lenses', true, 2)}
                 </div>
 
-                {/* Slit Lamp Section */}
                 <div ref={TABS_CONFIG[4].ref as React.RefObject<HTMLDivElement>} className="space-y-6 py-2">
                   <SectionTitle title={TABS_CONFIG[4].label} icon={TABS_CONFIG[4].icon} />
                   {renderDoubleFormField('lidsLashesOD', 'lidsLashesOS', 'Lids & Lashes', 'WNL', 'WNL', true, 2)}
@@ -598,7 +588,6 @@ export default function LogNewCasePage() {
                   {renderDoubleFormField('lensOD', 'lensOS', 'Lens', 'Clear / Grade 1 NS', 'Clear / Grade 1 NS', true, 2)}
                 </div>
 
-                {/* Posterior Segment Section */}
                 <div ref={TABS_CONFIG[5].ref as React.RefObject<HTMLDivElement>} className="space-y-6 py-2">
                   <SectionTitle title={TABS_CONFIG[5].label} icon={TABS_CONFIG[5].icon} />
                   {renderDoubleFormField('vitreousOD', 'vitreousOS', 'Vitreous', 'Clear, PVD', 'Clear', true, 2)}
@@ -609,7 +598,6 @@ export default function LogNewCasePage() {
                   {renderDoubleFormField('peripheryOD', 'peripheryOS', 'Periphery (Dilated)', 'Flat, no breaks or lesions', 'Flat, no breaks or lesions', true, 3)}
                 </div>
 
-                {/* Investigations Section */}
                 <div ref={TABS_CONFIG[6].ref as React.RefObject<HTMLDivElement>} className="space-y-6 py-2">
                   <SectionTitle title={TABS_CONFIG[6].label} icon={TABS_CONFIG[6].icon} />
                   {renderFormField('octFindings', 'OCT Findings', 'e.g., Macular OCT: Normal retinal layers OU. RNFL OCT: Within normal limits OU.', true, 4)}
@@ -618,7 +606,6 @@ export default function LogNewCasePage() {
                   {renderFormField('otherInvestigations', 'Other Investigations', 'e.g., Corneal Topography, Pachymetry, A-scan etc.', true, 4)}
                 </div>
 
-                {/* Assessment & Plan Section */}
                 <div ref={TABS_CONFIG[7].ref as React.RefObject<HTMLDivElement>} className="space-y-6 py-2">
                   <SectionTitle title={TABS_CONFIG[7].label} icon={TABS_CONFIG[7].icon} />
                   {renderFormField('assessment', 'Assessment / Diagnoses', '1. Myopia OU\n2. Presbyopia OU\n3. Dry Eye Syndrome OU (Mild)', true, 5)}
@@ -627,7 +614,6 @@ export default function LogNewCasePage() {
                   {renderFormField('followUp', 'Follow Up Instructions', 'e.g., Return in 1 year for comprehensive exam, or sooner if symptoms worsen.', true, 3)}
                 </div>
                 
-                {/* Notes & Reflection Section */}
                 <div ref={TABS_CONFIG[8].ref as React.RefObject<HTMLDivElement>} className="space-y-6 py-2">
                   <SectionTitle title={TABS_CONFIG[8].label} icon={TABS_CONFIG[8].icon} />
                   {renderFormField('internalNotes', 'Internal Notes (Not for Patient)', 'e.g., Consider differential XYZ if no improvement.', true, 4)}
@@ -650,5 +636,3 @@ export default function LogNewCasePage() {
     </MainLayout>
   );
 }
-
-    
