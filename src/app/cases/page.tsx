@@ -8,12 +8,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ListChecks, PlusCircle, FileSearch, Trash2, CalendarDays, Download, AlertTriangle, Loader2 } from 'lucide-react';
-import type { StoredOptometryCase, AnalyzeOptometryCaseInput } from '@/types/case';
+import { ArrowLeft, ListChecks, PlusCircle, FileSearch, Trash2, CalendarDays, Download, AlertTriangle } from 'lucide-react';
+import type { StoredOptometryCase } from '@/types/case';
 import useLocalStorage from '@/hooks/use-local-storage';
 import { useToast } from '@/hooks/use-toast';
 import { exportToCsv } from '@/lib/csv-export';
-import { CaseDetailModal } from '@/components/case-detail-modal';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,7 +24,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { analyzeOptometryCase, type AnalyzeOptometryCaseOutput } from '@/ai/flows/analyze-optometry-case';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 
@@ -34,7 +32,6 @@ interface CaseCardProps {
   caseData: StoredOptometryCase;
   onViewDetails: (caseId: string) => void;
   onDelete: (caseId: string) => void;
-  isAnalyzing?: boolean; 
 }
 
 function StoredCaseCard({ caseData, onViewDetails, onDelete }: CaseCardProps) {
@@ -64,7 +61,7 @@ function StoredCaseCard({ caseData, onViewDetails, onDelete }: CaseCardProps) {
       </CardContent>
       <CardFooter className="flex flex-col sm:flex-row justify-between gap-2 pt-4 border-t">
         <Button variant="outline" size="sm" onClick={() => onViewDetails(caseData.id)}>
-          <FileSearch className="mr-2 h-4 w-4" /> View / Analyze
+          <FileSearch className="mr-2 h-4 w-4" /> View Details
         </Button>
         <AlertDialog>
           <AlertDialogTrigger asChild>
@@ -98,18 +95,11 @@ export default function ViewCasesPage() {
   const { toast } = useToast();
   const memoizedInitialCases = React.useMemo<StoredOptometryCase[]>(() => [], []);
   const [storedCases, setStoredCases] = useLocalStorage<StoredOptometryCase[]>('optometryCases', memoizedInitialCases);
-  const [selectedCase, setSelectedCase] = React.useState<StoredOptometryCase | null>(null);
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
-  const [isAnalyzing, setIsAnalyzing] = React.useState(false);
   const [searchTerm, setSearchTerm] = React.useState('');
 
 
   const handleViewDetails = (caseId: string) => {
-    const caseToView = storedCases.find(c => c.id === caseId);
-    if (caseToView) {
-      setSelectedCase(caseToView);
-      setIsModalOpen(true);
-    }
+    router.push(`/cases/${caseId}`);
   };
 
   const handleDeleteCase = (caseId: string) => {
@@ -215,44 +205,6 @@ export default function ViewCasesPage() {
     toast({ title: 'Cases Exported', description: 'All filtered cases have been exported to CSV.' });
   };
 
-  const handleAnalyzeCase = async (caseId: string) => {
-    const caseToAnalyze = storedCases.find(c => c.id === caseId);
-    if (!caseToAnalyze) {
-      toast({ title: 'Error', description: 'Case not found for analysis.', variant: 'destructive'});
-      return;
-    }
-
-    setIsAnalyzing(true);
-
-    const aiInput: AnalyzeOptometryCaseInput = {
-      visualAcuity: `OD: ${caseToAnalyze.visualAcuityCorrectedOD || caseToAnalyze.visualAcuityUncorrectedOD || 'N/A'}, OS: ${caseToAnalyze.visualAcuityCorrectedOS || caseToAnalyze.visualAcuityUncorrectedOS || 'N/A'}`,
-      refraction: `OD: ${caseToAnalyze.manifestRefractionOD || 'N/A'}, OS: ${caseToAnalyze.manifestRefractionOS || 'N/A'}`,
-      ocularHealthStatus: caseToAnalyze.assessment || 'Not specified', 
-      additionalNotes: `Chief Complaint: ${caseToAnalyze.chiefComplaint}. Hx Present Illness: ${caseToAnalyze.presentIllnessHistory || 'N/A'}. Internal Notes: ${caseToAnalyze.internalNotes || 'N/A'}.`,
-    };
-    
-    try {
-      const analysisResult = await analyzeOptometryCase(aiInput);
-      const updatedCases = storedCases.map(c => 
-        c.id === caseId ? { ...c, analysis: analysisResult, analysisError: undefined } : c
-      );
-      setStoredCases(updatedCases);
-      setSelectedCase(prev => prev && prev.id === caseId ? { ...prev, analysis: analysisResult, analysisError: undefined } : prev);
-      toast({ title: 'AI Analysis Complete', description: 'Case analysis has been updated.' });
-    } catch (error) {
-      console.error('AI Analysis Error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred during AI analysis.';
-      const updatedCases = storedCases.map(c => 
-        c.id === caseId ? { ...c, analysis: undefined, analysisError: errorMessage } : c
-      );
-      setStoredCases(updatedCases);
-      setSelectedCase(prev => prev && prev.id === caseId ? { ...prev, analysis: undefined, analysisError: errorMessage } : prev);
-      toast({ title: 'AI Analysis Failed', description: errorMessage, variant: 'destructive' });
-    } finally {
-      setIsAnalyzing(false);
-    }
-  };
-
   const filteredCases = React.useMemo(() => {
     if (!searchTerm) return storedCases.sort((a, b) => b.timestamp - a.timestamp);
     const lowerSearchTerm = searchTerm.toLowerCase();
@@ -269,8 +221,7 @@ export default function ViewCasesPage() {
 
   return (
     <MainLayout>
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex flex-col flex-1"> {/* Changed h-full to flex-1 */}
-        {/* Fixed Top Section */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex flex-col flex-1">
         <div className="pt-8">
           <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
             <Button variant="outline" onClick={() => router.back()} className="self-start sm:self-center">
@@ -302,7 +253,6 @@ export default function ViewCasesPage() {
           </Card>
         </div>
 
-        {/* Scrollable Case List Section */}
         <ScrollArea className="flex-grow pb-8">
           {filteredCases.length === 0 ? (
             <Card className="shadow-xl">
@@ -344,15 +294,6 @@ export default function ViewCasesPage() {
           )}
         </ScrollArea>
       </div>
-      {selectedCase && (
-        <CaseDetailModal
-          caseData={selectedCase}
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onAnalyze={handleAnalyzeCase}
-          isLoadingAnalysis={isAnalyzing}
-        />
-      )}
     </MainLayout>
   );
 }

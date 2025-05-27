@@ -1,6 +1,11 @@
 
 'use client';
 
+// This component is no longer used.
+// The functionality has been moved to /app/cases/[id]/page.tsx for a full-screen detail view.
+
+// Keeping the file for now, but it can be deleted later if not repurposed.
+
 import {
   Dialog,
   DialogContent,
@@ -40,7 +45,7 @@ interface CaseDetailModalProps {
 const DetailItem = ({ icon: Icon, label, value, isFullWidth = false, isPreWrap = false }: { icon: React.ElementType, label: string, value?: string | null | Date, isFullWidth?: boolean, isPreWrap?: boolean }) => {
   if (!value && value !== 0 && typeof value !== 'boolean') return null; 
   
-  let displayValue: string | React.ReactNode = value instanceof Date ? format(value, 'PPP') : String(value);
+  let displayValue: string | React.ReactNode = value instanceof Date ? format(new Date(value), 'PPP') : String(value);
 
   if (typeof value === 'string' && (value.startsWith('http://') || value.startsWith('https://')) && label.toLowerCase().includes('url')) {
     displayValue = <Link href={value} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline break-all">{value}</Link>;
@@ -89,15 +94,15 @@ export function CaseDetailModal({ caseData, isOpen, onClose, onAnalyze, isLoadin
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-6xl max-h-[90vh] flex flex-col overflow-hidden">
-        <DialogHeader className="flex-shrink-0">
-          <DialogTitle className="text-2xl text-primary">Case Details: {patientName}</DialogTitle>
+        <DialogHeader className="border-b pb-4 pt-4 px-6 flex-shrink-0">
+          <DialogTitle className="text-2xl text-primary">{patientName}</DialogTitle>
           <DialogDescription>
             Review the patient's case information and AI-powered analysis. Logged on: {format(new Date(caseData.timestamp), 'PPPp')}
           </DialogDescription>
         </DialogHeader>
         
         <ScrollArea className="flex-grow min-h-0">
-          <div className="space-y-8 py-4 pr-4"> {/* Adjusted padding here, removed h-full */}
+          <div className="space-y-8 p-6"> {/* Adjusted padding here */}
             
             <section>
               <h3 className="text-lg font-semibold mb-3 text-primary flex items-center"><UserCircle className="mr-2 h-5 w-5" />Patient Information</h3>
@@ -297,17 +302,10 @@ export function CaseDetailModal({ caseData, isOpen, onClose, onAnalyze, isLoadin
           </div>
         </ScrollArea>
         
-        <DialogFooter className="pt-4 border-t flex-shrink-0">
+        <DialogFooter className="pt-4 border-t flex-shrink-0 px-6 pb-4">
           <Button variant="outline" onClick={onClose}>Close</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
-    
-
-    
-
-    
-
-    
