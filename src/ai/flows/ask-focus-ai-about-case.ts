@@ -61,9 +61,12 @@ const askFocusAiFlow = ai.defineFlow(
     // Render the system instruction with the specific case summary
     const renderedSystemInstruction = systemInstructionTemplate.replace('{{{caseSummary}}}', flowInput.caseSummary);
 
+    // Combine system instruction with the user's query
+    const fullPrompt = `${renderedSystemInstruction}\n\nUser: ${flowInput.userQuery}\nFocus AI:`;
+
     const generationResult = await ai.generate({
-        prompt: flowInput.userQuery, // User's message
-        system: renderedSystemInstruction, // Pass rendered system instruction
+        prompt: fullPrompt, // Combined prompt
+        // system: renderedSystemInstruction, // REMOVED: System role not supported by model in this configuration
         history: flowInput.chatHistory, // Pass structured history
         output: { schema: AskFocusAiOutputSchema },
         model: 'googleai/gemini-pro', 
@@ -97,3 +100,4 @@ const askFocusAiFlow = ai.defineFlow(
     return output; // output is guaranteed to be AskFocusAiOutput here
   }
 );
+
