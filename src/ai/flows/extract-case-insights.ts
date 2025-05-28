@@ -1,3 +1,4 @@
+
 // src/ai/flows/extract-case-insights.ts
 'use server';
 
@@ -57,6 +58,11 @@ const extractCaseInsightsFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await extractCaseInsightsPrompt(input);
+    if (!output) {
+        console.error("Prompt 'extractCaseInsightsPrompt' did not return output for input:", input);
+        throw new Error("AI prompt 'extractCaseInsightsPrompt' did not return the expected output.");
+    }
     return output!;
   }
 );
+

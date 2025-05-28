@@ -56,6 +56,11 @@ const analyzeOptometryCaseFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
+    if (!output) {
+        console.error("Prompt 'analyzeOptometryCasePrompt' did not return output for input:", input);
+        throw new Error("AI prompt 'analyzeOptometryCasePrompt' did not return the expected output.");
+    }
     return output!;
   }
 );
+

@@ -58,7 +58,7 @@ const askFocusAiFlow = ai.defineFlow(
     // Render the system instruction with the specific case summary
     const renderedSystemInstruction = systemInstructionTemplate.replace('{{{caseSummary}}}', flowInput.caseSummary);
 
-    const { response } = await ai.generate({
+    const generationResult = await ai.generate({
         prompt: flowInput.userQuery, // User's message
         system: renderedSystemInstruction, // Pass rendered system instruction
         history: flowInput.chatHistory, // Pass structured history
@@ -66,11 +66,22 @@ const askFocusAiFlow = ai.defineFlow(
         model: 'googleai/gemini-2.0-flash', // Ensure a chat-capable model
       });
     
-    const output = response.output; 
-    if (!output) {
-      throw new Error("AI did not return a response.");
+    if (!generationResult || typeof generationResult.response === 'undefined') {
+      console.error('AI generation call did not return a valid response object:', generationResult);
+      throw new Error('AI service failed to provide a response envelope.');
     }
-    return output;
+
+    const genResponse = generationResult.response; // genResponse is GenerationResponse type
+    const output = genResponse.output; // output is AskFocusAiOutput | undefined
+
+    if (typeof output === 'undefined') {
+      const finishReason = genResponse.candidates?.[0]?.finishReason;
+      const safetyRatings = genResponse.candidates?.[0]?.safetyRatings;
+      console.error('AI response did not contain the expected output.', { finishReason, safetyRatings, genResponse });
+      throw new Error(`AI did not return a structured response. Finish reason: ${finishReason || 'unknown'}`);
+    }
+    
+    return output; // output is guaranteed to be AskFocusAiOutput here
   }
 );
 
