@@ -59,11 +59,11 @@ const chatWithCaseFlow = ai.defineFlow(
 
     const generationResult = await ai.generate({
       prompt: fullPrompt,
-      history: flowInput.chatHistory as GenkitChatMessage[], // Cast to satisfy Genkit's type if needed
-      model: 'googleai/gemini-2.0-flash', // Updated model
+      history: flowInput.chatHistory as GenkitChatMessage[], 
+      model: 'googleai/gemini-2.0-flash', 
       config: {
-        temperature: 0.5, // Adjust for creativity vs. factuality
-        safetySettings: [ // Permissive settings for diagnostics
+        temperature: 0.5, 
+        safetySettings: [ 
           { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
           { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
           { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
@@ -73,7 +73,12 @@ const chatWithCaseFlow = ai.defineFlow(
       // No output schema here, we'll take the raw text.
     });
 
-    if (!generationResult || !generationResult.response) {
+    if (!generationResult) {
+      console.error('CRITICAL_AI_DEBUG: The entire generationResult from ai.generate() was null or undefined.');
+      throw new Error('AI service call returned no result (generationResult is null/undefined).');
+    }
+
+    if (!generationResult.response) {
       let detailMessage = 'AI service failed to provide a response envelope.';
       if (generationResult && generationResult.candidates && generationResult.candidates.length > 0) {
         const firstCandidate = generationResult.candidates[0];
@@ -83,18 +88,18 @@ const chatWithCaseFlow = ai.defineFlow(
         }
       }
       // Log the entire generationResult for deep inspection
-      console.error(detailMessage, 'Full generationResult:', JSON.stringify(generationResult, null, 2));
+      console.error('CRITICAL_AI_DEBUG:', detailMessage, 'Full generationResult object:', JSON.stringify(generationResult, null, 2));
+      console.error('Prompt length:', fullPrompt.length, 'Chat history entries:', flowInput.chatHistory?.length || 0);
       throw new Error(detailMessage);
     }
 
     // Genkit 1.x: Access raw text via response.text
     const aiResponseText = generationResult.response.text;
     if (typeof aiResponseText !== 'string') {
-      console.error('AI response text is not a string. Full response:', JSON.stringify(generationResult.response, null, 2));
+      console.error('CRITICAL_AI_DEBUG: AI response text is not a string. Full response:', JSON.stringify(generationResult.response, null, 2));
       throw new Error('AI returned an invalid response format.');
     }
 
     return { aiResponse: aiResponseText };
   }
 );
-
