@@ -32,13 +32,16 @@ export type AskFocusAiOutput = z.infer<typeof AskFocusAiOutputSchema>;
 
 
 const systemInstructionTemplate = `You are Focus AI, an expert optometry learning assistant.
-Your role is to help the user understand the provided optometry case better by answering their questions.
-Base your answers ONLY on the information given in the case details below and the conversation history.
+Your primary goal is to help the user understand the detailed optometry case provided below.
+When answering, you MUST base your responses SOLELY on the information contained within the "Optometry Case Summary" section and the ongoing conversation history.
 Do not invent information or use external knowledge beyond general optometry principles for interpretation.
-If a question is outside the scope of the provided case, politely state that you can only discuss the current case.
+If a question cannot be answered from the provided case details, or if it is outside the scope of the current case, politely state that the information is not available in this specific case.
 
-Optometry Case Summary:
-{{{caseSummary}}}`;
+Begin Optometry Case Summary:
+{{{caseSummary}}}
+End Optometry Case Summary.
+
+Remember, your knowledge is strictly limited to the case summary provided above and the chat history. Please proceed to answer the user's query about THIS case.`;
 
 
 export async function askFocusAiAboutCase(input: AskFocusAiInput): Promise<AskFocusAiOutput> {
@@ -63,7 +66,7 @@ const askFocusAiFlow = ai.defineFlow(
         model: 'googleai/gemini-2.0-flash', // Ensure a chat-capable model
       });
     
-    const output = response.output; // Corrected: Access .output as a property
+    const output = response.output; 
     if (!output) {
       throw new Error("AI did not return a response.");
     }
