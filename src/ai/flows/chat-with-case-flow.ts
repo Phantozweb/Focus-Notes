@@ -22,10 +22,10 @@ const ChatWithCaseInputSchema = z.object({
 });
 export type ChatWithCaseInput = z.infer<typeof ChatWithCaseInputSchema>;
 
-const ChatWithCaseOutputSchema = z.object({
+const AskFocusAiOutputSchema = z.object({
   aiResponse: z.string().describe("The AI's response to the user's query."),
 });
-export type ChatWithCaseOutput = z.infer<typeof ChatWithCaseOutputSchema>;
+export type ChatWithCaseOutput = z.infer<typeof AskFocusAiOutputSchema>;
 
 
 const systemInstructionTemplate = `You are Focus AI, an expert optometry learning assistant.
@@ -45,17 +45,25 @@ Remember, your knowledge is strictly limited to the case summary provided above 
 
 
 export async function chatWithCase(input: ChatWithCaseInput): Promise<ChatWithCaseOutput> {
-  return chatWithCaseFlow(input);
+  return askFocusAiFlow(input);
 }
 
-const chatWithCaseFlow = ai.defineFlow(
+const askFocusAiFlow = ai.defineFlow(
   {
-    name: 'chatWithCaseFlow',
+    name: 'askFocusAiFlow',
     inputSchema: ChatWithCaseInputSchema,
-    outputSchema: ChatWithCaseOutputSchema,
+    outputSchema: AskFocusAiOutputSchema,
   },
   async (flowInput: ChatWithCaseInput) => {
     const fullPrompt = systemInstructionTemplate.replace('{{{caseSummary}}}', flowInput.caseSummary) + "\n\nUser: " + flowInput.userQuery;
+
+    console.log('CRITICAL_AI_DEBUG: Preparing to call ai.generate() with:');
+    // Be cautious logging potentially large/sensitive data in production
+    // For debugging, this can be very helpful.
+    // console.log('CRITICAL_AI_DEBUG: Full Prompt (first 500 chars):', fullPrompt.substring(0, 500));
+    // console.log('CRITICAL_AI_DEBUG: Chat History:', JSON.stringify(flowInput.chatHistory, null, 2));
+    console.log('CRITICAL_AI_DEBUG: Model:', 'googleai/gemini-2.0-flash');
+
 
     let generationResult;
     try {
@@ -101,3 +109,4 @@ const chatWithCaseFlow = ai.defineFlow(
     return { aiResponse: aiResponseText };
   }
 );
+
