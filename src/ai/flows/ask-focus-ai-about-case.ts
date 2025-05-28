@@ -66,8 +66,8 @@ const askFocusAiFlow = ai.defineFlow(
         model: 'googleai/gemini-2.0-flash', // Ensure a chat-capable model
       });
     
-    if (!generationResult || typeof generationResult.response === 'undefined') {
-      console.error('AI generation call did not return a valid response object:', generationResult);
+    if (!generationResult || !generationResult.response) {
+      console.error('AI generation call did not return a valid response object or response envelope. Full generationResult:', generationResult);
       throw new Error('AI service failed to provide a response envelope.');
     }
 
