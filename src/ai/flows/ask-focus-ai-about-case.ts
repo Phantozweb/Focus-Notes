@@ -54,39 +54,26 @@ export async function askFocusAiAboutCase(input: AskFocusAiInput): Promise<AskFo
 const askFocusAiFlow = ai.defineFlow(
   {
     name: 'askFocusAiAboutCaseFlow',
-    inputSchema: AskFocusAiInputClientSchema, // Takes caseSummary, userQuery, and GenkitChatMessage[] history
-    outputSchema: AskFocusAiOutputSchema,
+    inputSchema: AskFocusAiInputClientSchema,
+    outputSchema: AskFocusAiOutputSchema, // Still define the flow's output schema for type safety
   },
   async (flowInput) => {
-    // Render the system instruction with the specific case summary
     const renderedSystemInstruction = systemInstructionTemplate.replace('{{{caseSummary}}}', flowInput.caseSummary);
-
-    // Combine system instruction with the user's query
     const fullPrompt = `${renderedSystemInstruction}\n\nUser: ${flowInput.userQuery}\nFocus AI:`;
 
     const generationResult = await ai.generate({
-        prompt: fullPrompt, // Combined prompt
-        history: flowInput.chatHistory, // Pass structured history
-        output: { schema: AskFocusAiOutputSchema },
-        model: 'googleai/gemini-1.5-flash-latest',
-        config: { // Added permissive safety settings for diagnostics
+        prompt: fullPrompt,
+        history: flowInput.chatHistory,
+        model: 'googleai/gemini-1.5-flash-latest', // Keep this consistent and robust model
+        // Temporarily remove output schema to get raw text.
+        // We will manually construct the AskFocusAiOutputSchema if text is received.
+        // output: { schema: AskFocusAiOutputSchema }, 
+        config: {
           safetySettings: [
-            {
-              category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
-              threshold: 'BLOCK_NONE',
-            },
-            {
-              category: 'HARM_CATEGORY_HARASSMENT',
-              threshold: 'BLOCK_NONE',
-            },
-            {
-              category: 'HARM_CATEGORY_HATE_SPEECH',
-              threshold: 'BLOCK_NONE',
-            },
-            {
-              category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
-              threshold: 'BLOCK_NONE',
-            },
+            { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
+            { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
+            { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
+            { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
           ],
         },
       });
@@ -102,21 +89,26 @@ const askFocusAiFlow = ai.defineFlow(
           detailMessage += ` SafetyRatings: ${JSON.stringify(safetyRatings)}.`;
         }
       }
-      console.error(detailMessage, 'Full generationResult:', generationResult);
+      // Log the entire generationResult for deep inspection
+      console.error(detailMessage, 'Full generationResult:', JSON.stringify(generationResult, null, 2));
       throw new Error(detailMessage);
     }
 
-    const genResponse = generationResult.response; // genResponse is GenerationResponse type
-    const output = genResponse.output; // output is AskFocusAiOutput | undefined
+    // Genkit 1.x: Access raw text via response.text
+    const aiTextResponse = generationResult.response.text; 
 
-    if (typeof output === 'undefined') {
-      const finishReason = genResponse.candidates?.[0]?.finishReason;
-      const safetyRatings = genResponse.candidates?.[0]?.safetyRatings;
-      console.error('AI response did not contain the expected output.', { finishReason, safetyRatings, genResponse });
-      throw new Error(`AI did not return a structured response. Finish reason: ${finishReason || 'unknown'}`);
+    if (typeof aiTextResponse === 'undefined' || aiTextResponse === null || aiTextResponse.trim() === "") {
+        // This block handles cases where a response envelope exists, but no text content.
+        const finishReason = generationResult.response.candidates?.[0]?.finishReason;
+        const safetyRatings = generationResult.response.candidates?.[0]?.safetyRatings;
+        // Log the entire generationResult for deep inspection
+        console.error('AI response envelope was present, but did not contain text or contained empty text.', { finishReason, safetyRatings, generationResult: JSON.stringify(generationResult, null, 2) });
+        throw new Error(`AI did not return usable text. Finish reason: ${finishReason || 'unknown'}`);
     }
     
-    return output; // output is guaranteed to be AskFocusAiOutput here
+    // Manually structure the output to match AskFocusAiOutputSchema
+    return { aiResponse: aiTextResponse };
   }
 );
 
+    
