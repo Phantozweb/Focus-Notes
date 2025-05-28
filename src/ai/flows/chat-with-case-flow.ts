@@ -10,7 +10,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
-import type { GenkitChatMessage } from '@/types/case';
+import type { GenkitChatMessage } from '@/types/case'; // Keep this for input type
 
 const ChatWithCaseInputSchema = z.object({
   caseSummary: z.string().describe('A detailed summary of the optometry case.'),
@@ -30,83 +30,85 @@ export type ChatWithCaseOutput = z.infer<typeof AskFocusAiOutputSchema>;
 
 const systemInstructionTemplate = `You are Focus AI, an expert optometry learning assistant.
 Your primary goal is to help the user understand the detailed optometry case provided below.
-
-**IMPORTANT INSTRUCTION:** Before answering any questions, carefully review the entire <OptometryCaseSummary> provided below. All your responses MUST be based SOLELY on this summary and the ongoing chat history.
-
-YOU MUST BASE YOUR RESPONSES **SOLELY** ON THE INFORMATION CONTAINED WITHIN THE <OptometryCaseSummary> XML TAGS and the ongoing conversation history.
+YOU MUST BASE YOUR RESPONSES **SOLELY** ON THE INFORMATION CONTAINED WITHIN THE <OptometryCaseSummary> AND THE <ChatHistory> XML TAGS.
 DO NOT USE ANY EXTERNAL KNOWLEDGE or invent information.
-If a question cannot be answered from the provided case details, or if it is outside the scope of the current case, YOU MUST POLITELY STATE that the information is not available in this specific case.
+If a question cannot be answered from the provided details, POLITELY STATE that the information is not available.
 
 <OptometryCaseSummary>
 {{{caseSummary}}}
 </OptometryCaseSummary>
+`;
 
-Remember, your knowledge is strictly limited to the case summary provided above and the chat history. Please proceed to answer the user's query about THIS case.`;
-
-
-export async function chatWithCase(input: ChatWithCaseInput): Promise<ChatWithCaseOutput> {
-  return askFocusAiFlow(input);
-}
-
-const askFocusAiFlow = ai.defineFlow(
-  {
-    name: 'askFocusAiFlow',
-    inputSchema: ChatWithCaseInputSchema,
-    outputSchema: AskFocusAiOutputSchema,
-  },
-  async (flowInput: ChatWithCaseInput) => {
-    const fullPrompt = systemInstructionTemplate.replace('{{{caseSummary}}}', flowInput.caseSummary) + "\n\nUser: " + flowInput.userQuery;
-
-    console.log('CRITICAL_AI_DEBUG: Preparing to call ai.generate() with:');
-    // Be cautious logging potentially large/sensitive data in production
-    // For debugging, this can be very helpful.
-    // console.log('CRITICAL_AI_DEBUG: Full Prompt (first 500 chars):', fullPrompt.substring(0, 500));
-    // console.log('CRITICAL_AI_DEBUG: Chat History:', JSON.stringify(flowInput.chatHistory, null, 2));
-    console.log('CRITICAL_AI_DEBUG: Model:', 'googleai/gemini-2.0-flash');
-
-
-    let generationResult;
-    try {
-      generationResult = await ai.generate({
-        prompt: fullPrompt,
-        history: flowInput.chatHistory as GenkitChatMessage[],
-        model: 'googleai/gemini-2.0-flash',
-        // Removed explicit config block to use API/plugin defaults for safety and temperature
-      });
-    } catch (e: any) {
-      console.error('CRITICAL_AI_DEBUG: Error during ai.generate() call:', e);
-      throw new Error(`AI generation call failed: ${e.message || 'Unknown error'}`);
-    }
-    
-
-    if (!generationResult) {
-      console.error('CRITICAL_AI_DEBUG: The entire generationResult from ai.generate() was null or undefined.');
-      throw new Error('AI service call returned no result (generationResult is null/undefined).');
-    }
-
-    if (!generationResult.response) {
-      let detailMessage = 'AI service failed to provide a response envelope.';
-      if (generationResult && generationResult.candidates && generationResult.candidates.length > 0) {
-        const firstCandidate = generationResult.candidates[0];
-        detailMessage += ` Finish Reason: ${firstCandidate.finishReason || 'N/A'}.`;
-        if (firstCandidate.safetyRatings && firstCandidate.safetyRatings.length > 0) {
-          detailMessage += ` Safety Ratings: ${JSON.stringify(firstCandidate.safetyRatings)}.`;
-        }
-      }
-      // Log the entire generationResult for deep inspection
-      console.error('CRITICAL_AI_DEBUG:', detailMessage, 'Prompt length:', fullPrompt.length, 'Chat history entries:', flowInput.chatHistory?.length || 0);
-      console.error('CRITICAL_AI_DEBUG: Full generationResult object:', JSON.stringify(generationResult, null, 2));
-      throw new Error(detailMessage);
-    }
-
-    // Genkit 1.x: Access raw text via response.text
-    const aiResponseText = generationResult.response.text;
-    if (typeof aiResponseText !== 'string') {
-      console.error('CRITICAL_AI_DEBUG: AI response text is not a string. Full response:', JSON.stringify(generationResult.response, null, 2));
-      throw new Error('AI returned an invalid response format.');
-    }
-
-    return { aiResponse: aiResponseText };
+export async function chatWithCase(flowInput: ChatWithCaseInput): Promise<ChatWithCaseOutput> {
+  // 1. Construct chat history string for inlining
+  let historyString = "<ChatHistory>\n";
+  if (flowInput.chatHistory && flowInput.chatHistory.length > 0) {
+    flowInput.chatHistory.forEach(msg => {
+      // Assuming msg.parts[0].text exists and is the primary content
+      historyString += `${msg.role === 'user' ? 'User' : 'FocusAI'}: ${msg.parts[0]?.text || ''}\n`;
+    });
+  } else {
+    historyString += "No previous messages in this session.\n";
   }
-);
+  historyString += "</ChatHistory>\n\n";
 
+  // 2. Construct the full prompt
+  const systemSegment = systemInstructionTemplate.replace('{{{caseSummary}}}', flowInput.caseSummary);
+  const fullPrompt = systemSegment + historyString + `Current User Query: ${flowInput.userQuery}`;
+
+  console.log('CRITICAL_AI_DEBUG: Preparing to call ai.generate() with:');
+  console.log('CRITICAL_AI_DEBUG: Full Prompt (first 500 chars):', fullPrompt.substring(0, 500));
+  if (flowInput.chatHistory && flowInput.chatHistory.length > 0) {
+    const lastFewHistory = flowInput.chatHistory.slice(-3); // Log last 3 for brevity
+    console.log('CRITICAL_AI_DEBUG: Chat History (last 3 entries for prompt):', JSON.stringify(lastFewHistory.map(m => ({role: m.role, text: m.parts[0]?.text})), null, 2));
+  }
+  console.log('CRITICAL_AI_DEBUG: Model:', 'googleai/gemini-2.0-flash');
+
+
+  let generationResult;
+  try {
+    generationResult = await ai.generate({
+      prompt: fullPrompt,
+      // History parameter is intentionally omitted; history is now in fullPrompt
+      model: 'googleai/gemini-2.0-flash',
+      // Config block (temperature, safety settings) is currently removed for maximum simplicity
+    });
+  } catch (e: any) {
+    console.error('CRITICAL_AI_DEBUG: Error during ai.generate() call:', e);
+    // Log the full prompt on error for easier debugging if it's a prompt-related API error
+    if (e.message && e.message.includes('prompt')) {
+        console.error('CRITICAL_AI_DEBUG: Full prompt that may have caused error:', fullPrompt);
+    }
+    throw new Error(`AI generation call failed: ${e.message || 'Unknown error'}`);
+  }
+  
+
+  if (!generationResult) {
+    console.error('CRITICAL_AI_DEBUG: The entire generationResult from ai.generate() was null or undefined.');
+    throw new Error('AI service call returned no result (generationResult is null/undefined).');
+  }
+
+  if (!generationResult.response) {
+    let detailMessage = 'AI service failed to provide a response envelope.';
+    if (generationResult.candidates && generationResult.candidates.length > 0) {
+      const firstCandidate = generationResult.candidates[0];
+      detailMessage += ` Finish Reason: ${firstCandidate.finishReason || 'N/A'}.`;
+      if (firstCandidate.safetyRatings && firstCandidate.safetyRatings.length > 0) {
+        detailMessage += ` Safety Ratings: ${JSON.stringify(firstCandidate.safetyRatings)}.`;
+      }
+    }
+    // Enhanced logging for this specific failure case
+    console.error('CRITICAL_AI_DEBUG:', detailMessage, 'Prompt length:', fullPrompt.length, 'Chat history entries (in input):', flowInput.chatHistory?.length || 0);
+    console.error('CRITICAL_AI_DEBUG: Full generationResult object:', JSON.stringify(generationResult, null, 2));
+    throw new Error(detailMessage);
+  }
+
+  // Genkit 1.x: Access raw text via response.text
+  const aiResponseText = generationResult.response.text;
+  if (typeof aiResponseText !== 'string') {
+    console.error('CRITICAL_AI_DEBUG: AI response text is not a string. Full response:', JSON.stringify(generationResult.response, null, 2));
+    throw new Error('AI returned an invalid response format.');
+  }
+
+  return { aiResponse: aiResponseText };
+}
