@@ -12,6 +12,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Input } from '@/components/ui/input';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import ReactMarkdown from 'react-markdown';
 
 import { 
   Eye, Glasses, ShieldCheck, FileText, Brain, Lightbulb, AlertTriangle, Loader2, 
@@ -178,6 +179,7 @@ export default function CaseDetailPage() {
       const foundCase = storedCases.find(c => c.id === caseId);
       setCurrentCase(foundCase || null);
     } else if (caseId && storedCases.length === 0 && typeof window !== 'undefined' && localStorage.getItem('optometryCases')) {
+      // Attempt to load directly if useLocalStorage hasn't hydrated yet but data exists
       const casesFromStorage = JSON.parse(localStorage.getItem('optometryCases') || '[]');
       const foundCase = casesFromStorage.find((c: StoredOptometryCase) => c.id === caseId);
       setCurrentCase(foundCase || null);
@@ -447,9 +449,26 @@ export default function CaseDetailPage() {
                                             >
                                             {msg.role === 'assistant' && <Bot className="h-6 w-6 text-primary flex-shrink-0 mt-1" />}
                                             {msg.role === 'user' && <UserIcon className="h-6 w-6 text-foreground/70 flex-shrink-0 mt-1" />}
-                                            <p className="text-sm whitespace-pre-wrap break-words leading-relaxed">
-                                                {msg.content}
-                                            </p>
+                                            
+                                            {msg.role === 'assistant' ? (
+                                                <ReactMarkdown
+                                                    className="text-sm whitespace-pre-wrap break-words leading-relaxed prose prose-sm max-w-none"
+                                                    components={{ 
+                                                        // Optional: Custom renderers for markdown elements if needed
+                                                        p: ({node, ...props}) => <p className="mb-2 last:mb-0" {...props} />,
+                                                        ul: ({node, ...props}) => <ul className="list-disc list-inside mb-2" {...props} />,
+                                                        ol: ({node, ...props}) => <ol className="list-decimal list-inside mb-2" {...props} />,
+                                                        li: ({node, ...props}) => <li className="mb-1" {...props} />,
+                                                        strong: ({node, ...props}) => <strong className="font-semibold" {...props} />,
+                                                      }}
+                                                >
+                                                    {msg.content}
+                                                </ReactMarkdown>
+                                            ) : (
+                                                <p className="text-sm whitespace-pre-wrap break-words leading-relaxed">
+                                                    {msg.content}
+                                                </p>
+                                            )}
                                             </div>
                                         ))}
                                     </ScrollArea>
