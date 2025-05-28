@@ -69,7 +69,7 @@ const askFocusAiFlow = ai.defineFlow(
         // system: renderedSystemInstruction, // REMOVED: System role not supported by model in this configuration
         history: flowInput.chatHistory, // Pass structured history
         output: { schema: AskFocusAiOutputSchema },
-        model: 'googleai/gemini-pro', 
+        model: 'googleai/gemini-1.5-flash-latest', 
       });
     
     if (!generationResult || !generationResult.response) {
