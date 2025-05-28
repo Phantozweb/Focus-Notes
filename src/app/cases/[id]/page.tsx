@@ -409,7 +409,7 @@ export default function CaseDetailPage() {
                     <div className="space-y-4 p-4 border rounded-lg bg-card/50">
                       <div>
                         <h4 className="font-medium flex items-center gap-1 mb-2"><Lightbulb className="h-5 w-5 text-accent" />Case Insights:</h4>
-                        <p className="text-sm bg-accent/10 p-3 rounded-md text-accent-foreground/80 whitespace-pre-wrap">{analysis.caseInsights}</p>
+                        <p className="text-sm bg-accent/10 p-3 rounded-md text-foreground/90 whitespace-pre-wrap">{analysis.caseInsights}</p>
                       </div>
                       <Button onClick={handleAnalyzeCase} disabled={isAnalyzing} size="sm" variant="outline" className="mt-4">
                         {isAnalyzing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Brain className="mr-2 h-4 w-4" />}
@@ -485,3 +485,4 @@ export default function CaseDetailPage() {
     </MainLayout>
   );
 }
+
