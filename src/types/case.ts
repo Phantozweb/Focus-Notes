@@ -102,25 +102,24 @@ export interface StoredOptometryCase extends FullOptometryCaseData {
   analysisError?: string; // If AI analysis fails
 }
 
-// Types for chat removed
-// export interface ChatMessage {
-//   role: 'user' | 'assistant';
-//   content: string;
-//   id: string;
-// }
+// Chat related types
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+}
 
-// export interface GenkitChatMessage {
-//   role: 'user' | 'model';
-//   parts: Array<{ text: string }>;
-// }
+export interface GenkitChatMessage {
+  role: 'user' | 'model'; // 'model' corresponds to 'assistant'
+  parts: Array<{ text: string }>;
+}
 
-// export interface AskFocusAiInput {
-//   caseSummary: string;
-//   userQuery: string;
-//   chatHistory?: GenkitChatMessage[];
-// }
+export interface ChatWithCaseInput {
+  caseSummary: string;
+  userQuery: string;
+  chatHistory?: GenkitChatMessage[];
+}
 
-// export interface AskFocusAiOutput {
-//   aiResponse: string;
-// }
-
+export interface ChatWithCaseOutput {
+  aiResponse: string;
+}

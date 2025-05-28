@@ -4,5 +4,4 @@ config();
 
 import '@/ai/flows/analyze-optometry-case.ts';
 import '@/ai/flows/extract-case-insights.ts';
-// Removed: import '@/ai/flows/ask-focus-ai-about-case.ts';
-
+import '@/ai/flows/chat-with-case-flow.ts'; // Added new chat flow
