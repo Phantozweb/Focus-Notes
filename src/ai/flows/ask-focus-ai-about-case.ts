@@ -63,7 +63,7 @@ const askFocusAiFlow = ai.defineFlow(
         model: 'googleai/gemini-2.0-flash', // Ensure a chat-capable model
       });
     
-    const output = response.output();
+    const output = response.output; // Corrected: Access .output as a property
     if (!output) {
       throw new Error("AI did not return a response.");
     }
