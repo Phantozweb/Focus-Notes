@@ -102,27 +102,25 @@ export interface StoredOptometryCase extends FullOptometryCaseData {
   analysisError?: string; // If AI analysis fails
 }
 
-// Type for chat messages on the frontend
-export interface ChatMessage {
-  role: 'user' | 'assistant';
-  content: string;
-  id: string;
-}
+// Types for chat removed
+// export interface ChatMessage {
+//   role: 'user' | 'assistant';
+//   content: string;
+//   id: string;
+// }
 
-// Type for chat history passed to Genkit flow
-// Matches Genkit/Gemini Content structure
-export interface GenkitChatMessage {
-  role: 'user' | 'model';
-  parts: Array<{ text: string }>;
-}
+// export interface GenkitChatMessage {
+//   role: 'user' | 'model';
+//   parts: Array<{ text: string }>;
+// }
 
-// For the new AI flow input
-export interface AskFocusAiInput {
-  caseSummary: string;
-  userQuery: string;
-  chatHistory?: GenkitChatMessage[];
-}
+// export interface AskFocusAiInput {
+//   caseSummary: string;
+//   userQuery: string;
+//   chatHistory?: GenkitChatMessage[];
+// }
 
-export interface AskFocusAiOutput {
-  aiResponse: string;
-}
+// export interface AskFocusAiOutput {
+//   aiResponse: string;
+// }
+
