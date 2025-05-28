@@ -63,7 +63,7 @@ const askFocusAiFlow = ai.defineFlow(
         system: renderedSystemInstruction, // Pass rendered system instruction
         history: flowInput.chatHistory, // Pass structured history
         output: { schema: AskFocusAiOutputSchema },
-        model: 'googleai/gemini-2.0-flash', // Ensure a chat-capable model
+        model: 'googleai/gemini-1.5-flash-latest', // Changed to gemini-1.5-flash-latest
       });
     
     if (!generationResult || !generationResult.response) {
