@@ -31,19 +31,7 @@ const AskFocusAiOutputSchema = z.object({
 export type AskFocusAiOutput = z.infer<typeof AskFocusAiOutputSchema>;
 
 
-// This schema is for the prompt template's direct input, prepared by the flow
-const PromptTemplateInputSchema = z.object({
-  caseSummary: z.string(),
-  // chatHistoryString: z.string(), // History will be passed directly to ai.generate
-  currentQuery: z.string(),
-});
-
-
-export async function askFocusAiAboutCase(input: AskFocusAiInput): Promise<AskFocusAiOutput> {
-  return askFocusAiFlow(input);
-}
-
-const systemInstruction = `You are Focus AI, an expert optometry learning assistant.
+const systemInstructionTemplate = `You are Focus AI, an expert optometry learning assistant.
 Your role is to help the user understand the provided optometry case better by answering their questions.
 Base your answers ONLY on the information given in the case details below and the conversation history.
 Do not invent information or use external knowledge beyond general optometry principles for interpretation.
@@ -53,15 +41,9 @@ Optometry Case Summary:
 {{{caseSummary}}}`;
 
 
-// The main prompt template just takes the current query, system prompt handles the rest
-const focusAiPrompt = ai.definePrompt({
-  name: 'focusAiCaseInteractionPrompt',
-  input: { schema: PromptTemplateInputSchema }, // Will be caseSummary and currentQuery
-  output: { schema: AskFocusAiOutputSchema },
-  template: systemInstruction, // System instructions including case summary placeholder
-  prompt: `{{{currentQuery}}}`, // The user's direct current query
-});
-
+export async function askFocusAiAboutCase(input: AskFocusAiInput): Promise<AskFocusAiOutput> {
+  return askFocusAiFlow(input);
+}
 
 const askFocusAiFlow = ai.defineFlow(
   {
@@ -70,17 +52,12 @@ const askFocusAiFlow = ai.defineFlow(
     outputSchema: AskFocusAiOutputSchema,
   },
   async (flowInput) => {
-    // Prepare the input for the prompt (which includes the system message template)
-    const promptTemplateData = {
-      caseSummary: flowInput.caseSummary,
-      currentQuery: flowInput.userQuery, // This will fill the main prompt part
-    };
+    // Render the system instruction with the specific case summary
+    const renderedSystemInstruction = systemInstructionTemplate.replace('{{{caseSummary}}}', flowInput.caseSummary);
 
-    // Call the prompt which has the system message embedded.
-    // History is passed separately to the generate call.
     const { response } = await ai.generate({
         prompt: flowInput.userQuery, // User's message
-        system: focusAiPrompt.template.source.replace('{{{caseSummary}}}', flowInput.caseSummary), // Render system prompt
+        system: renderedSystemInstruction, // Pass rendered system instruction
         history: flowInput.chatHistory, // Pass structured history
         output: { schema: AskFocusAiOutputSchema },
         model: ai.getModel('googleai/gemini-2.0-flash'), // Ensure a chat-capable model
@@ -93,3 +70,4 @@ const askFocusAiFlow = ai.defineFlow(
     return output;
   }
 );
+
