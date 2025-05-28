@@ -33,6 +33,9 @@ export type AskFocusAiOutput = z.infer<typeof AskFocusAiOutputSchema>;
 
 const systemInstructionTemplate = `You are Focus AI, an expert optometry learning assistant.
 Your primary goal is to help the user understand the detailed optometry case provided below.
+
+**IMPORTANT INSTRUCTION:** Before answering any questions, carefully review the entire <OptometryCaseSummary> provided below. All your responses MUST be based SOLELY on this summary and the ongoing chat history.
+
 YOU MUST BASE YOUR RESPONSES **SOLELY** ON THE INFORMATION CONTAINED WITHIN THE <OptometryCaseSummary> XML TAGS and the ongoing conversation history.
 DO NOT USE ANY EXTERNAL KNOWLEDGE or invent information.
 If a question cannot be answered from the provided case details, or if it is outside the scope of the current case, YOU MUST POLITELY STATE that the information is not available in this specific case.
@@ -63,7 +66,7 @@ const askFocusAiFlow = ai.defineFlow(
         system: renderedSystemInstruction, // Pass rendered system instruction
         history: flowInput.chatHistory, // Pass structured history
         output: { schema: AskFocusAiOutputSchema },
-        model: 'googleai/gemini-pro', // Changed to gemini-pro for stability
+        model: 'googleai/gemini-pro', 
       });
     
     if (!generationResult || !generationResult.response) {
@@ -94,4 +97,3 @@ const askFocusAiFlow = ai.defineFlow(
     return output; // output is guaranteed to be AskFocusAiOutput here
   }
 );
-
