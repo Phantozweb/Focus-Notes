@@ -55,7 +55,7 @@ const askFocusAiFlow = ai.defineFlow(
   {
     name: 'askFocusAiAboutCaseFlow',
     inputSchema: AskFocusAiInputClientSchema,
-    outputSchema: AskFocusAiOutputSchema, // Still define the flow's output schema for type safety
+    outputSchema: AskFocusAiOutputSchema,
   },
   async (flowInput) => {
     const renderedSystemInstruction = systemInstructionTemplate.replace('{{{caseSummary}}}', flowInput.caseSummary);
@@ -64,9 +64,8 @@ const askFocusAiFlow = ai.defineFlow(
     const generationResult = await ai.generate({
         prompt: fullPrompt,
         history: flowInput.chatHistory,
-        model: 'googleai/gemini-1.5-flash-latest', // Keep this consistent and robust model
-        // Temporarily remove output schema to get raw text.
-        // We will manually construct the AskFocusAiOutputSchema if text is received.
+        model: 'googleai/gemini-1.5-flash-latest',
+        // REMOVED output schema to simplify the request and get raw text
         // output: { schema: AskFocusAiOutputSchema }, 
         config: {
           safetySettings: [
@@ -94,13 +93,15 @@ const askFocusAiFlow = ai.defineFlow(
       throw new Error(detailMessage);
     }
 
+    const genResponse = generationResult.response; 
+
     // Genkit 1.x: Access raw text via response.text
-    const aiTextResponse = generationResult.response.text; 
+    const aiTextResponse = genResponse.text; 
 
     if (typeof aiTextResponse === 'undefined' || aiTextResponse === null || aiTextResponse.trim() === "") {
         // This block handles cases where a response envelope exists, but no text content.
-        const finishReason = generationResult.response.candidates?.[0]?.finishReason;
-        const safetyRatings = generationResult.response.candidates?.[0]?.safetyRatings;
+        const finishReason = genResponse.candidates?.[0]?.finishReason;
+        const safetyRatings = genResponse.candidates?.[0]?.safetyRatings;
         // Log the entire generationResult for deep inspection
         console.error('AI response envelope was present, but did not contain text or contained empty text.', { finishReason, safetyRatings, generationResult: JSON.stringify(generationResult, null, 2) });
         throw new Error(`AI did not return usable text. Finish reason: ${finishReason || 'unknown'}`);
@@ -110,5 +111,3 @@ const askFocusAiFlow = ai.defineFlow(
     return { aiResponse: aiTextResponse };
   }
 );
-
-    
