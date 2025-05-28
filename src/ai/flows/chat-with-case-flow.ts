@@ -57,21 +57,19 @@ const chatWithCaseFlow = ai.defineFlow(
   async (flowInput: ChatWithCaseInput) => {
     const fullPrompt = systemInstructionTemplate.replace('{{{caseSummary}}}', flowInput.caseSummary) + "\n\nUser: " + flowInput.userQuery;
 
-    const generationResult = await ai.generate({
-      prompt: fullPrompt,
-      history: flowInput.chatHistory as GenkitChatMessage[], 
-      model: 'googleai/gemini-2.0-flash', 
-      config: {
-        temperature: 0.5, 
-        safetySettings: [ 
-          { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
-          { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
-          { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
-          { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
-        ],
-      },
-      // No output schema here, we'll take the raw text.
-    });
+    let generationResult;
+    try {
+      generationResult = await ai.generate({
+        prompt: fullPrompt,
+        history: flowInput.chatHistory as GenkitChatMessage[],
+        model: 'googleai/gemini-2.0-flash',
+        // Removed explicit config block to use API/plugin defaults for safety and temperature
+      });
+    } catch (e: any) {
+      console.error('CRITICAL_AI_DEBUG: Error during ai.generate() call:', e);
+      throw new Error(`AI generation call failed: ${e.message || 'Unknown error'}`);
+    }
+    
 
     if (!generationResult) {
       console.error('CRITICAL_AI_DEBUG: The entire generationResult from ai.generate() was null or undefined.');
@@ -88,8 +86,8 @@ const chatWithCaseFlow = ai.defineFlow(
         }
       }
       // Log the entire generationResult for deep inspection
-      console.error('CRITICAL_AI_DEBUG:', detailMessage, 'Full generationResult object:', JSON.stringify(generationResult, null, 2));
-      console.error('Prompt length:', fullPrompt.length, 'Chat history entries:', flowInput.chatHistory?.length || 0);
+      console.error('CRITICAL_AI_DEBUG:', detailMessage, 'Prompt length:', fullPrompt.length, 'Chat history entries:', flowInput.chatHistory?.length || 0);
+      console.error('CRITICAL_AI_DEBUG: Full generationResult object:', JSON.stringify(generationResult, null, 2));
       throw new Error(detailMessage);
     }
 
