@@ -66,10 +66,29 @@ const askFocusAiFlow = ai.defineFlow(
 
     const generationResult = await ai.generate({
         prompt: fullPrompt, // Combined prompt
-        // system: renderedSystemInstruction, // REMOVED: System role not supported by model in this configuration
         history: flowInput.chatHistory, // Pass structured history
         output: { schema: AskFocusAiOutputSchema },
-        model: 'googleai/gemini-1.5-flash-latest', 
+        model: 'googleai/gemini-1.5-flash-latest',
+        config: { // Added permissive safety settings for diagnostics
+          safetySettings: [
+            {
+              category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+              threshold: 'BLOCK_NONE',
+            },
+            {
+              category: 'HARM_CATEGORY_HARASSMENT',
+              threshold: 'BLOCK_NONE',
+            },
+            {
+              category: 'HARM_CATEGORY_HATE_SPEECH',
+              threshold: 'BLOCK_NONE',
+            },
+            {
+              category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
+              threshold: 'BLOCK_NONE',
+            },
+          ],
+        },
       });
     
     if (!generationResult || !generationResult.response) {
