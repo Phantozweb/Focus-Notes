@@ -60,7 +60,7 @@ const chatWithCaseFlow = ai.defineFlow(
     const generationResult = await ai.generate({
       prompt: fullPrompt,
       history: flowInput.chatHistory as GenkitChatMessage[], // Cast to satisfy Genkit's type if needed
-      model: 'googleai/gemini-1.5-flash-latest',
+      model: 'googleai/gemini-2.0-flash', // Updated model
       config: {
         temperature: 0.5, // Adjust for creativity vs. factuality
         safetySettings: [ // Permissive settings for diagnostics
@@ -82,10 +82,12 @@ const chatWithCaseFlow = ai.defineFlow(
           detailMessage += ` Safety Ratings: ${JSON.stringify(firstCandidate.safetyRatings)}.`;
         }
       }
+      // Log the entire generationResult for deep inspection
       console.error(detailMessage, 'Full generationResult:', JSON.stringify(generationResult, null, 2));
       throw new Error(detailMessage);
     }
 
+    // Genkit 1.x: Access raw text via response.text
     const aiResponseText = generationResult.response.text;
     if (typeof aiResponseText !== 'string') {
       console.error('AI response text is not a string. Full response:', JSON.stringify(generationResult.response, null, 2));
@@ -95,3 +97,4 @@ const chatWithCaseFlow = ai.defineFlow(
     return { aiResponse: aiResponseText };
   }
 );
+
