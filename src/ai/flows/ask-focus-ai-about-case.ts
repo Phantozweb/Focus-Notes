@@ -67,8 +67,18 @@ const askFocusAiFlow = ai.defineFlow(
       });
     
     if (!generationResult || !generationResult.response) {
-      console.error('AI generation call did not return a valid response object or response envelope. Full generationResult:', generationResult);
-      throw new Error('AI service failed to provide a response envelope.');
+      let detailMessage = 'AI service failed to provide a response envelope.';
+      if (generationResult && generationResult.candidates && generationResult.candidates.length > 0) {
+        const firstCandidate = generationResult.candidates[0];
+        const finishReason = firstCandidate.finishReason;
+        const safetyRatings = firstCandidate.safetyRatings;
+        detailMessage += ` Potential issue: FinishReason - ${finishReason || 'unknown'}.`;
+        if (safetyRatings && safetyRatings.length > 0) {
+          detailMessage += ` SafetyRatings: ${JSON.stringify(safetyRatings)}.`;
+        }
+      }
+      console.error(detailMessage, 'Full generationResult:', generationResult);
+      throw new Error(detailMessage);
     }
 
     const genResponse = generationResult.response; // genResponse is GenerationResponse type
