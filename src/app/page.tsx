@@ -27,7 +27,7 @@ export default function HomePage() {
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-primary mb-6 animate-fade-in-down">
             Focus CaseX
           </h1>
-          <p className="text-lg sm:text-xl md:text-2xl text-foreground/80 mb-6 max-w-3xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+          <p className="text-xl sm:text-2xl md:text-3xl font-semibold text-primary/90 mb-8 max-w-3xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
             Experience the Future of Optometry Learning with AI-Powered Case Management.
           </p>
           <p className="text-md sm:text-lg text-foreground/70 mb-10 max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
@@ -40,10 +40,10 @@ export default function HomePage() {
       <section className="py-16 md:py-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
-            <Card className="shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col bg-card rounded-xl overflow-hidden transform hover:-translate-y-1">
+            <Card className="shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col bg-card rounded-xl overflow-hidden transform hover:-translate-y-1 group">
               <CardHeader className="bg-primary/5 p-6">
                 <div className="flex items-center gap-4">
-                  <NotebookPen className="h-10 w-10 text-primary" />
+                  <NotebookPen className="h-10 w-10 text-primary transition-transform duration-300 group-hover:scale-110" />
                   <div>
                     <CardTitle className="text-2xl text-primary">Log New Case</CardTitle>
                     <p className="text-sm text-muted-foreground">Interactive EMR with AI Assist</p>
@@ -62,10 +62,10 @@ export default function HomePage() {
               </CardFooter>
             </Card>
 
-            <Card className="shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col bg-card rounded-xl overflow-hidden transform hover:-translate-y-1">
+            <Card className="shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col bg-card rounded-xl overflow-hidden transform hover:-translate-y-1 group">
               <CardHeader className="bg-primary/5 p-6">
                 <div className="flex items-center gap-4">
-                  <FolderKanban className="h-10 w-10 text-primary" />
+                  <FolderKanban className="h-10 w-10 text-primary transition-transform duration-300 group-hover:scale-110" />
                    <div>
                     <CardTitle className="text-2xl text-primary">View & Analyze Cases</CardTitle>
                     <p className="text-sm text-muted-foreground">Deep Dive with AI Chat</p>
