@@ -26,16 +26,25 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
 const DetailItem = ({ icon: Icon, label, value, isFullWidth = false, isPreWrap = false }: { icon: React.ElementType, label: string, value?: string | number | null | Date, isFullWidth?: boolean, isPreWrap?: boolean }) => {
-  if (!value && value !== 0 && typeof value !== 'boolean') return null; 
-  
-  let displayValue: string | React.ReactNode = value instanceof Date ? format(new Date(value), 'PPP') : String(value);
+  // Check if the value is effectively empty (null, undefined, or an empty/whitespace string)
+  // but allow explicit 0 or false to be displayed.
+  const isValuePresent = value !== null && value !== undefined && (typeof value === 'string' ? value.trim() !== '' : true);
+  const shouldDisplayValue = (typeof value === 'number' && value === 0) || typeof value === 'boolean' || isValuePresent;
 
-  if (typeof value === 'string' && (value.startsWith('http://') || value.startsWith('https://')) && label.toLowerCase().includes('url')) {
-    displayValue = <a href={value} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline break-all">{value}</a>;
-  } else if (isPreWrap) {
-    displayValue = <pre className="text-sm text-muted-foreground whitespace-pre-wrap font-sans break-words">{String(value)}</pre>;
+  let displayValueNode: React.ReactNode;
+
+  if (shouldDisplayValue) {
+    if (value instanceof Date) {
+      displayValueNode = <p className="text-sm text-muted-foreground break-words">{format(new Date(value), 'PPP')}</p>;
+    } else if (typeof value === 'string' && (value.startsWith('http://') || value.startsWith('https://')) && label.toLowerCase().includes('url')) {
+      displayValueNode = <a href={value} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline break-all">{value}</a>;
+    } else if (isPreWrap) {
+      displayValueNode = <pre className="text-sm text-muted-foreground whitespace-pre-wrap font-sans break-words">{String(value)}</pre>;
+    } else {
+      displayValueNode = <p className="text-sm text-muted-foreground break-words">{String(value)}</p>;
+    }
   } else {
-     displayValue = <p className="text-sm text-muted-foreground break-words">{String(value)}</p>;
+    displayValueNode = <p className="text-sm text-muted-foreground italic">N/A</p>;
   }
 
   return (
@@ -43,13 +52,17 @@ const DetailItem = ({ icon: Icon, label, value, isFullWidth = false, isPreWrap =
       <h4 className="font-medium flex items-center gap-1.5 mb-1 text-foreground">
         <Icon className="h-4 w-4 text-primary flex-shrink-0" />{label}:
       </h4>
-      {displayValue}
+      {displayValueNode}
     </div>
   );
 };
 
 const ODOSDetailItem = ({ icon: Icon, label, valueOD, valueOS, isPreWrap = false }: { icon: React.ElementType, label: string, valueOD?: string | null, valueOS?: string | null, isPreWrap?: boolean }) => {
-  if ((!valueOD && valueOD !==0 && typeof valueOD !== 'boolean') && (!valueOS && valueOS !==0 && typeof valueOS !== 'boolean')) return null;
+  const odDisplay = valueOD !== null && valueOD !== undefined && (typeof valueOD === 'string' ? valueOD.trim() !== '' : true) ? String(valueOD) : 'N/A';
+  const osDisplay = valueOS !== null && valueOS !== undefined && (typeof valueOS === 'string' ? valueOS.trim() !== '' : true) ? String(valueOS) : 'N/A';
+
+  // Only render the component if there's a label (which there always will be)
+  // or if at least one value is meaningfully present (not just "N/A" by default) - though this is handled by showing N/A
   return (
     <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
       <h4 className="font-medium flex items-center gap-1.5 text-foreground sm:col-span-2 mb-1">
@@ -57,11 +70,11 @@ const ODOSDetailItem = ({ icon: Icon, label, valueOD, valueOS, isPreWrap = false
       </h4>
       <div>
         <p className="text-xs font-semibold text-muted-foreground">OD (Right Eye)</p>
-        {isPreWrap ? <pre className="text-sm text-muted-foreground whitespace-pre-wrap font-sans break-words">{valueOD || 'N/A'}</pre> : <p className="text-sm text-muted-foreground break-words">{valueOD || 'N/A'}</p>}
+        {isPreWrap ? <pre className={cn("text-sm text-muted-foreground whitespace-pre-wrap font-sans break-words", odDisplay === 'N/A' && "italic")}>{odDisplay}</pre> : <p className={cn("text-sm text-muted-foreground break-words", odDisplay === 'N/A' && "italic")}>{odDisplay}</p>}
       </div>
       <div>
         <p className="text-xs font-semibold text-muted-foreground">OS (Left Eye)</p>
-        {isPreWrap ? <pre className="text-sm text-muted-foreground whitespace-pre-wrap font-sans break-words">{valueOS || 'N/A'}</pre> : <p className="text-sm text-muted-foreground break-words">{valueOS || 'N/A'}</p>}
+        {isPreWrap ? <pre className={cn("text-sm text-muted-foreground whitespace-pre-wrap font-sans break-words", osDisplay === 'N/A' && "italic")}>{osDisplay}</pre> : <p className={cn("text-sm text-muted-foreground break-words", osDisplay === 'N/A' && "italic")}>{osDisplay}</p>}
       </div>
     </div>
   );
