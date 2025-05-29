@@ -39,7 +39,6 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
   SheetClose,
   SheetFooter,
 } from "@/components/ui/sheet";
@@ -193,16 +192,16 @@ export default function LogNewCasePage() {
   const [assistantMessages, setAssistantMessages] = useState<AssistantChatMessage[]>([]);
   const [currentAssistantInput, setCurrentAssistantInput] = useState('');
   const [isAssistantLoading, setIsAssistantLoading] = useState(false);
-  const assistantScrollAreaRef = useRef<HTMLDivElement>(null);
+  const assistantScrollAreaRef = React.useRef<HTMLDivElement>(null);
 
   const form = useForm<FullOptometryCaseFormValues>({
     resolver: zodResolver(fullOptometryCaseSchema),
     defaultValues: defaultFormValues as FullOptometryCaseFormValues,
   });
 
-  const desktopTabsScrollAreaRef = useRef<HTMLDivElement>(null); 
-  const desktopTabsViewportRef = useRef<HTMLDivElement | null>(null); 
-  const desktopTabsListRef = useRef<HTMLDivElement>(null); 
+  const desktopTabsScrollAreaRef = React.useRef<HTMLDivElement>(null); 
+  const desktopTabsViewportRef = React.useRef<HTMLDivElement | null>(null); 
+  const desktopTabsListRef = React.useRef<HTMLDivElement>(null); 
   
   const [canScrollDesktopLeft, setCanScrollDesktopLeft] = useState(false);
   const [canScrollDesktopRight, setCanScrollDesktopRight] = useState(false);
@@ -609,16 +608,15 @@ export default function LogNewCasePage() {
             </div>
 
             <div className="mb-4 flex justify-center">
-              <SheetTrigger asChild>
                 <Button
                   variant="default"
                   className="shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 ease-in-out group animate-pulse-slow py-3 px-6"
+                  onClick={() => setIsAssistantSheetOpen(true)}
                 >
                   <Bot className="mr-2 h-5 w-5 transition-transform duration-300 ease-in-out group-hover:scale-110" />
                   Focus AI EMR Assistant
                   <Sparkles className="ml-2 h-5 w-5 text-yellow-300 opacity-0 transition-opacity duration-300 ease-in-out group-hover:opacity-100" />
                 </Button>
-              </SheetTrigger>
             </div>
             
             <div className="h-14 flex items-center">
@@ -891,6 +889,8 @@ export default function LogNewCasePage() {
     </MainLayout>
   );
 }
+    
+
     
 
     
