@@ -36,7 +36,7 @@ interface CaseCardProps {
 
 function StoredCaseCard({ caseData, onViewDetails, onDelete }: CaseCardProps) {
   const displayDate = format(new Date(caseData.timestamp), 'MMM d, yyyy, h:mm a');
-  const patientName = (caseData.firstName || caseData.lastName) ? `${caseData.firstName} ${caseData.lastName}`.trim() : 'N/A';
+  const patientName = caseData.name ? caseData.name.trim() : 'N/A';
 
   return (
     <Card className="flex flex-col shadow-lg hover:shadow-xl transition-shadow duration-300 rounded-lg">
@@ -117,9 +117,8 @@ export default function ViewCasesPage() {
         id: c.id,
         timestamp: c.timestamp,
         patientId: c.patientId || '',
-        firstName: c.firstName,
-        lastName: c.lastName,
-        age: c.age || '', // Changed from dateOfBirth
+        name: c.name, // Changed from firstName and lastName
+        age: c.age || '', 
         gender: c.gender || '',
         contactNumber: c.contactNumber || '',
         email: c.email || '',
@@ -182,7 +181,6 @@ export default function ViewCasesPage() {
         internalNotes: c.internalNotes || '',
         reflection: c.reflection || '',
         analysis_caseInsights: c.analysis?.caseInsights || '',
-        // Removed research article fields from CSV as they are no longer part of analysis
         analysisError: c.analysisError || '',
     }));
 
@@ -208,8 +206,7 @@ export default function ViewCasesPage() {
     const lowerSearchTerm = searchTerm.toLowerCase();
     return storedCases.filter(c => 
       c.id.toLowerCase().includes(lowerSearchTerm) ||
-      c.firstName.toLowerCase().includes(lowerSearchTerm) ||
-      c.lastName.toLowerCase().includes(lowerSearchTerm) ||
+      c.name.toLowerCase().includes(lowerSearchTerm) || // Changed from firstName and lastName
       (c.patientId && c.patientId.toLowerCase().includes(lowerSearchTerm)) ||
       c.chiefComplaint.toLowerCase().includes(lowerSearchTerm) ||
       c.assessment.toLowerCase().includes(lowerSearchTerm)

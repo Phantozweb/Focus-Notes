@@ -136,11 +136,11 @@ export default function CaseDetailPage() {
   };
 
   const prepareCaseSummaryString = (caseData: StoredOptometryCase): string => {
-    let summary = `Optometry Case Summary for Patient: ${caseData.firstName} ${caseData.lastName}\n`;
+    let summary = `Optometry Case Summary for Patient: ${caseData.name}\n`;
     summary += `Logged: ${format(new Date(caseData.timestamp), 'PPPp')}\n\n`;
 
     const fieldsToInclude: (keyof StoredOptometryCase)[] = [
-      'patientId', 'age', 'gender', 'contactNumber', 'email', 'address', // Replaced dateOfBirth with age
+      'patientId', 'name', 'age', 'gender', 'contactNumber', 'email', 'address', 
       'chiefComplaint', 'presentIllnessHistory', 'pastOcularHistory', 'pastMedicalHistory',
       'familyOcularHistory', 'familyMedicalHistory', 'medications', 'allergies',
       'visualAcuityUncorrectedOD', 'visualAcuityUncorrectedOS', 'visualAcuityCorrectedOD', 'visualAcuityCorrectedOS',
@@ -159,7 +159,7 @@ export default function CaseDetailPage() {
       const value = caseData[key];
       if (value !== undefined && value !== null && String(value).trim() !== '') {
         const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()); // Format label
-        if (value instanceof Date) { // This condition might not be hit anymore if no Date fields are left
+        if (value instanceof Date) { 
             summary += `${label}: ${format(new Date(value), 'PPP')}\n`;
         } else {
             summary += `${label}: ${String(value)}\n`;
@@ -252,7 +252,7 @@ export default function CaseDetailPage() {
   }
   
   const { analysis, analysisError } = currentCase;
-  const patientName = (currentCase.firstName || currentCase.lastName) ? `${currentCase.firstName} ${currentCase.lastName}`.trim() : `Case ID: ${currentCase.id.substring(0,8)}...`;
+  const patientName = currentCase.name ? currentCase.name.trim() : `Case ID: ${currentCase.id.substring(0,8)}...`;
 
   return (
     <MainLayout>
@@ -280,8 +280,7 @@ export default function CaseDetailPage() {
                   <h3 className="text-lg font-semibold mb-3 text-primary flex items-center"><UserCircle className="mr-2 h-5 w-5" />Patient Information</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 p-4 border rounded-lg bg-card/50">
                     <DetailItem icon={Info} label="Patient ID" value={currentCase.patientId} />
-                    <DetailItem icon={UserIcon} label="First Name" value={currentCase.firstName} />
-                    <DetailItem icon={UserIcon} label="Last Name" value={currentCase.lastName} />
+                    <DetailItem icon={UserIcon} label="Name" value={currentCase.name} />
                     <DetailItem icon={UserIcon} label="Age" value={currentCase.age} />
                     <DetailItem icon={UserIcon} label="Gender" value={currentCase.gender} />
                     <DetailItem icon={Phone} label="Contact Number" value={currentCase.contactNumber} />

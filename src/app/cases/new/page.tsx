@@ -22,12 +22,9 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import {
   User, Briefcase, History, Eye, Microscope, BookOpen, Edit3, Save, FileText as FileTextIcon, ScanEye, ChevronLeft, ChevronRight, NotebookPen, ArrowLeft, Sparkles, Loader2
-} from 'lucide-react'; // Removed CalendarIcon
+} from 'lucide-react'; 
 import type { FullOptometryCaseData, StoredOptometryCase } from '@/types/case';
-// Removed Popover imports as Calendar is removed
-// import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-// import { Calendar } from '@/components/ui/calendar';
-// import { format } from 'date-fns'; // No longer needed for DOB
+
 import { cn } from '@/lib/utils';
 import { useRef, useState, useEffect, useCallback } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -38,8 +35,7 @@ import useLocalStorage from '@/hooks/use-local-storage';
 const fullOptometryCaseSchema = z.object({
   // Patient Info
   patientId: z.string().optional(),
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
+  name: z.string().min(1, "Name is required"), // Replaced firstName and lastName
   age: z.coerce.number()
     .int("Age must be a whole number.")
     .positive("Age must be a positive number.")
@@ -159,8 +155,8 @@ const TwoColumnField = ({ label, children }: { label: string; children: React.Re
   </div>
 );
 
-const defaultFormValues: Omit<FullOptometryCaseFormValues, 'age'> & { age?: number | string } = { 
-  patientId: '', firstName: '', lastName: '', age: '', gender: '', contactNumber: '', email: '', address: '', chiefComplaint: '', presentIllnessHistory: '', pastOcularHistory: '', pastMedicalHistory: '', familyOcularHistory: '', familyMedicalHistory: '', medications: '', allergies: '', visualAcuityUncorrectedOD: '', visualAcuityUncorrectedOS: '', visualAcuityCorrectedOD: '', visualAcuityCorrectedOS: '', pupils: '', extraocularMotility: '', intraocularPressureOD: '', intraocularPressureOS: '', confrontationVisualFields: '', manifestRefractionOD: '', manifestRefractionOS: '', cycloplegicRefractionOD: '', cycloplegicRefractionOS: '', currentSpectacleRx: '', currentContactLensRx: '', lidsLashesOD: '', lidsLashesOS: '', conjunctivaScleraOD: '', conjunctivaScleraOS: '', corneaOD: '', corneaOS: '', anteriorChamberOD: '', anteriorChamberOS: '', irisOD: '', irisOS: '', lensOD: '', lensOS: '', vitreousOD: '', vitreousOS: '', opticDiscOD: '', opticDiscOS: '', cupDiscRatioOD: '', cupDiscRatioOS: '', maculaOD: '', maculaOS: '', vesselsOD: '', vesselsOS: '', peripheryOD: '', peripheryOS: '', octFindings: '', visualFieldFindings: '', fundusPhotographyFindings: '', otherInvestigations: '', assessment: '', plan: '', prognosis: '', followUp: '', internalNotes: '', reflection: '',
+const defaultFormValues: Omit<FullOptometryCaseFormValues, 'age'> & { age?: number | string; name: string } = { 
+  patientId: '', name: '', age: '', gender: '', contactNumber: '', email: '', address: '', chiefComplaint: '', presentIllnessHistory: '', pastOcularHistory: '', pastMedicalHistory: '', familyOcularHistory: '', familyMedicalHistory: '', medications: '', allergies: '', visualAcuityUncorrectedOD: '', visualAcuityUncorrectedOS: '', visualAcuityCorrectedOD: '', visualAcuityCorrectedOS: '', pupils: '', extraocularMotility: '', intraocularPressureOD: '', intraocularPressureOS: '', confrontationVisualFields: '', manifestRefractionOD: '', manifestRefractionOS: '', cycloplegicRefractionOD: '', cycloplegicRefractionOS: '', currentSpectacleRx: '', currentContactLensRx: '', lidsLashesOD: '', lidsLashesOS: '', conjunctivaScleraOD: '', conjunctivaScleraOS: '', corneaOD: '', corneaOS: '', anteriorChamberOD: '', anteriorChamberOS: '', irisOD: '', irisOS: '', lensOD: '', lensOS: '', vitreousOD: '', vitreousOS: '', opticDiscOD: '', opticDiscOS: '', cupDiscRatioOD: '', cupDiscRatioOS: '', maculaOD: '', maculaOS: '', vesselsOD: '', vesselsOS: '', peripheryOD: '', peripheryOS: '', octFindings: '', visualFieldFindings: '', fundusPhotographyFindings: '', otherInvestigations: '', assessment: '', plan: '', prognosis: '', followUp: '', internalNotes: '', reflection: '',
 };
 
 
@@ -228,8 +224,8 @@ export default function LogNewCasePage() {
       const scrollWidth = list.scrollWidth;
       const clientWidth = viewport.clientWidth;
       
-      setCanScrollDesktopLeft(scrollLeft > 1); 
-      setCanScrollDesktopRight(scrollWidth - clientWidth - scrollLeft > 1);
+      setCanScrollDesktopLeft(scrollLeft > 0.5); 
+      setCanScrollDesktopRight(scrollLeft + clientWidth < scrollWidth - 0.5);
     } else {
       setCanScrollDesktopLeft(false);
       setCanScrollDesktopRight(false);
@@ -394,18 +390,15 @@ export default function LogNewCasePage() {
   function onSubmit(data: FullOptometryCaseFormValues) {
     const newCase: StoredOptometryCase = {
       ...data,
-      // dateOfBirth is removed, age is already a number or undefined from schema coercion
-      id: Date.now().toString(), // Simple unique ID
+      id: Date.now().toString(), 
       timestamp: Date.now(),
     };
     setStoredCases([...storedCases, newCase]);
     toast({
       title: 'Case Saved Successfully!',
-      description: `Case for ${data.firstName} ${data.lastName} has been saved.`,
+      description: `Case for ${data.name} has been saved.`,
     });
-    form.reset(defaultFormValues as FullOptometryCaseFormValues); // Reset form to default values
-    // Optionally navigate away or scroll to top
-    // router.push('/cases'); 
+    form.reset(defaultFormValues as FullOptometryCaseFormValues); 
   }
 
   const renderFormField = (name: keyof FullOptometryCaseFormValues, label: string, placeholder?: string, isTextarea: boolean = false, rows?: number, inputType?: string) => (
@@ -579,8 +572,7 @@ export default function LogNewCasePage() {
                 <div ref={TABS_CONFIG[0].ref as React.RefObject<HTMLDivElement>} className="space-y-6 py-2">
                   <SectionTitle title={TABS_CONFIG[0].label} icon={TABS_CONFIG[0].icon} />
                   {renderFormField('patientId', 'Patient ID (Optional)', 'e.g., P00123')}
-                  {renderFormField('firstName', 'First Name', 'e.g., John')}
-                  {renderFormField('lastName', 'Last Name', 'e.g., Doe')}
+                  {renderFormField('name', 'Name', 'e.g., John Doe')}
                   {renderFormField('age', 'Age', 'e.g., 25', false, undefined, 'number')}
                   {renderFormField('gender', 'Gender', 'e.g., Male, Female, Other')}
                   {renderFormField('contactNumber', 'Contact Number', 'e.g., (555) 123-4567')}
