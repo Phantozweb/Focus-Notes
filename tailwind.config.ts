@@ -86,13 +86,13 @@ export default {
   			},
         'shine-pass': {
           '0%': { transform: 'translateX(-100%) skewX(-12deg)' },
-          '100%': { transform: 'translateX(300%) skewX(-12deg)' }, 
+          '100%': { transform: 'translateX(250%) skewX(-12deg)' }, 
         }
   		},
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
   			'accordion-up': 'accordion-up 0.2s ease-out',
-        'shine-pass': 'shine-pass 1s ease-in-out forwards', // 'forwards' keeps the end state
+        'shine-pass': 'shine-pass 2s ease-in-out infinite',
   		}
   	}
   },
@@ -101,3 +101,4 @@ export default {
 
 
     
+

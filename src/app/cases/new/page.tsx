@@ -21,7 +21,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import {
-  User, Briefcase, History, Eye, Microscope, BookOpen, Edit3, Save, FileTextIcon, ScanEye, ChevronLeft, ChevronRight, NotebookPen, ArrowLeft, Sparkles, Loader2, Bot, Send
+  User, Briefcase, History, Eye, Microscope, BookOpen, Edit3, Save, FileTextIcon, ScanEye, ChevronLeft, ChevronRight, NotebookPen, ArrowLeft, Sparkles, Loader2, Bot, Send, MessageSquarePlus
 } from 'lucide-react'; 
 import type { FullOptometryCaseData, StoredOptometryCase, ChatMessage as AssistantChatMessage, GenkitChatMessage as AssistantGenkitChatMessage, InteractiveEmrAssistantInput } from '@/types/case';
 
@@ -250,7 +250,7 @@ export default function LogNewCasePage() {
       const clientWidth = viewport.clientWidth;
       
       setCanScrollDesktopLeft(scrollLeft > 0.5); 
-      setCanScrollDesktopRight(scrollWidth - clientWidth - scrollLeft > 0.5);
+      setCanScrollDesktopRight(scrollLeft + clientWidth < scrollWidth - 0.5);
     } else {
       setCanScrollDesktopLeft(false);
       setCanScrollDesktopRight(false);
@@ -610,11 +610,11 @@ export default function LogNewCasePage() {
             <div className="mb-4 flex justify-center">
                 <Button
                   variant="default"
-                  className="relative overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out group py-3 px-6"
+                  className="relative overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out group py-3 px-6 rounded-md"
                   onClick={() => setIsAssistantSheetOpen(true)}
                 >
-                  <span className="absolute inset-0 w-full h-full block">
-                    <span className="absolute top-0 -inset-full h-full w-1/2 z-5 block transform -skew-x-12 bg-gradient-to-r from-transparent via-white/30 to-transparent opacity-0 group-hover:opacity-100 group-hover:animate-shine-pass"></span>
+                  <span className="absolute inset-0 w-full h-full block animate-shine-pass">
+                    <span className="absolute top-0 -inset-full h-full w-1/2 z-5 block transform -skew-x-12 bg-gradient-to-r from-transparent via-white/30 to-transparent"></span>
                   </span>
                   <Bot className="mr-2 h-5 w-5 transition-transform duration-300 ease-in-out group-hover:scale-110" />
                   Focus AI Assistant
