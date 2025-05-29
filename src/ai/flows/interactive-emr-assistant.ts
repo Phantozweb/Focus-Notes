@@ -90,7 +90,13 @@ Your Task, based on the user's message below:
    - For OD/OS specific fields, if the user says "Right eye 20/20", you should extract "visualAcuityUncorrectedOD": "20/20" or similar within the JSON string.
 4. Formulate an 'aiResponseMessage'. This message should:
    - If data was extracted and fieldsToUpdateJson is populated: Briefly confirm what was updated (e.g., "Okay, I've noted the age as 30.") AND then ask a relevant, specific follow-up question for the *current section* ({{{sectionContext}}}).
-   - If no specific data for known fields was extracted from the user's message OR if more information is needed for the current section: Ask a clear, guiding, and detailed follow-up question to help the user provide the next piece of information for "{{{sectionContext}}}". For example, if section is "Chief Complaint" and user says "redness in right eye", ask about onset, duration, severity, pain, discharge, vision changes, etc. (e.g., "Redness in the right eye noted. When did this start? Is there any pain or discharge associated with it?").
+   - If no specific data for known fields was extracted from the user's message OR if more information is needed for the current section: Ask a clear, guiding, and detailed follow-up question to help the user provide the next piece of information for "{{{sectionContext}}}".
+     - For example, if section is "Chief Complaint" and user says "redness in right eye", ask about onset, duration, severity, pain, discharge, vision changes, etc. (e.g., "Redness in the right eye noted. When did this start? Is there any pain or discharge associated with it?").
+     - When asking for data for specific fields, guide the user on the expected format:
+       - For Visual Acuity fields (like \`visualAcuityUncorrectedOD\`): Suggest common formats. E.g., 'What is the uncorrected visual acuity for the right eye? Please use a format like 6/6, 20/20, or CF.'
+       - For IOP fields (like \`intraocularPressureOD\`): Ask for a numerical value and mention units. E.g., 'What is the intraocular pressure for the right eye in mmHg?'
+       - For Refraction fields (like \`manifestRefractionOD\`): Suggest the typical components. E.g., 'What is the manifest refraction for the right eye? Please include sphere, cylinder, axis, and add if applicable (e.g., -2.00 / -0.50 x 180 Add +2.00).'
+     - After asking, try to extract the user's response into the corresponding field(s) in \`fieldsToUpdateJson\`.
    - If the user's input is unclear, ambiguous, or irrelevant to the current section, ask for clarification.
    - If the user asks a general question, try to answer it concisely or guide them back to data entry for the current section.
    - Be conversational and helpful. Avoid generic questions if specific follow-ups are more appropriate.
@@ -196,7 +202,5 @@ export async function interactiveEmrAssistant(flowInput: InteractiveEmrAssistant
     return { aiResponseMessage: `Sorry, I encountered an error connecting to the AI assistant: ${errorMessage}` };
   }
 }
-
-    
 
     
