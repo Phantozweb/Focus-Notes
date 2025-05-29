@@ -32,7 +32,7 @@ const EmrAssistantMainPromptInputSchema = z.object({
 });
 
 const InteractiveEmrAssistantOutputSchema = z.object({
-  fieldsToUpdate: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])).optional().describe("Key-value pairs of EMR form fields to update based on the user's input. Keys must EXACTLY match the known EMR form field names (e.g., 'name', 'age', 'chiefComplaint', 'visualAcuityUncorrectedOD'). Values should be strings, numbers, or booleans as appropriate for the field."),
+  fieldsToUpdateJson: z.string().optional().describe("A JSON string representing an object where keys are EMR form field names (e.g., 'name', 'age') and values are the data to update. Example: '{\"name\": \"John Doe\", \"age\": 45}'. If no fields need updating, this can be omitted or be an empty string or an empty JSON object string like '{}'."),
   aiResponseMessage: z.string().describe("AI's next message to the user. This could be a question to guide data entry for the current section, a confirmation of updated fields, a request for clarification, or an answer to a user's question."),
 });
 export type InteractiveEmrAssistantOutput = z.infer<typeof InteractiveEmrAssistantOutputSchema>;
@@ -85,10 +85,10 @@ The form is currently empty.
 Your Task, based on the user's message below:
 1. Analyze the user's message in the context of the EMR section: "{{{sectionContext}}}".
 2. If the user's message provides information that can directly fill one or more EMR form fields relevant to this section (refer to "Available EMR fields"), identify those fields and their values.
-   - Populate the 'fieldsToUpdate' object with this data. The keys in 'fieldsToUpdate' MUST EXACTLY MATCH the EMR form field names (e.g., "name", "age", "chiefComplaint").
-   - For OD/OS specific fields, if the user says "Right eye 20/20", you should extract "visualAcuityUncorrectedOD": "20/20" or similar.
+   - Populate the 'fieldsToUpdateJson' field with a JSON STRING. This string should represent an object where keys EXACTLY MATCH the EMR form field names (e.g., "name", "age", "chiefComplaint") and values are the data to update. Example: '{"name": "John Doe", "age": 45}'. If no fields need updating, this can be omitted or be an empty string or an empty JSON object string like '{}'.
+   - For OD/OS specific fields, if the user says "Right eye 20/20", you should extract "visualAcuityUncorrectedOD": "20/20" or similar within the JSON string.
 3. Formulate an 'aiResponseMessage'. This message should:
-   - If data was extracted: Briefly confirm what was updated (e.g., "Okay, I've noted the age as 30.") AND then ask a relevant follow-up question for the *current section* ({{{sectionContext}}}).
+   - If data was extracted and fieldsToUpdateJson is populated: Briefly confirm what was updated (e.g., "Okay, I've noted the age as 30.") AND then ask a relevant follow-up question for the *current section* ({{{sectionContext}}}).
    - If no specific data for known fields was extracted from the user's message OR if more information is needed for the current section: Ask a clear, guiding question to help the user provide the next piece of information for "{{{sectionContext}}}".
    - If the user's input is unclear, ambiguous, or irrelevant to the current section, ask for clarification.
    - If the user asks a general question, try to answer it concisely or guide them back to data entry for the current section.
@@ -96,17 +96,17 @@ Your Task, based on the user's message below:
 
 IMPORTANT:
 - Stick to the current EMR section: "{{{sectionContext}}}".
-- Ensure keys in 'fieldsToUpdate' are valid EMR field names.
-- If the user provides multiple pieces of information, try to extract all relevant ones for the current section.
+- Ensure keys in the JSON string for 'fieldsToUpdateJson' are valid EMR field names. Values should be strings, numbers, or booleans.
+- If the user provides multiple pieces of information, try to extract all relevant ones for the current section into the JSON string.
 - Do not invent data. If the user's input is insufficient to fill a field, ask for more details.
 - If the user simply says "hello" or similar, greet them and ask the first logical question for the '{{{sectionContext}}}'.
 
 Example Interaction (Section: Patient Info, User message: "The patient is John Doe, he's 45.")
-AI fieldsToUpdate: {"name": "John Doe", "age": 45}
+AI fieldsToUpdateJson: '{"name": "John Doe", "age": 45}'
 AI aiResponseMessage: "Got it. Name set to John Doe and age to 45. What is Mr. Doe's contact number?"
 
 Example Interaction (Section: Chief Complaint, User message: "blurry vision for 2 weeks")
-AI fieldsToUpdate: {"chiefComplaint": "blurry vision for 2 weeks"}
+AI fieldsToUpdateJson: '{"chiefComplaint": "blurry vision for 2 weeks"}'
 AI aiResponseMessage: "Okay, chief complaint noted as 'blurry vision for 2 weeks'. Can you tell me more about the history of this present illness?"
 
 Process the user's message now.
@@ -119,9 +119,9 @@ const emrAssistantPrompt = ai.definePrompt(
     output: { schema: InteractiveEmrAssistantOutputSchema },
     system: systemInstructionTemplate,
     prompt: `{{{currentUserMessage}}}`, // User's message is the main prompt content for this turn
-    model: 'googleai/gemini-2.0-flash', // Consistent with other flows and your example
+    model: 'googleai/gemini-2.0-flash', 
     config: {
-      temperature: 0.3, // Slightly more focused for data extraction
+      temperature: 0.3, 
       // Permissive safety settings for diagnostics - ADJUST FOR PRODUCTION
       safetySettings: [
         { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
@@ -155,7 +155,7 @@ export async function interactiveEmrAssistant(flowInput: InteractiveEmrAssistant
 
     const output = result.output;
 
-    if (!output || typeof output.aiResponseMessage !== 'string') { // Check if output or aiResponseMessage is truly missing/invalid
+    if (!output || typeof output.aiResponseMessage !== 'string') { 
       console.error('CRITICAL_AI_DEBUG: interactiveEmrAssistantPrompt did not return a valid output structure. Full result:', JSON.stringify(result, null, 2));
       let detailMessage = 'AI assistant prompt did not return the expected output structure (missing or invalid aiResponseMessage).';
       // @ts-ignore
@@ -177,7 +177,6 @@ export async function interactiveEmrAssistant(flowInput: InteractiveEmrAssistant
       } else {
           detailMessage += ' Prompt execution result itself is null or undefined.';
       }
-      // Return a default error structure
       return { aiResponseMessage: `Sorry, I encountered an issue processing your request: ${detailMessage}. Please try again or rephrase.` };
     }
     console.log("CRITICAL_AI_DEBUG: AI Assistant Output: ", JSON.stringify(output, null, 2));
@@ -186,7 +185,6 @@ export async function interactiveEmrAssistant(flowInput: InteractiveEmrAssistant
   } catch (e: any) {
     console.error('CRITICAL_AI_DEBUG: Error during interactiveEmrAssistantPrompt execution:', e);
     let errorMessage = e.message || 'Unknown error during AI processing.';
-    // Attempt to get more specific error if available (e.g., from a nested Genkit/API error)
     if (e.cause && typeof e.cause === 'object' && e.cause.message) {
         errorMessage = `${errorMessage} (Cause: ${e.cause.message})`;
     } else if (e.details) {
@@ -197,3 +195,5 @@ export async function interactiveEmrAssistant(flowInput: InteractiveEmrAssistant
     return { aiResponseMessage: `Sorry, I encountered an error connecting to the AI assistant: ${errorMessage}` };
   }
 }
+
+    

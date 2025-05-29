@@ -21,9 +21,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import {
-  User, Briefcase, History, Eye, Microscope, BookOpen, Edit3, Save, FileText as FileTextIcon, ScanEye, ChevronLeft, ChevronRight, NotebookPen, ArrowLeft, Sparkles, Loader2, Bot, Send, MessageSquarePlus
+  User, Briefcase, History, Eye, Microscope, BookOpen, Edit3, Save, FileTextIcon, ScanEye, ChevronLeft, ChevronRight, NotebookPen, ArrowLeft, Sparkles, Loader2, Bot, Send, MessageSquarePlus
 } from 'lucide-react'; 
-import type { FullOptometryCaseData, StoredOptometryCase, ChatMessage as AssistantChatMessage, GenkitChatMessage as AssistantGenkitChatMessage, InteractiveEmrAssistantInput } from '@/types/case'; // Renamed ChatMessage to avoid conflict
+import type { FullOptometryCaseData, StoredOptometryCase, ChatMessage as AssistantChatMessage, GenkitChatMessage as AssistantGenkitChatMessage, InteractiveEmrAssistantInput, InteractiveEmrAssistantOutput } from '@/types/case';
 
 import { cn } from '@/lib/utils';
 import { useRef, useState, useEffect, useCallback }
@@ -245,8 +245,8 @@ export default function LogNewCasePage() {
       const scrollWidth = list.scrollWidth;
       const clientWidth = viewport.clientWidth;
       
-      setCanScrollDesktopLeft(scrollLeft > 1); 
-      setCanScrollDesktopRight(scrollWidth - clientWidth - scrollLeft > 1);
+      setCanScrollDesktopLeft(scrollLeft > 0.5); 
+      setCanScrollDesktopRight(scrollLeft + clientWidth < scrollWidth - 0.5);
     } else {
       setCanScrollDesktopLeft(false);
       setCanScrollDesktopRight(false);
@@ -510,7 +510,7 @@ export default function LogNewCasePage() {
     const sectionContext = TABS_CONFIG[currentTabIndex]?.label || "General";
     const formSnapshot = form.getValues();
     const historyForAI: AssistantGenkitChatMessage[] = assistantMessages
-      .filter(msg => msg.role === 'user' || msg.role === 'assistant') // Filter out system messages for AI history
+      .filter(msg => msg.role === 'user' || msg.role === 'assistant') 
       .map(msg => ({
         role: msg.role === 'user' ? 'user' : 'model',
         parts: [{ text: msg.content }],
@@ -524,7 +524,7 @@ export default function LogNewCasePage() {
     };
 
     try {
-      const result = await interactiveEmrAssistant(aiInput);
+      const result: InteractiveEmrAssistantOutput = await interactiveEmrAssistant(aiInput);
       const aiResponse: AssistantChatMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
@@ -532,24 +532,31 @@ export default function LogNewCasePage() {
       };
       setAssistantMessages(prev => [...prev, aiResponse]);
 
-      if (result.fieldsToUpdate && Object.keys(result.fieldsToUpdate).length > 0) {
-        let updatedFieldsSummary = "AI updated: ";
-        const fieldUpdates: string[] = [];
-        for (const [key, value] of Object.entries(result.fieldsToUpdate)) {
-          if (value !== undefined && value !== null) { // Ensure value is not undefined
-             // @ts-ignore
-            form.setValue(key as keyof FullOptometryCaseFormValues, value, { shouldValidate: true, shouldDirty: true });
-            fieldUpdates.push(`${key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}`);
+      if (result.fieldsToUpdateJson) {
+        try {
+          const fieldsToUpdate = JSON.parse(result.fieldsToUpdateJson);
+          if (fieldsToUpdate && typeof fieldsToUpdate === 'object' && Object.keys(fieldsToUpdate).length > 0) {
+            const fieldUpdateMessages: string[] = [];
+            for (const [key, value] of Object.entries(fieldsToUpdate)) {
+              if (value !== undefined && value !== null && fullOptometryCaseSchema.shape.hasOwnProperty(key)) {
+                // @ts-ignore
+                form.setValue(key as keyof FullOptometryCaseFormValues, value, { shouldValidate: true, shouldDirty: true });
+                fieldUpdateMessages.push(`${key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}`);
+              }
+            }
+            if (fieldUpdateMessages.length > 0) {
+                const systemUpdateMessage: AssistantChatMessage = {
+                    id: (Date.now() + 2).toString(),
+                    role: 'system',
+                    content: `AI updated: ${fieldUpdateMessages.join(', ')}.`,
+                };
+                setAssistantMessages(prev => [...prev, systemUpdateMessage]);
+                toast({ title: "AI Form Update", description: `AI updated the following fields: ${fieldUpdateMessages.join(', ')}.`});
+            }
           }
-        }
-        if (fieldUpdates.length > 0) {
-            const systemUpdateMessage: AssistantChatMessage = {
-                id: (Date.now() + 2).toString(),
-                role: 'system',
-                content: `AI updated: ${fieldUpdates.join(', ')}.`,
-            };
-            setAssistantMessages(prev => [...prev, systemUpdateMessage]);
-            toast({ title: "AI Form Update", description: `AI updated the following fields: ${fieldUpdates.join(', ')}.`});
+        } catch (parseError) {
+          console.error("AI Assistant: Error parsing fieldsToUpdateJson:", parseError, "Raw JSON:", result.fieldsToUpdateJson);
+          toast({ title: "AI Form Update Warning", description: "AI suggested updates, but there was an issue applying them. Please check the assistant's message.", variant: "destructive" });
         }
       }
     } catch (error) {
@@ -569,7 +576,7 @@ export default function LogNewCasePage() {
 
   // Effect to ask initial question when tab changes and assistant is open
   useEffect(() => {
-    if (isAssistantSheetOpen && assistantMessages.length === 0) { // Only if chat is empty
+    if (isAssistantSheetOpen && assistantMessages.length === 0) { 
         const firstQuestion: AssistantChatMessage = {
             id: Date.now().toString(),
             role: 'assistant',
@@ -577,8 +584,8 @@ export default function LogNewCasePage() {
         };
         setAssistantMessages([firstQuestion]);
     } else if (isAssistantSheetOpen && assistantMessages.length > 0 && assistantMessages[assistantMessages.length -1].role !== 'user') {
-        // Optionally, prompt for next section if user hasn't replied yet
-        // This might be too intrusive, evaluate UX
+        // This part can be adjusted or removed if proactive prompts on tab change feel too intrusive.
+        // For now, it won't ask a new question automatically on tab change if a conversation is ongoing.
     }
   }, [currentTabIndex, isAssistantSheetOpen]);
 
@@ -687,8 +694,8 @@ export default function LogNewCasePage() {
                 )}
             </div>
           </CardHeader>
-          <CardContent className="pt-6 flex-1 overflow-y-auto"> {/* Make CardContent scrollable */}
-            <ScrollArea className="h-full pr-2"> {/* Ensure ScrollArea takes full height of its parent */}
+          <CardContent className="pt-6 flex-1 overflow-y-auto"> 
+            <ScrollArea className="h-full pr-2"> 
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-0"> 
                   
@@ -820,7 +827,7 @@ export default function LogNewCasePage() {
                   "flex items-start gap-2.5 p-3 rounded-lg max-w-[90%] mb-2 text-sm",
                   message.role === 'user' ? 'ml-auto bg-primary text-primary-foreground' : 
                   message.role === 'assistant' ? 'mr-auto bg-muted text-muted-foreground' : 
-                  'mx-auto bg-amber-100 text-amber-800 border border-amber-300 text-xs italic w-full' // System message style
+                  'mx-auto bg-amber-100 text-amber-800 border border-amber-300 text-xs italic w-full' 
                 )}
               >
                 {message.role === 'assistant' && <Bot className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />}
@@ -872,4 +879,6 @@ export default function LogNewCasePage() {
     </MainLayout>
   );
 }
+    
+
     
