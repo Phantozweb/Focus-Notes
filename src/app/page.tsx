@@ -5,12 +5,10 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { MainLayout } from '@/components/layout/main-layout';
-import { FilePlus2, ListChecks, PlusCircle, ExternalLink } from 'lucide-react';
-import { useToast } from "@/hooks/use-toast";
+import { NotebookPen, FolderKanban, PlusCircle, ExternalLink } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function HomePage() {
-  const { toast } = useToast();
   const router = useRouter();
 
   const handleNewCase = () => {
@@ -26,13 +24,24 @@ export default function HomePage() {
     <MainLayout>
       {/* Hero Section */}
       <section className="py-20 md:py-28 text-center bg-gradient-to-br from-primary/10 via-background to-background">
-        <div className="container mx-auto px-6"> {/* Container class is appropriate for hero text content */}
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-primary mb-6 animate-fade-in-down">
             Focus CaseX
           </h1>
           <p className="text-lg sm:text-xl md:text-2xl text-foreground/80 mb-10 max-w-3xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
             Welcome to Focus CaseX<br />Your professional platform for optometry case management and learning.
           </p>
+          <div className="mt-10 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
+            <Image
+              src="https://placehold.co/600x350.png"
+              alt="Focus CaseX platform illustration"
+              width={600}
+              height={350}
+              className="rounded-lg shadow-2xl mx-auto"
+              data-ai-hint="optometry technology interface"
+              priority
+            />
+          </div>
         </div>
       </section>
 
@@ -43,7 +52,7 @@ export default function HomePage() {
             <Card className="shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col bg-card rounded-xl overflow-hidden transform hover:-translate-y-1">
               <CardHeader className="bg-primary/5 p-6">
                 <div className="flex items-center gap-4">
-                  <FilePlus2 className="h-10 w-10 text-primary" />
+                  <NotebookPen className="h-10 w-10 text-primary" />
                   <div>
                     <CardTitle className="text-2xl text-primary">Log New Case</CardTitle>
                     <p className="text-sm text-muted-foreground">Efficient Data Entry</p>
@@ -65,7 +74,7 @@ export default function HomePage() {
             <Card className="shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col bg-card rounded-xl overflow-hidden transform hover:-translate-y-1">
               <CardHeader className="bg-primary/5 p-6">
                 <div className="flex items-center gap-4">
-                  <ListChecks className="h-10 w-10 text-primary" />
+                  <FolderKanban className="h-10 w-10 text-primary" />
                    <div>
                     <CardTitle className="text-2xl text-primary">View All Cases</CardTitle>
                     <p className="text-sm text-muted-foreground">Comprehensive Overview</p>
