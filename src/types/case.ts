@@ -10,8 +10,8 @@ export interface AnalyzeOptometryCaseOutput {
 export interface FullOptometryCaseData {
   // Patient Info
   patientId?: string;
-  name: string; // Replaced firstName and lastName
-  age?: number; // Changed from dateOfBirth
+  name: string; 
+  age?: number; 
   gender?: string;
   contactNumber?: string;
   email?: string;
@@ -97,14 +97,14 @@ export interface FullOptometryCaseData {
 export interface StoredOptometryCase extends FullOptometryCaseData {
   id: string;
   timestamp: number;
-  analysis?: AnalyzeOptometryCaseOutput; // For AI analysis results (now only insights)
-  analysisError?: string; // If AI analysis fails
+  analysis?: AnalyzeOptometryCaseOutput; 
+  analysisError?: string; 
 }
 
-// Chat related types
+// Chat related types (re-added for the new AI assistant sidebar)
 export interface ChatMessage {
   id: string;
-  role: 'user' | 'assistant';
+  role: 'user' | 'assistant' | 'system'; // Added 'system' for AI updates confirmation
   content: string;
 }
 
@@ -113,6 +113,7 @@ export interface GenkitChatMessage {
   parts: Array<{ text: string }>;
 }
 
+// For the case detail page chat
 export interface ChatWithCaseInput {
   caseSummary: string;
   userQuery: string;
@@ -121,4 +122,17 @@ export interface ChatWithCaseInput {
 
 export interface ChatWithCaseOutput {
   aiResponse: string;
+}
+
+// For the interactive EMR assistant
+export interface InteractiveEmrAssistantInput {
+  sectionContext: string;
+  userMessage: string;
+  formSnapshot?: Record<string, any>;
+  chatHistory?: GenkitChatMessage[];
+}
+
+export interface InteractiveEmrAssistantOutput {
+  fieldsToUpdate?: Record<string, string | number | boolean | undefined | null>;
+  aiResponseMessage: string;
 }
