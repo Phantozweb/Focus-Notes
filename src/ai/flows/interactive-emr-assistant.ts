@@ -102,28 +102,32 @@ Your Task, based on the user's message below:
      - Check if the updated field(s) were previously empty or significantly different in the form snapshot or very recent conversation.
      - If it's NEW information for a field: Confirm with a phrase like "Okay, I've noted the [field name] as '[value]'." or "Added [field name]: '[value]'."
      - If it's an UPDATE to existing information: Confirm with a phrase like "Understood. I've updated the [field name] to '[value]'." or "Updated [field name]: '[value]'."
-     - THEN, ask a relevant, specific follow-up question for the *current section* ({{{sectionContext}}}).
-   - If no specific data for known fields was extracted from the user's message OR if more information is needed for the current section: Ask a clear, guiding, and detailed follow-up question to help the user provide the next piece of information for "{{{sectionContext}}}".
-     - For example, if section is "Chief Complaint" and user says "redness in right eye", ask about onset, duration, severity, pain, discharge, vision changes, etc. (e.g., "Redness in the right eye noted. When did this start? Is there any pain or discharge associated with it?").
-     - When asking for data for specific fields, guide the user on the expected format:
-       - For Visual Acuity fields (like \`visualAcuityUncorrectedOD\`): Suggest common formats. E.g., 'What is the uncorrected visual acuity for the right eye? Please use a format like 6/6, 20/20, or CF.'
-       - For IOP fields (like \`intraocularPressureOD\`): Ask for a numerical value and mention units. E.g., 'What is the intraocular pressure for the right eye in mmHg?'
-       - For Refraction fields (like \`manifestRefractionOD\`): Suggest the typical components. E.g., 'What is the manifest refraction for the right eye? Please include sphere, cylinder, axis, and add if applicable (e.g., -2.00 / -0.50 x 180 Add +2.00).'
+     - THEN, ask a relevant, specific follow-up question for the *current section* ({{{sectionContext}}}). **Prioritize asking detailed clinical questions to fully explore the current topic/symptom before moving to other fields in the section.** For example, if the user mentions 'redness' in the 'Chief Complaint' section, ask about onset, duration, severity, pain, discharge, vision changes, etc., sequentially, before asking about an unrelated field like 'past ocular history' (if that's in a different section) or less critical fields in the current section if the main complaint isn't fully explored.
+   - If no specific data for known fields was extracted from the user's message OR if more information is needed for the current section:
+     - Ask a clear, guiding, and detailed follow-up question to help the user provide the next piece of information for "{{{sectionContext}}}".
+     - **Questioning Strategy:**
+       - When the user provides information for a field (e.g., a symptom in 'Chief Complaint'), before asking about completely different fields in the same section (especially less critical ones like 'address' or 'email' unless they are the primary topic for that section), try to ask 2-3 RELEVANT follow-up questions to explore the initial information more thoroughly.
+       - For example, if section is "Chief Complaint" and user says "redness in right eye", your next questions should be about onset, duration, severity, pain, discharge, associated symptoms (like itching, watering, vision changes), etc., one by one.
+       - Only after exhausting relevant follow-ups on the current topic should you move to other key fields in the current section, or indicate readiness for the next section if all key fields in the current section are covered.
+       - When asking for data for specific fields, guide the user on the expected format:
+         - For Visual Acuity fields (like \`visualAcuityUncorrectedOD\`): Suggest common formats. E.g., 'What is the uncorrected visual acuity for the right eye? Please use a format like 6/6, 20/20, or CF.'
+         - For IOP fields (like \`intraocularPressureOD\`): Ask for a numerical value and mention units. E.g., 'What is the intraocular pressure for the right eye in mmHg?'
+         - For Refraction fields (like \`manifestRefractionOD\`): Suggest the typical components. E.g., 'What is the manifest refraction for the right eye? Please include sphere, cylinder, axis, and add if applicable (e.g., -2.00 / -0.50 x 180 Add +2.00).'
      - After asking, try to extract the user's response into the corresponding field(s) in \`fieldsToUpdateJson\`.
    - If the user's input is unclear, ambiguous, or irrelevant to the current section, ask for clarification.
    - If the user asks a general question, try to answer it concisely or guide them back to data entry for the current section.
    - Be conversational and helpful. Avoid generic questions if specific follow-ups are more appropriate.
 
 IMPORTANT:
-- Stick to the current EMR section: "{{{sectionContext}}}".
+- Stick to the current EMR section: "{{{sectionContext}}}". **Prioritize asking detailed clinical questions relevant to the {{{sectionContext}}} over administrative details (like address, email in Patient Info) unless the user specifically brings them up or all key clinical aspects of the current section have been explored.**
 - Ensure keys in the JSON string for 'fieldsToUpdateJson' are valid EMR field names. Values should be strings, numbers, or booleans.
 - If the user provides multiple pieces of information, try to extract all relevant ones for the current section into the JSON string.
 - Do not invent data. If the user's input is insufficient to fill a field, ask for more details.
-- If the user simply says "hello" or similar, greet them and ask the first logical question for the '{{{sectionContext}}}', considering what might already be in the form snapshot.
+- If the user simply says "hello" or similar, greet them and ask the first logical (often clinical) question for the '{{{sectionContext}}}', considering what might already be in the form snapshot.
 
 Example Interaction (NEW info - Section: Patient Info, Form Snapshot: {}, User message: "The patient is John Doe, he's 45.")
 AI fieldsToUpdateJson: '{"name": "John Doe", "age": 45}'
-AI aiResponseMessage: "Got it. Name noted as John Doe and age as 45. What is Mr. Doe's contact number?"
+AI aiResponseMessage: "Got it. Name noted as John Doe and age as 45. What is Mr. Doe's contact number?" (Assuming contact number is a reasonable next step in Patient Info after name/age)
 
 Example Interaction (UPDATING existing info - Section: Chief Complaint, Form Snapshot: {"chiefComplaint": "Redness in right eye for 1 day"}, User message: "The redness is actually in both eyes, and it started yesterday evening.")
 AI fieldsToUpdateJson: '{"chiefComplaint": "Redness in both eyes, started yesterday evening"}'
@@ -226,3 +230,5 @@ export async function interactiveEmrAssistant(flowInput: InteractiveEmrAssistant
     return { aiResponseMessage: `Sorry, I encountered an error connecting to the AI assistant: ${errorMessage}` };
   }
 }
+
+    
