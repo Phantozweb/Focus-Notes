@@ -24,7 +24,6 @@ import {
   User, Briefcase, History, Eye, Microscope, BookOpen, Edit3, Save, FileTextIcon, ScanEye, ChevronLeft, ChevronRight, NotebookPen, ArrowLeft, Sparkles, Loader2, Bot, Send, MessageSquarePlus
 } from 'lucide-react'; 
 import type { FullOptometryCaseData, StoredOptometryCase, ChatMessage as AssistantChatMessage, GenkitChatMessage as AssistantGenkitChatMessage, InteractiveEmrAssistantInput } from '@/types/case';
-// Removed InteractiveEmrAssistantOutput from types as it's used internally in the flow
 
 import { cn } from '@/lib/utils';
 import { useRef, useState, useEffect, useCallback }
@@ -32,7 +31,7 @@ from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useRouter } from 'next/navigation';
 import { extractCaseInsights, type ExtractCaseInsightsInput } from '@/ai/flows/extract-case-insights';
-import { interactiveEmrAssistant, type InteractiveEmrAssistantOutput } from '@/ai/flows/interactive-emr-assistant'; // Keep type import
+import { interactiveEmrAssistant, type InteractiveEmrAssistantOutput } from '@/ai/flows/interactive-emr-assistant';
 import useLocalStorage from '@/hooks/use-local-storage';
 import {
   Sheet,
@@ -180,7 +179,7 @@ export default function LogNewCasePage() {
   const router = useRouter();
   const isMobile = useIsMobile();
   const [currentTabIndex, setCurrentTabIndex] = useState(0);
-  const isScrollingProgrammatically = React.useRef(false);
+  
   const [isAiLoading, setIsAiLoading] = useState(false);
   
   const TABS_CONFIG = React.useMemo(() => TABS_CONFIG_BASE.map(tab => ({ ...tab, ref: React.createRef<HTMLDivElement>() })), []);
@@ -209,6 +208,7 @@ export default function LogNewCasePage() {
   const [canScrollDesktopRight, setCanScrollDesktopRight] = useState(false);
   const DESKTOP_SCROLL_AMOUNT = 250;
 
+  const isScrollingProgrammatically = React.useRef(false);
 
   const scrollToSection = useCallback((sectionRef: React.RefObject<HTMLElement>) => {
     isScrollingProgrammatically.current = true;
@@ -218,7 +218,7 @@ export default function LogNewCasePage() {
     }, 1000); 
   }, []);
 
- const handleTabChange = useCallback((index: number, isMobileNav: boolean = false) => { // isMobileNav default to false
+ const handleTabChange = useCallback((index: number, isMobileNav: boolean = false) => { 
     if (index < 0 || index >= TABS_CONFIG.length) return;
     setCurrentTabIndex(index);
     scrollToSection(TABS_CONFIG[index].ref as React.RefObject<HTMLElement>);
@@ -250,8 +250,8 @@ export default function LogNewCasePage() {
       const scrollWidth = list.scrollWidth;
       const clientWidth = viewport.clientWidth;
       
-      setCanScrollDesktopLeft(scrollLeft > 1); 
-      setCanScrollDesktopRight(scrollWidth - clientWidth - scrollLeft > 1);
+      setCanScrollDesktopLeft(scrollLeft > 0.5); 
+      setCanScrollDesktopRight(scrollWidth - clientWidth - scrollLeft > 0.5);
     } else {
       setCanScrollDesktopLeft(false);
       setCanScrollDesktopRight(false);
@@ -303,8 +303,6 @@ export default function LogNewCasePage() {
     }
   };
   
-  const isProgrammaticScrollRef = React.useRef(false);
-
   useEffect(() => {
     const observerOptions = {
       root: null, 
@@ -312,7 +310,7 @@ export default function LogNewCasePage() {
       threshold: 0.1, 
     };
 
-    const callback = (entries: IntersectionObserverEntry[]) => {
+    const observerCallback = (entries: IntersectionObserverEntry[]) => {
       if (isScrollingProgrammatically.current) return;
 
       const entry = entries.find(e => e.isIntersecting);
@@ -330,7 +328,7 @@ export default function LogNewCasePage() {
     const observers: IntersectionObserver[] = [];
     TABS_CONFIG.forEach(tabConfig => {
       if (tabConfig.ref.current) {
-        const observer = new IntersectionObserver(callback, observerOptions);
+        const observer = new IntersectionObserver(observerCallback, observerOptions);
         observer.observe(tabConfig.ref.current);
         observers.push(observer);
       }
@@ -426,7 +424,7 @@ export default function LogNewCasePage() {
       description: `Case for ${data.name} has been saved.`,
     });
     form.reset(defaultFormValues as FullOptometryCaseFormValues); 
-    setAssistantMessages([]); // Clear assistant chat on successful save
+    setAssistantMessages([]); 
   }
 
   const renderFormField = (name: keyof FullOptometryCaseFormValues, label: string, placeholder?: string, isTextarea: boolean = false, rows?: number, inputType?: string) => (
@@ -579,7 +577,6 @@ export default function LogNewCasePage() {
     }
   };
 
-  // Effect to ask initial question when tab changes and assistant is open
   useEffect(() => {
     if (isAssistantSheetOpen && assistantMessages.length === 0) { 
         const firstQuestion: AssistantChatMessage = {
@@ -589,8 +586,8 @@ export default function LogNewCasePage() {
         };
         setAssistantMessages([firstQuestion]);
     } else if (isAssistantSheetOpen && assistantMessages.length > 0 && assistantMessages[assistantMessages.length -1].role !== 'user') {
-        // This part can be adjusted or removed if proactive prompts on tab change feel too intrusive.
-        // For now, it won't ask a new question automatically on tab change if a conversation is ongoing.
+        // Proactive question on tab change might be too intrusive.
+        // This is where you could potentially trigger a new question if the tab changes and the assistant is open.
     }
   }, [currentTabIndex, isAssistantSheetOpen, TABS_CONFIG, assistantMessages.length]);
 
@@ -599,25 +596,29 @@ export default function LogNewCasePage() {
     <MainLayout>
       <div className="py-8 px-4 sm:px-6 lg:px-8 flex-1 flex flex-col">
         <Card className="shadow-xl max-w-7xl mx-auto w-full flex-1 flex flex-col">
-          <CardHeader className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm border-b pb-2">
-            <div className="flex items-center justify-between mb-2">
+          <CardHeader className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm border-b pb-4 pt-4">
+            <div className="flex items-center justify-between mb-4">
                 <Button variant="ghost" size="icon" onClick={() => router.back()} className="mr-2">
                     <ArrowLeft className="h-6 w-6 text-primary" />
                     <span className="sr-only">Back</span>
                 </Button>
-                <CardTitle className="text-3xl font-bold text-primary flex items-center text-center flex-grow justify-center">
-                  <FileTextIcon className="mr-3 h-8 w-8" /> Log New Optometry Case
+                <CardTitle className="text-2xl md:text-3xl font-bold text-primary flex items-center text-center flex-grow justify-center">
+                  <FileTextIcon className="mr-3 h-7 w-7 md:h-8 md:w-8" /> Log New Optometry Case
                 </CardTitle>
-                {isMobile ? (
-                    <Button variant="outline" size="sm" onClick={() => setIsAssistantSheetOpen(true)} className="ml-2 whitespace-nowrap">
-                        <Bot className="mr-1.5 h-4 w-4" /> Open EMR Assistant
-                    </Button>
-                ) : (
-                    <Button variant="outline" size="icon" onClick={() => setIsAssistantSheetOpen(true)} className="ml-2">
-                        <Bot className="h-5 w-5 text-primary" />
-                        <span className="sr-only">Open EMR Assistant</span>
-                    </Button>
-                )}
+                 <div className="w-10 h-10"> {/* Spacer to balance the back button for centering title */}</div>
+            </div>
+
+            <div className="mb-4 flex justify-center">
+              <SheetTrigger asChild>
+                <Button
+                  variant="default"
+                  className="shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 ease-in-out group animate-pulse-slow py-3 px-6"
+                >
+                  <Bot className="mr-2 h-5 w-5 transition-transform duration-300 ease-in-out group-hover:scale-110" />
+                  Focus AI EMR Assistant
+                  <Sparkles className="ml-2 h-5 w-5 text-yellow-300 opacity-0 transition-opacity duration-300 ease-in-out group-hover:opacity-100" />
+                </Button>
+              </SheetTrigger>
             </div>
             
             <div className="h-14 flex items-center">
@@ -890,6 +891,8 @@ export default function LogNewCasePage() {
     </MainLayout>
   );
 }
+    
+
     
 
     
