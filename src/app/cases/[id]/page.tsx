@@ -25,7 +25,7 @@ import { chatWithCase } from '@/ai/flows/chat-with-case-flow';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
-const DetailItem = ({ icon: Icon, label, value, isFullWidth = false, isPreWrap = false }: { icon: React.ElementType, label: string, value?: string | null | Date, isFullWidth?: boolean, isPreWrap?: boolean }) => {
+const DetailItem = ({ icon: Icon, label, value, isFullWidth = false, isPreWrap = false }: { icon: React.ElementType, label: string, value?: string | number | null | Date, isFullWidth?: boolean, isPreWrap?: boolean }) => {
   if (!value && value !== 0 && typeof value !== 'boolean') return null; 
   
   let displayValue: string | React.ReactNode = value instanceof Date ? format(new Date(value), 'PPP') : String(value);
@@ -110,7 +110,7 @@ export default function CaseDetailPage() {
       visualAcuity: `OD: ${currentCase.visualAcuityCorrectedOD || currentCase.visualAcuityUncorrectedOD || 'N/A'}, OS: ${currentCase.visualAcuityCorrectedOS || currentCase.visualAcuityUncorrectedOS || 'N/A'}`,
       refraction: `OD: ${currentCase.manifestRefractionOD || 'N/A'}, OS: ${currentCase.manifestRefractionOS || 'N/A'}`,
       ocularHealthStatus: currentCase.assessment || 'Not specified',
-      additionalNotes: `Chief Complaint: ${currentCase.chiefComplaint}. Hx Present Illness: ${currentCase.presentIllnessHistory || 'N/A'}. Internal Notes: ${currentCase.internalNotes || 'N/A'}.`,
+      additionalNotes: `Chief Complaint: ${currentCase.chiefComplaint}. Hx Present Illness: ${currentCase.presentIllnessHistory || 'N/A'}. Internal Notes: ${currentCase.internalNotes || 'N/A'}. Age: ${currentCase.age || 'N/A'}.`,
     };
 
     try {
@@ -140,7 +140,7 @@ export default function CaseDetailPage() {
     summary += `Logged: ${format(new Date(caseData.timestamp), 'PPPp')}\n\n`;
 
     const fieldsToInclude: (keyof StoredOptometryCase)[] = [
-      'patientId', 'dateOfBirth', 'gender', 'contactNumber', 'email', 'address',
+      'patientId', 'age', 'gender', 'contactNumber', 'email', 'address', // Replaced dateOfBirth with age
       'chiefComplaint', 'presentIllnessHistory', 'pastOcularHistory', 'pastMedicalHistory',
       'familyOcularHistory', 'familyMedicalHistory', 'medications', 'allergies',
       'visualAcuityUncorrectedOD', 'visualAcuityUncorrectedOS', 'visualAcuityCorrectedOD', 'visualAcuityCorrectedOS',
@@ -159,7 +159,7 @@ export default function CaseDetailPage() {
       const value = caseData[key];
       if (value !== undefined && value !== null && String(value).trim() !== '') {
         const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()); // Format label
-        if (value instanceof Date) {
+        if (value instanceof Date) { // This condition might not be hit anymore if no Date fields are left
             summary += `${label}: ${format(new Date(value), 'PPP')}\n`;
         } else {
             summary += `${label}: ${String(value)}\n`;
@@ -282,7 +282,7 @@ export default function CaseDetailPage() {
                     <DetailItem icon={Info} label="Patient ID" value={currentCase.patientId} />
                     <DetailItem icon={UserIcon} label="First Name" value={currentCase.firstName} />
                     <DetailItem icon={UserIcon} label="Last Name" value={currentCase.lastName} />
-                    <DetailItem icon={Calendar} label="Date of Birth" value={currentCase.dateOfBirth} />
+                    <DetailItem icon={UserIcon} label="Age" value={currentCase.age} />
                     <DetailItem icon={UserIcon} label="Gender" value={currentCase.gender} />
                     <DetailItem icon={Phone} label="Contact Number" value={currentCase.contactNumber} />
                     <DetailItem icon={Mail} label="Email" value={currentCase.email} />
@@ -458,3 +458,4 @@ export default function CaseDetailPage() {
     </MainLayout>
   );
 }
+

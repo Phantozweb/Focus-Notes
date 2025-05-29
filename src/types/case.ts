@@ -12,7 +12,7 @@ export interface FullOptometryCaseData {
   patientId?: string;
   firstName: string;
   lastName: string;
-  dateOfBirth: Date;
+  age?: number; // Changed from dateOfBirth
   gender?: string;
   contactNumber?: string;
   email?: string;
@@ -123,3 +123,4 @@ export interface ChatWithCaseInput {
 export interface ChatWithCaseOutput {
   aiResponse: string;
 }
+

@@ -21,12 +21,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import {
-  User, Briefcase, History, Eye, Microscope, BookOpen, Edit3, Save, FileText as FileTextIcon, CalendarIcon, ScanEye, ChevronLeft, ChevronRight, NotebookPen, ArrowLeft, Sparkles, Loader2
-} from 'lucide-react';
+  User, Briefcase, History, Eye, Microscope, BookOpen, Edit3, Save, FileText as FileTextIcon, ScanEye, ChevronLeft, ChevronRight, NotebookPen, ArrowLeft, Sparkles, Loader2
+} from 'lucide-react'; // Removed CalendarIcon
 import type { FullOptometryCaseData, StoredOptometryCase } from '@/types/case';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
-import { format } from 'date-fns';
+// Removed Popover imports as Calendar is removed
+// import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+// import { Calendar } from '@/components/ui/calendar';
+// import { format } from 'date-fns'; // No longer needed for DOB
 import { cn } from '@/lib/utils';
 import { useRef, useState, useEffect, useCallback } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -34,22 +35,16 @@ import { useRouter } from 'next/navigation';
 import { extractCaseInsights, type ExtractCaseInsightsInput } from '@/ai/flows/extract-case-insights';
 import useLocalStorage from '@/hooks/use-local-storage';
 
-const dateOrString = z.union([z.date(), z.string()]).refine(value => {
-  if (value instanceof Date) return true;
-  if (typeof value === 'string') return !isNaN(new Date(value).getTime());
-  return false;
-}, { message: "Invalid date format" }).transform(value => {
-  if (value instanceof Date) return value;
-  return new Date(value);
-});
-
-
 const fullOptometryCaseSchema = z.object({
   // Patient Info
   patientId: z.string().optional(),
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
-  dateOfBirth: dateOrString.refine(val => val instanceof Date && !isNaN(val.getTime()), { message: "Date of birth is required" }),
+  age: z.coerce.number()
+    .int("Age must be a whole number.")
+    .positive("Age must be a positive number.")
+    .max(130, "Age seems too high.")
+    .optional(),
   gender: z.string().optional(),
   contactNumber: z.string().optional(),
   email: z.string().email({ message: "Invalid email address" }).optional().or(z.literal('')),
@@ -164,8 +159,8 @@ const TwoColumnField = ({ label, children }: { label: string; children: React.Re
   </div>
 );
 
-const defaultFormValues: FullOptometryCaseFormValues = { 
-  patientId: '', firstName: '', lastName: '', dateOfBirth: new Date(), gender: '', contactNumber: '', email: '', address: '', chiefComplaint: '', presentIllnessHistory: '', pastOcularHistory: '', pastMedicalHistory: '', familyOcularHistory: '', familyMedicalHistory: '', medications: '', allergies: '', visualAcuityUncorrectedOD: '', visualAcuityUncorrectedOS: '', visualAcuityCorrectedOD: '', visualAcuityCorrectedOS: '', pupils: '', extraocularMotility: '', intraocularPressureOD: '', intraocularPressureOS: '', confrontationVisualFields: '', manifestRefractionOD: '', manifestRefractionOS: '', cycloplegicRefractionOD: '', cycloplegicRefractionOS: '', currentSpectacleRx: '', currentContactLensRx: '', lidsLashesOD: '', lidsLashesOS: '', conjunctivaScleraOD: '', conjunctivaScleraOS: '', corneaOD: '', corneaOS: '', anteriorChamberOD: '', anteriorChamberOS: '', irisOD: '', irisOS: '', lensOD: '', lensOS: '', vitreousOD: '', vitreousOS: '', opticDiscOD: '', opticDiscOS: '', cupDiscRatioOD: '', cupDiscRatioOS: '', maculaOD: '', maculaOS: '', vesselsOD: '', vesselsOS: '', peripheryOD: '', peripheryOS: '', octFindings: '', visualFieldFindings: '', fundusPhotographyFindings: '', otherInvestigations: '', assessment: '', plan: '', prognosis: '', followUp: '', internalNotes: '', reflection: '',
+const defaultFormValues: Omit<FullOptometryCaseFormValues, 'age'> & { age?: number | string } = { 
+  patientId: '', firstName: '', lastName: '', age: '', gender: '', contactNumber: '', email: '', address: '', chiefComplaint: '', presentIllnessHistory: '', pastOcularHistory: '', pastMedicalHistory: '', familyOcularHistory: '', familyMedicalHistory: '', medications: '', allergies: '', visualAcuityUncorrectedOD: '', visualAcuityUncorrectedOS: '', visualAcuityCorrectedOD: '', visualAcuityCorrectedOS: '', pupils: '', extraocularMotility: '', intraocularPressureOD: '', intraocularPressureOS: '', confrontationVisualFields: '', manifestRefractionOD: '', manifestRefractionOS: '', cycloplegicRefractionOD: '', cycloplegicRefractionOS: '', currentSpectacleRx: '', currentContactLensRx: '', lidsLashesOD: '', lidsLashesOS: '', conjunctivaScleraOD: '', conjunctivaScleraOS: '', corneaOD: '', corneaOS: '', anteriorChamberOD: '', anteriorChamberOS: '', irisOD: '', irisOS: '', lensOD: '', lensOS: '', vitreousOD: '', vitreousOS: '', opticDiscOD: '', opticDiscOS: '', cupDiscRatioOD: '', cupDiscRatioOS: '', maculaOD: '', maculaOS: '', vesselsOD: '', vesselsOS: '', peripheryOD: '', peripheryOS: '', octFindings: '', visualFieldFindings: '', fundusPhotographyFindings: '', otherInvestigations: '', assessment: '', plan: '', prognosis: '', followUp: '', internalNotes: '', reflection: '',
 };
 
 
@@ -182,7 +177,7 @@ export default function LogNewCasePage() {
 
   const form = useForm<FullOptometryCaseFormValues>({
     resolver: zodResolver(fullOptometryCaseSchema),
-    defaultValues: defaultFormValues,
+    defaultValues: defaultFormValues as FullOptometryCaseFormValues, // Cast after defining with string age
   });
 
   const desktopTabsScrollAreaRef = useRef<HTMLDivElement>(null); 
@@ -292,7 +287,7 @@ export default function LogNewCasePage() {
       rootMargin: '0px 0px -70% 0px',
       threshold: 0.1, 
     };
-
+    
     const observerCallback = (entries: IntersectionObserverEntry[]) => {
       if (isScrollingProgrammatically.current) return;
 
@@ -399,7 +394,7 @@ export default function LogNewCasePage() {
   function onSubmit(data: FullOptometryCaseFormValues) {
     const newCase: StoredOptometryCase = {
       ...data,
-      dateOfBirth: new Date(data.dateOfBirth), // Ensure it's a Date object
+      // dateOfBirth is removed, age is already a number or undefined from schema coercion
       id: Date.now().toString(), // Simple unique ID
       timestamp: Date.now(),
     };
@@ -408,12 +403,12 @@ export default function LogNewCasePage() {
       title: 'Case Saved Successfully!',
       description: `Case for ${data.firstName} ${data.lastName} has been saved.`,
     });
-    form.reset(defaultFormValues); // Reset form to default values
+    form.reset(defaultFormValues as FullOptometryCaseFormValues); // Reset form to default values
     // Optionally navigate away or scroll to top
     // router.push('/cases'); 
   }
 
-  const renderFormField = (name: keyof FullOptometryCaseFormValues, label: string, placeholder?: string, isTextarea: boolean = false, rows?: number) => (
+  const renderFormField = (name: keyof FullOptometryCaseFormValues, label: string, placeholder?: string, isTextarea: boolean = false, rows?: number, inputType?: string) => (
     <FormField
       control={form.control}
       name={name}
@@ -422,9 +417,9 @@ export default function LogNewCasePage() {
           <TwoColumnField label={label}>
             <FormControl>
               {isTextarea ? (
-                <Textarea placeholder={placeholder || `Enter ${label.toLowerCase()}...`} {...field} value={field.value || ''} rows={rows || 3} className="resize-y" />
+                <Textarea placeholder={placeholder || `Enter ${label.toLowerCase()}...`} {...field} value={field.value === undefined || field.value === null ? '' : String(field.value)} rows={rows || 3} className="resize-y" />
               ) : (
-                <Input placeholder={placeholder || `Enter ${label.toLowerCase()}...`} {...field} value={field.value || ''} />
+                <Input type={inputType || 'text'} placeholder={placeholder || `Enter ${label.toLowerCase()}...`} {...field} value={field.value === undefined || field.value === null ? '' : String(field.value)} />
               )}
             </FormControl>
             <FormMessage />
@@ -586,48 +581,7 @@ export default function LogNewCasePage() {
                   {renderFormField('patientId', 'Patient ID (Optional)', 'e.g., P00123')}
                   {renderFormField('firstName', 'First Name', 'e.g., John')}
                   {renderFormField('lastName', 'Last Name', 'e.g., Doe')}
-                    <FormField
-                    control={form.control}
-                    name="dateOfBirth"
-                    render={({ field }) => (
-                        <FormItem className="flex flex-col">
-                            <TwoColumnField label="Date of Birth">
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                <FormControl>
-                                    <Button
-                                    variant={"outline"}
-                                    className={cn(
-                                        "w-full pl-3 text-left font-normal",
-                                        !field.value && "text-muted-foreground"
-                                    )}
-                                    >
-                                    {field.value ? (
-                                        format(field.value, "PPP")
-                                    ) : (
-                                        <span>Pick a date</span>
-                                    )}
-                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                    </Button>
-                                </FormControl>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0" align="start">
-                                <Calendar
-                                    mode="single"
-                                    selected={field.value instanceof Date ? field.value : undefined}
-                                    onSelect={(date) => field.onChange(date || new Date())}
-                                    disabled={(date) =>
-                                    date > new Date() || date < new Date("1900-01-01")
-                                    }
-                                    initialFocus
-                                />
-                                </PopoverContent>
-                            </Popover>
-                            <FormMessage />
-                            </TwoColumnField>
-                        </FormItem>
-                    )}
-                    />
+                  {renderFormField('age', 'Age', 'e.g., 25', false, undefined, 'number')}
                   {renderFormField('gender', 'Gender', 'e.g., Male, Female, Other')}
                   {renderFormField('contactNumber', 'Contact Number', 'e.g., (555) 123-4567')}
                   {renderFormField('email', 'Email Address', 'e.g., john.doe@example.com')}
@@ -721,7 +675,7 @@ export default function LogNewCasePage() {
                 </div>
 
                 <div className="flex justify-end space-x-3 pt-8 mt-8 border-t border-border">
-                  <Button type="button" variant="outline" onClick={() => form.reset(defaultFormValues)}>
+                  <Button type="button" variant="outline" onClick={() => form.reset(defaultFormValues as FullOptometryCaseFormValues)}>
                     Clear Form
                   </Button>
                   <Button type="submit" className="bg-primary hover:bg-primary/90">

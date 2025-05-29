@@ -119,7 +119,7 @@ export default function ViewCasesPage() {
         patientId: c.patientId || '',
         firstName: c.firstName,
         lastName: c.lastName,
-        dateOfBirth: format(new Date(c.dateOfBirth), 'yyyy-MM-dd'),
+        age: c.age || '', // Changed from dateOfBirth
         gender: c.gender || '',
         contactNumber: c.contactNumber || '',
         email: c.email || '',
@@ -182,9 +182,7 @@ export default function ViewCasesPage() {
         internalNotes: c.internalNotes || '',
         reflection: c.reflection || '',
         analysis_caseInsights: c.analysis?.caseInsights || '',
-        analysis_relevantResearch_titles: c.analysis?.relevantResearchArticles.map(a => a.title).join('; ') || '',
-        analysis_relevantResearch_summaries: c.analysis?.relevantResearchArticles.map(a => a.summary).join('; ') || '',
-        analysis_relevantResearch_urls: c.analysis?.relevantResearchArticles.map(a => a.url).join('; ') || '',
+        // Removed research article fields from CSV as they are no longer part of analysis
         analysisError: c.analysisError || '',
     }));
 
@@ -297,3 +295,4 @@ export default function ViewCasesPage() {
     </MainLayout>
   );
 }
+
