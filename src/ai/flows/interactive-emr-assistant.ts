@@ -74,7 +74,7 @@ Current EMR Section in Focus: {{{sectionContext}}}
 Available EMR fields (example subset, adapt based on section): ${KNOWN_EMR_FIELDS}
 
 {{#if formSnapshot}}
-Current Form Data Snapshot:
+Current Form Data Snapshot (Review this to avoid asking for info already provided):
 {{#each formSnapshot}}
 - {{ @key }}: {{this}}
 {{/each}}
@@ -84,30 +84,31 @@ The form is currently empty.
 
 Your Task, based on the user's message below:
 1. Analyze the user's message in the context of the EMR section: "{{{sectionContext}}}".
-2. If the user's message provides information that can directly fill one or more EMR form fields relevant to this section (refer to "Available EMR fields"), identify those fields and their values.
+2. Check the 'Current Form Data Snapshot'. Do NOT ask for information that is already filled unless the user explicitly wants to change it. If the user provides an update for an existing field, extract it.
+3. If the user's message provides information that can directly fill one or more EMR form fields relevant to this section (refer to "Available EMR fields"), identify those fields and their values.
    - Populate the 'fieldsToUpdateJson' field with a JSON STRING. This string should represent an object where keys EXACTLY MATCH the EMR form field names (e.g., "name", "age", "chiefComplaint") and values are the data to update. Example: '{"name": "John Doe", "age": 45}'. If no fields need updating, this can be omitted or be an empty string or an empty JSON object string like '{}'.
    - For OD/OS specific fields, if the user says "Right eye 20/20", you should extract "visualAcuityUncorrectedOD": "20/20" or similar within the JSON string.
-3. Formulate an 'aiResponseMessage'. This message should:
-   - If data was extracted and fieldsToUpdateJson is populated: Briefly confirm what was updated (e.g., "Okay, I've noted the age as 30.") AND then ask a relevant follow-up question for the *current section* ({{{sectionContext}}}).
-   - If no specific data for known fields was extracted from the user's message OR if more information is needed for the current section: Ask a clear, guiding question to help the user provide the next piece of information for "{{{sectionContext}}}".
+4. Formulate an 'aiResponseMessage'. This message should:
+   - If data was extracted and fieldsToUpdateJson is populated: Briefly confirm what was updated (e.g., "Okay, I've noted the age as 30.") AND then ask a relevant, specific follow-up question for the *current section* ({{{sectionContext}}}).
+   - If no specific data for known fields was extracted from the user's message OR if more information is needed for the current section: Ask a clear, guiding, and detailed follow-up question to help the user provide the next piece of information for "{{{sectionContext}}}". For example, if section is "Chief Complaint" and user says "redness in right eye", ask about onset, duration, severity, pain, discharge, vision changes, etc. (e.g., "Redness in the right eye noted. When did this start? Is there any pain or discharge associated with it?").
    - If the user's input is unclear, ambiguous, or irrelevant to the current section, ask for clarification.
    - If the user asks a general question, try to answer it concisely or guide them back to data entry for the current section.
-   - Be conversational and helpful.
+   - Be conversational and helpful. Avoid generic questions if specific follow-ups are more appropriate.
 
 IMPORTANT:
 - Stick to the current EMR section: "{{{sectionContext}}}".
 - Ensure keys in the JSON string for 'fieldsToUpdateJson' are valid EMR field names. Values should be strings, numbers, or booleans.
 - If the user provides multiple pieces of information, try to extract all relevant ones for the current section into the JSON string.
 - Do not invent data. If the user's input is insufficient to fill a field, ask for more details.
-- If the user simply says "hello" or similar, greet them and ask the first logical question for the '{{{sectionContext}}}'.
+- If the user simply says "hello" or similar, greet them and ask the first logical question for the '{{{sectionContext}}}', considering what might already be in the form snapshot.
 
-Example Interaction (Section: Patient Info, User message: "The patient is John Doe, he's 45.")
+Example Interaction (Section: Patient Info, Form Snapshot: {}, User message: "The patient is John Doe, he's 45.")
 AI fieldsToUpdateJson: '{"name": "John Doe", "age": 45}'
 AI aiResponseMessage: "Got it. Name set to John Doe and age to 45. What is Mr. Doe's contact number?"
 
-Example Interaction (Section: Chief Complaint, User message: "blurry vision for 2 weeks")
-AI fieldsToUpdateJson: '{"chiefComplaint": "blurry vision for 2 weeks"}'
-AI aiResponseMessage: "Okay, chief complaint noted as 'blurry vision for 2 weeks'. Can you tell me more about the history of this present illness?"
+Example Interaction (Section: Chief Complaint, Form Snapshot: {"name": "Jane"}, User message: "blurry vision for 2 weeks in OD")
+AI fieldsToUpdateJson: '{"chiefComplaint": "blurry vision for 2 weeks in OD"}'
+AI aiResponseMessage: "Okay, chief complaint for Jane noted as 'blurry vision for 2 weeks in OD'. Can you tell me more about this? For example, is it constant or intermittent? Any associated pain or floaters?"
 
 Process the user's message now.
 `;
@@ -195,5 +196,7 @@ export async function interactiveEmrAssistant(flowInput: InteractiveEmrAssistant
     return { aiResponseMessage: `Sorry, I encountered an error connecting to the AI assistant: ${errorMessage}` };
   }
 }
+
+    
 
     
