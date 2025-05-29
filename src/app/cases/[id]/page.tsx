@@ -26,8 +26,6 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
 const DetailItem = ({ icon: Icon, label, value, isFullWidth = false, isPreWrap = false }: { icon: React.ElementType, label: string, value?: string | number | null | Date, isFullWidth?: boolean, isPreWrap?: boolean }) => {
-  // Check if the value is effectively empty (null, undefined, or an empty/whitespace string)
-  // but allow explicit 0 or false to be displayed.
   const isValuePresent = value !== null && value !== undefined && (typeof value === 'string' ? value.trim() !== '' : true);
   const shouldDisplayValue = (typeof value === 'number' && value === 0) || typeof value === 'boolean' || isValuePresent;
 
@@ -61,8 +59,6 @@ const ODOSDetailItem = ({ icon: Icon, label, valueOD, valueOS, isPreWrap = false
   const odDisplay = valueOD !== null && valueOD !== undefined && (typeof valueOD === 'string' ? valueOD.trim() !== '' : true) ? String(valueOD) : 'N/A';
   const osDisplay = valueOS !== null && valueOS !== undefined && (typeof valueOS === 'string' ? valueOS.trim() !== '' : true) ? String(valueOS) : 'N/A';
 
-  // Only render the component if there's a label (which there always will be)
-  // or if at least one value is meaningfully present (not just "N/A" by default) - though this is handled by showing N/A
   return (
     <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
       <h4 className="font-medium flex items-center gap-1.5 text-foreground sm:col-span-2 mb-1">
@@ -82,10 +78,34 @@ const ODOSDetailItem = ({ icon: Icon, label, valueOD, valueOS, isPreWrap = false
 
 export default function CaseDetailPage() {
   const router = useRouter();
-  const params = useParams();
+  const routerParams = useParams(); 
   const { toast } = useToast();
-  const caseId = params.id as string;
   const chatScrollAreaRef = React.useRef<HTMLDivElement>(null);
+
+  const [plainParams, setPlainParams] = React.useState<{ id?: string | string[] } | null>(null);
+
+  React.useEffect(() => {
+    if (routerParams) {
+      const newPlainParams: { id?: string | string[] } = {};
+      if (routerParams.id) {
+        newPlainParams.id = routerParams.id;
+      }
+      setPlainParams(newPlainParams);
+    } else {
+      setPlainParams(null);
+    }
+  }, [routerParams]);
+
+  const caseId = React.useMemo(() => {
+    if (plainParams && typeof plainParams.id === 'string') {
+      return plainParams.id;
+    }
+    if (plainParams && Array.isArray(plainParams.id) && plainParams.id.length > 0) {
+      return plainParams.id[0];
+    }
+    return undefined;
+  }, [plainParams]);
+
 
   const memoizedInitialCases = React.useMemo<StoredOptometryCase[]>(() => [], []);
   const [storedCases, setStoredCases] = useLocalStorage<StoredOptometryCase[]>('optometryCases', memoizedInitialCases);
@@ -93,7 +113,6 @@ export default function CaseDetailPage() {
   const [currentCase, setCurrentCase] = React.useState<StoredOptometryCase | null | undefined>(undefined);
   const [isAnalyzing, setIsAnalyzing] = React.useState(false);
 
-  // Chat state
   const [chatMessages, setChatMessages] = React.useState<ChatMessage[]>([]);
   const [currentUserQuery, setCurrentUserQuery] = React.useState('');
   const [isSendingQuery, setIsSendingQuery] = React.useState(false);
@@ -102,10 +121,20 @@ export default function CaseDetailPage() {
     if (caseId && storedCases.length > 0) {
       const foundCase = storedCases.find(c => c.id === caseId);
       setCurrentCase(foundCase || null);
-    } else if (caseId && storedCases.length === 0 && typeof window !== 'undefined' && localStorage.getItem('optometryCases')) {
-      const casesFromStorage = JSON.parse(localStorage.getItem('optometryCases') || '[]');
-      const foundCase = casesFromStorage.find((c: StoredOptometryCase) => c.id === caseId);
-      setCurrentCase(foundCase || null);
+    } else if (caseId && storedCases.length === 0 && typeof window !== 'undefined') {
+        const item = localStorage.getItem('optometryCases');
+        if (item) {
+            try {
+                const casesFromStorage = JSON.parse(item);
+                const foundCase = casesFromStorage.find((c: StoredOptometryCase) => c.id === caseId);
+                setCurrentCase(foundCase || null);
+            } catch (e) {
+                console.error("Error parsing cases from localStorage", e);
+                setCurrentCase(null);
+            }
+        } else {
+            setCurrentCase(null);
+        }
     }
   }, [caseId, storedCases]);
 
@@ -221,7 +250,7 @@ export default function CaseDetailPage() {
       };
       setChatMessages(prev => [...prev, aiResponse]);
     } catch (error) {
-      console.error('Chat AI Error:', error);
+      console.error('CRITICAL_AI_DEBUG: Chat AI Error on client:', error);
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred with Focus AI.';
       const errorResponse: ChatMessage = {
         id: (Date.now() + 1).toString(),
@@ -236,7 +265,7 @@ export default function CaseDetailPage() {
   };
 
 
-  if (currentCase === undefined) {
+  if (currentCase === undefined || !caseId) { // Ensure caseId is also available
     return (
       <MainLayout>
         <div className="flex justify-center items-center h-full flex-1 py-8 px-4 sm:px-6 lg:px-8">
@@ -285,7 +314,7 @@ export default function CaseDetailPage() {
             </div>
           </CardHeader>
           <CardContent className="pt-6">
-            <ScrollArea className="h-[calc(100vh-18rem)] md:h-[calc(100vh-16rem)]"> {/* Adjusted height for better screen usage */}
+            <ScrollArea className="h-[calc(100vh-18rem)] md:h-[calc(100vh-16rem)]">
               <div className="space-y-8 pr-4">
                 
                 <section>
@@ -460,7 +489,6 @@ export default function CaseDetailPage() {
                                                   <ReactMarkdown
                                                     components={{
                                                       p: ({node, ...props}) => <p className="mb-1 last:mb-0" {...props} />,
-                                                      // Add more custom components if needed for specific markdown elements
                                                     }}
                                                   >
                                                     {message.content}
@@ -506,3 +534,5 @@ export default function CaseDetailPage() {
     </MainLayout>
   );
 }
+
+    
