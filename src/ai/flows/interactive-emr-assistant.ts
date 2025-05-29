@@ -13,7 +13,7 @@ import { z } from 'genkit';
 import type { GenkitChatMessage } from '@/types/case'; // Reusing GenkitChatMessage
 
 // This is the input type for the EXPORTED interactiveEmrAssistant function
-export const InteractiveEmrAssistantInputSchema = z.object({
+const InteractiveEmrAssistantInputSchema = z.object({
   sectionContext: z.string().describe("The current EMR section the user is focused on (e.g., 'Patient Info', 'Chief Complaint')."),
   userMessage: z.string().describe("The user's latest message or response to the AI."),
   formSnapshot: z.record(z.string(), z.any()).optional().describe("A snapshot of the current data already in the EMR form. Used by AI to avoid asking for information already provided or to understand context."),
@@ -31,7 +31,7 @@ const EmrAssistantMainPromptInputSchema = z.object({
   currentUserMessage: z.string().describe("The user's current message to be processed."),
 });
 
-export const InteractiveEmrAssistantOutputSchema = z.object({
+const InteractiveEmrAssistantOutputSchema = z.object({
   fieldsToUpdate: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])).optional().describe("Key-value pairs of EMR form fields to update based on the user's input. Keys must EXACTLY match the known EMR form field names (e.g., 'name', 'age', 'chiefComplaint', 'visualAcuityUncorrectedOD'). Values should be strings, numbers, or booleans as appropriate for the field."),
   aiResponseMessage: z.string().describe("AI's next message to the user. This could be a question to guide data entry for the current section, a confirmation of updated fields, a request for clarification, or an answer to a user's question."),
 });
@@ -197,5 +197,3 @@ export async function interactiveEmrAssistant(flowInput: InteractiveEmrAssistant
     return { aiResponseMessage: `Sorry, I encountered an error connecting to the AI assistant: ${errorMessage}` };
   }
 }
-
-    
