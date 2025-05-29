@@ -193,6 +193,7 @@ export default function LogNewCasePage() {
   const [currentAssistantInput, setCurrentAssistantInput] = useState('');
   const [isAssistantLoading, setIsAssistantLoading] = useState(false);
   const assistantScrollAreaRef = React.useRef<HTMLDivElement>(null);
+  const isScrollingProgrammatically = React.useRef(false);
 
   const form = useForm<FullOptometryCaseFormValues>({
     resolver: zodResolver(fullOptometryCaseSchema),
@@ -207,7 +208,6 @@ export default function LogNewCasePage() {
   const [canScrollDesktopRight, setCanScrollDesktopRight] = useState(false);
   const DESKTOP_SCROLL_AMOUNT = 250;
 
-  const isScrollingProgrammatically = React.useRef(false);
 
   const scrollToSection = useCallback((sectionRef: React.RefObject<HTMLElement>) => {
     isScrollingProgrammatically.current = true;
@@ -610,11 +610,11 @@ export default function LogNewCasePage() {
             <div className="mb-4 flex justify-center">
                 <Button
                   variant="default"
-                  className="shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 ease-in-out group animate-pulse-slow py-3 px-6"
+                  className="shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out group animate-pulse-slow py-3 px-6"
                   onClick={() => setIsAssistantSheetOpen(true)}
                 >
                   <Bot className="mr-2 h-5 w-5 transition-transform duration-300 ease-in-out group-hover:scale-110" />
-                  Focus AI EMR Assistant
+                  Focus AI Assistant
                   <Sparkles className="ml-2 h-5 w-5 text-yellow-300 opacity-0 transition-opacity duration-300 ease-in-out group-hover:opacity-100" />
                 </Button>
             </div>
@@ -824,7 +824,7 @@ export default function LogNewCasePage() {
       <Sheet open={isAssistantSheetOpen} onOpenChange={setIsAssistantSheetOpen}>
         <SheetContent className="w-full sm:max-w-md flex flex-col p-0">
           <SheetHeader className="p-4 border-b">
-            <SheetTitle className="flex items-center gap-2"><Bot className="h-6 w-6 text-primary" />Focus AI EMR Assistant</SheetTitle>
+            <SheetTitle className="flex items-center gap-2"><Bot className="h-6 w-6 text-primary" />Focus AI Assistant</SheetTitle>
             <SheetDescription>
               Chat with AI to help fill the EMR for the current section: <span className="font-semibold text-primary">{TABS_CONFIG[currentTabIndex]?.label || "Details"}</span>.
             </SheetDescription>
