@@ -1,7 +1,6 @@
 
 'use client';
 
-import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { MainLayout } from '@/components/layout/main-layout';
@@ -28,20 +27,12 @@ export default function HomePage() {
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-primary mb-6 animate-fade-in-down">
             Focus CaseX
           </h1>
-          <p className="text-lg sm:text-xl md:text-2xl text-foreground/80 mb-10 max-w-3xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-            Welcome to Focus CaseX<br />Your professional platform for optometry case management and learning.
+          <p className="text-lg sm:text-xl md:text-2xl text-foreground/80 mb-6 max-w-3xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+            Experience the Future of Optometry Learning with AI-Powered Case Management.
           </p>
-          <div className="mt-10 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
-            <Image
-              src="https://placehold.co/600x350.png"
-              alt="Focus CaseX platform illustration"
-              width={600}
-              height={350}
-              className="rounded-lg shadow-2xl mx-auto"
-              data-ai-hint="optometry technology interface"
-              priority
-            />
-          </div>
+          <p className="text-md sm:text-lg text-foreground/70 mb-10 max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
+            Log cases manually or with intelligent AI assistance, and dive deep into interactive case reviews. Our integrated Focus AI is here to assist you at every step.
+          </p>
         </div>
       </section>
 
@@ -55,13 +46,13 @@ export default function HomePage() {
                   <NotebookPen className="h-10 w-10 text-primary" />
                   <div>
                     <CardTitle className="text-2xl text-primary">Log New Case</CardTitle>
-                    <p className="text-sm text-muted-foreground">Efficient Data Entry</p>
+                    <p className="text-sm text-muted-foreground">Interactive EMR with AI Assist</p>
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="flex-grow p-6">
                 <p className="text-foreground/70 mb-6">
-                  Create a new optometry case record with complete patient details, findings, and AI-assisted analysis options. Streamline your workflow and build a comprehensive case library.
+                  Create detailed optometry case records using our comprehensive EMR interface. Choose between manual data entry or leverage Focus AI to interactively assist you in filling out case details, saving you time and ensuring accuracy.
                 </p>
               </CardContent>
               <CardFooter className="p-6 bg-transparent border-t">
@@ -76,14 +67,14 @@ export default function HomePage() {
                 <div className="flex items-center gap-4">
                   <FolderKanban className="h-10 w-10 text-primary" />
                    <div>
-                    <CardTitle className="text-2xl text-primary">View All Cases</CardTitle>
-                    <p className="text-sm text-muted-foreground">Comprehensive Overview</p>
+                    <CardTitle className="text-2xl text-primary">View & Analyze Cases</CardTitle>
+                    <p className="text-sm text-muted-foreground">Deep Dive with AI Chat</p>
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="flex-grow p-6">
                 <p className="text-foreground/70 mb-6">
-                  Access and manage your existing optometry case records. Review detailed information, track progress, and leverage insights from past cases for continuous learning and improved patient care.
+                  Access your complete library of optometry cases. Review detailed information, get initial AI insights, and engage in interactive chat sessions with Focus AI for each case to deepen your understanding and learning.
                 </p>
               </CardContent>
               <CardFooter className="p-6 bg-transparent border-t">
