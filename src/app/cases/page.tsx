@@ -117,7 +117,7 @@ export default function ViewCasesPage() {
         id: c.id,
         timestamp: c.timestamp,
         patientId: c.patientId || '',
-        name: c.name, // Changed from firstName and lastName
+        name: c.name,
         age: c.age || '', 
         gender: c.gender || '',
         contactNumber: c.contactNumber || '',
@@ -206,7 +206,7 @@ export default function ViewCasesPage() {
     const lowerSearchTerm = searchTerm.toLowerCase();
     return storedCases.filter(c => 
       c.id.toLowerCase().includes(lowerSearchTerm) ||
-      c.name.toLowerCase().includes(lowerSearchTerm) || // Changed from firstName and lastName
+      c.name.toLowerCase().includes(lowerSearchTerm) ||
       (c.patientId && c.patientId.toLowerCase().includes(lowerSearchTerm)) ||
       c.chiefComplaint.toLowerCase().includes(lowerSearchTerm) ||
       c.assessment.toLowerCase().includes(lowerSearchTerm)
@@ -216,9 +216,9 @@ export default function ViewCasesPage() {
 
   return (
     <MainLayout>
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex flex-col flex-1">
+      <div className="px-4 sm:px-6 lg:px-8 flex flex-col flex-1">
         <div className="pt-8">
-          <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+          <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4 max-w-7xl mx-auto w-full">
             <Button variant="outline" onClick={() => router.back()} className="self-start sm:self-center">
               <ArrowLeft className="mr-2 h-4 w-4" /> Back
             </Button>
@@ -235,7 +235,7 @@ export default function ViewCasesPage() {
             </div>
           </div>
 
-          <Card className="shadow-xl mb-6">
+          <Card className="shadow-xl mb-6 max-w-7xl mx-auto w-full">
             <CardContent className="pt-6">
               <Input
                   type="text"
@@ -249,47 +249,48 @@ export default function ViewCasesPage() {
         </div>
 
         <ScrollArea className="flex-grow pb-8">
-          {filteredCases.length === 0 ? (
-            <Card className="shadow-xl">
-              <CardContent className="pt-6">
-                <div className="text-center py-10">
-                  <img 
-                    src="https://placehold.co/400x300.png" 
-                    alt="Illustration of empty case files" 
-                    data-ai-hint="empty state medical documents"
-                    className="mx-auto mb-6 rounded-lg opacity-80"
+          <div className="max-w-7xl mx-auto w-full">
+            {filteredCases.length === 0 ? (
+              <Card className="shadow-xl">
+                <CardContent className="pt-6">
+                  <div className="text-center py-10">
+                    <img 
+                      src="https://placehold.co/400x300.png" 
+                      alt="Illustration of empty case files" 
+                      data-ai-hint="empty state medical documents"
+                      className="mx-auto mb-6 rounded-lg opacity-80"
+                    />
+                    <h2 className="text-2xl font-semibold text-foreground mb-3">
+                      {searchTerm ? 'No Cases Match Your Search' : 'No Cases Logged Yet'}
+                    </h2>
+                    <p className="text-muted-foreground max-w-md mx-auto mb-6">
+                      {searchTerm 
+                        ? 'Try adjusting your search terms or clear the search to see all cases.' 
+                        : 'Start by logging your first optometry case. It will appear here once saved.'}
+                    </p>
+                    {!searchTerm && (
+                        <Button onClick={() => router.push('/cases/new')} size="lg">
+                            <PlusCircle className="mr-2 h-5 w-5" /> Log Your First Case
+                        </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredCases.map((caseItem) => (
+                  <StoredCaseCard
+                    key={caseItem.id}
+                    caseData={caseItem}
+                    onViewDetails={handleViewDetails}
+                    onDelete={handleDeleteCase}
                   />
-                  <h2 className="text-2xl font-semibold text-foreground mb-3">
-                    {searchTerm ? 'No Cases Match Your Search' : 'No Cases Logged Yet'}
-                  </h2>
-                  <p className="text-muted-foreground max-w-md mx-auto mb-6">
-                    {searchTerm 
-                      ? 'Try adjusting your search terms or clear the search to see all cases.' 
-                      : 'Start by logging your first optometry case. It will appear here once saved.'}
-                  </p>
-                  {!searchTerm && (
-                      <Button onClick={() => router.push('/cases/new')} size="lg">
-                          <PlusCircle className="mr-2 h-5 w-5" /> Log Your First Case
-                      </Button>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredCases.map((caseItem) => (
-                <StoredCaseCard
-                  key={caseItem.id}
-                  caseData={caseItem}
-                  onViewDetails={handleViewDetails}
-                  onDelete={handleDeleteCase}
-                />
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
         </ScrollArea>
       </div>
     </MainLayout>
   );
 }
-

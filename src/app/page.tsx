@@ -26,7 +26,7 @@ export default function HomePage() {
     <MainLayout>
       {/* Hero Section */}
       <section className="py-20 md:py-28 text-center bg-gradient-to-br from-primary/10 via-background to-background">
-        <div className="container mx-auto px-6">
+        <div className="container mx-auto px-6"> {/* Container class is appropriate for hero text content */}
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-primary mb-6 animate-fade-in-down">
             Focus CaseX
           </h1>
@@ -37,8 +37,8 @@ export default function HomePage() {
       </section>
 
       {/* Action Cards Section */}
-      <section className="py-16 md:py-24">
-        <div className="container mx-auto px-6">
+      <section className="py-16 md:py-24 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
             <Card className="shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col bg-card rounded-xl overflow-hidden transform hover:-translate-y-1">
               <CardHeader className="bg-primary/5 p-6">

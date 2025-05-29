@@ -90,7 +90,6 @@ export default function CaseDetailPage() {
       const foundCase = storedCases.find(c => c.id === caseId);
       setCurrentCase(foundCase || null);
     } else if (caseId && storedCases.length === 0 && typeof window !== 'undefined' && localStorage.getItem('optometryCases')) {
-      // Fallback for initial load if storedCases state isn't populated yet
       const casesFromStorage = JSON.parse(localStorage.getItem('optometryCases') || '[]');
       const foundCase = casesFromStorage.find((c: StoredOptometryCase) => c.id === caseId);
       setCurrentCase(foundCase || null);
@@ -158,7 +157,7 @@ export default function CaseDetailPage() {
     fieldsToInclude.forEach(key => {
       const value = caseData[key];
       if (value !== undefined && value !== null && String(value).trim() !== '') {
-        const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()); // Format label
+        const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()); 
         if (value instanceof Date) { 
             summary += `${label}: ${format(new Date(value), 'PPP')}\n`;
         } else {
@@ -227,7 +226,7 @@ export default function CaseDetailPage() {
   if (currentCase === undefined) {
     return (
       <MainLayout>
-        <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8 flex justify-center items-center h-full">
+        <div className="flex justify-center items-center h-full flex-1 py-8 px-4 sm:px-6 lg:px-8">
           <Loader2 className="h-12 w-12 animate-spin text-primary" />
         </div>
       </MainLayout>
@@ -237,7 +236,7 @@ export default function CaseDetailPage() {
   if (!currentCase) {
     return (
       <MainLayout>
-        <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div className="py-8 px-4 sm:px-6 lg:px-8">
           <Button variant="outline" onClick={() => router.push('/cases')} className="mb-6">
             <ArrowLeft className="mr-2 h-4 w-4" /> Back to Cases
           </Button>
@@ -256,8 +255,8 @@ export default function CaseDetailPage() {
 
   return (
     <MainLayout>
-      <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <Card className="shadow-xl">
+      <div className="py-8 px-4 sm:px-6 lg:px-8">
+        <Card className="shadow-xl max-w-7xl mx-auto">
           <CardHeader className="border-b">
             <div className="flex items-center justify-between mb-2">
               <Button variant="outline" size="icon" onClick={() => router.push('/cases')} className="mr-4 flex-shrink-0">
@@ -273,7 +272,7 @@ export default function CaseDetailPage() {
             </div>
           </CardHeader>
           <CardContent className="pt-6">
-            <ScrollArea className="h-[calc(100vh-18rem)] md:h-[calc(100vh-16rem)]">
+            <ScrollArea className="h-[calc(100vh-18rem)] md:h-[calc(100vh-16rem)]"> {/* Adjusted height for better screen usage */}
               <div className="space-y-8 pr-4">
                 
                 <section>
@@ -309,35 +308,72 @@ export default function CaseDetailPage() {
                   </div>
                 </section>
 
-                {/* Other sections for Examination, Slit Lamp etc. would go here, similar to the CaseDetailModal logic */}
                  <section>
                   <h3 className="text-lg font-semibold mb-3 text-primary flex items-center"><Eye className="mr-2 h-5 w-5" />Examination & Refraction</h3>
-                  {/* Details to be added here based on StoredOptometryCase fields */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 p-4 border rounded-lg bg-card/50">
+                    <ODOSDetailItem icon={Eye} label="Uncorrected Visual Acuity (UCVA)" valueOD={currentCase.visualAcuityUncorrectedOD} valueOS={currentCase.visualAcuityUncorrectedOS} />
+                    <ODOSDetailItem icon={Eye} label="Corrected Visual Acuity (BCVA/PH)" valueOD={currentCase.visualAcuityCorrectedOD} valueOS={currentCase.visualAcuityCorrectedOS} />
+                    <DetailItem icon={Eye} label="Pupils" value={currentCase.pupils} isFullWidth isPreWrap />
+                    <DetailItem icon={Eye} label="Extraocular Motility (EOMs)" value={currentCase.extraocularMotility} isFullWidth isPreWrap />
+                    <ODOSDetailItem icon={Eye} label="Intraocular Pressure (IOP)" valueOD={currentCase.intraocularPressureOD} valueOS={currentCase.intraocularPressureOS} />
+                    <DetailItem icon={Eye} label="Confrontation Visual Fields" value={currentCase.confrontationVisualFields} isFullWidth isPreWrap />
+                    <ODOSDetailItem icon={Glasses} label="Manifest Refraction" valueOD={currentCase.manifestRefractionOD} valueOS={currentCase.manifestRefractionOS} isPreWrap />
+                    <ODOSDetailItem icon={Glasses} label="Cycloplegic Refraction" valueOD={currentCase.cycloplegicRefractionOD} valueOS={currentCase.cycloplegicRefractionOS} isPreWrap />
+                    <DetailItem icon={Glasses} label="Current Spectacle Rx" value={currentCase.currentSpectacleRx} isFullWidth isPreWrap />
+                    <DetailItem icon={Glasses} label="Current Contact Lens Rx" value={currentCase.currentContactLensRx} isFullWidth isPreWrap />
+                  </div>
                 </section>
 
                 <section>
                   <h3 className="text-lg font-semibold mb-3 text-primary flex items-center"><Microscope className="mr-2 h-5 w-5" />Slit Lamp Examination</h3>
-                   {/* Details to be added here */}
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 p-4 border rounded-lg bg-card/50">
+                    <ODOSDetailItem icon={Microscope} label="Lids & Lashes" valueOD={currentCase.lidsLashesOD} valueOS={currentCase.lidsLashesOS} isPreWrap />
+                    <ODOSDetailItem icon={Microscope} label="Conjunctiva & Sclera" valueOD={currentCase.conjunctivaScleraOD} valueOS={currentCase.conjunctivaScleraOS} isPreWrap />
+                    <ODOSDetailItem icon={Microscope} label="Cornea" valueOD={currentCase.corneaOD} valueOS={currentCase.corneaOS} isPreWrap />
+                    <ODOSDetailItem icon={Microscope} label="Anterior Chamber" valueOD={currentCase.anteriorChamberOD} valueOS={currentCase.anteriorChamberOS} isPreWrap />
+                    <ODOSDetailItem icon={Microscope} label="Iris" valueOD={currentCase.irisOD} valueOS={currentCase.irisOS} isPreWrap />
+                    <ODOSDetailItem icon={Microscope} label="Lens" valueOD={currentCase.lensOD} valueOS={currentCase.lensOS} isPreWrap />
+                  </div>
                 </section>
 
                 <section>
                   <h3 className="text-lg font-semibold mb-3 text-primary flex items-center"><ScanEye className="mr-2 h-5 w-5" />Posterior Segment Examination</h3>
-                   {/* Details to be added here */}
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 p-4 border rounded-lg bg-card/50">
+                    <ODOSDetailItem icon={ScanEye} label="Vitreous" valueOD={currentCase.vitreousOD} valueOS={currentCase.vitreousOS} isPreWrap />
+                    <ODOSDetailItem icon={ScanEye} label="Optic Disc" valueOD={currentCase.opticDiscOD} valueOS={currentCase.opticDiscOS} isPreWrap />
+                    <ODOSDetailItem icon={ScanEye} label="Cup/Disc Ratio" valueOD={currentCase.cupDiscRatioOD} valueOS={currentCase.cupDiscRatioOS} />
+                    <ODOSDetailItem icon={ScanEye} label="Macula" valueOD={currentCase.maculaOD} valueOS={currentCase.maculaOS} isPreWrap />
+                    <ODOSDetailItem icon={ScanEye} label="Vessels" valueOD={currentCase.vesselsOD} valueOS={currentCase.vesselsOS} isPreWrap />
+                    <ODOSDetailItem icon={ScanEye} label="Periphery (Dilated)" valueOD={currentCase.peripheryOD} valueOS={currentCase.peripheryOS} isPreWrap />
+                  </div>
                 </section>
                 
                 <section>
                   <h3 className="text-lg font-semibold mb-3 text-primary flex items-center"><FileText className="mr-2 h-5 w-5" />Investigations</h3>
-                   {/* Details to be added here */}
+                   <div className="grid grid-cols-1 md:grid-cols-1 gap-4 p-4 border rounded-lg bg-card/50">
+                    <DetailItem icon={FileText} label="OCT Findings" value={currentCase.octFindings} isFullWidth isPreWrap />
+                    <DetailItem icon={FileText} label="Visual Field Findings" value={currentCase.visualFieldFindings} isFullWidth isPreWrap />
+                    <DetailItem icon={FileText} label="Fundus Photography Findings" value={currentCase.fundusPhotographyFindings} isFullWidth isPreWrap />
+                    <DetailItem icon={FileText} label="Other Investigations" value={currentCase.otherInvestigations} isFullWidth isPreWrap />
+                  </div>
                 </section>
 
                 <section>
                   <h3 className="text-lg font-semibold mb-3 text-primary flex items-center"><Edit3 className="mr-2 h-5 w-5" />Assessment & Plan</h3>
-                   {/* Details to be added here */}
+                   <div className="grid grid-cols-1 md:grid-cols-1 gap-4 p-4 border rounded-lg bg-card/50">
+                    <DetailItem icon={Edit3} label="Assessment / Diagnoses" value={currentCase.assessment} isFullWidth isPreWrap />
+                    <DetailItem icon={Edit3} label="Plan" value={currentCase.plan} isFullWidth isPreWrap />
+                    <DetailItem icon={Edit3} label="Prognosis" value={currentCase.prognosis} isFullWidth isPreWrap />
+                    <DetailItem icon={Edit3} label="Follow Up Instructions" value={currentCase.followUp} isFullWidth isPreWrap />
+                  </div>
                 </section>
 
                 <section>
                   <h3 className="text-lg font-semibold mb-3 text-primary flex items-center"><NotebookPen className="mr-2 h-5 w-5" />Notes & Reflection</h3>
-                   {/* Details to be added here */}
+                   <div className="grid grid-cols-1 md:grid-cols-1 gap-4 p-4 border rounded-lg bg-card/50">
+                    <DetailItem icon={NotebookPen} label="Internal Notes" value={currentCase.internalNotes} isFullWidth isPreWrap />
+                    <DetailItem icon={NotebookPen} label="Personal Reflection/Learning" value={currentCase.reflection} isFullWidth isPreWrap />
+                  </div>
                 </section>
 
 
@@ -457,4 +493,3 @@ export default function CaseDetailPage() {
     </MainLayout>
   );
 }
-

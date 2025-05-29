@@ -35,7 +35,7 @@ import useLocalStorage from '@/hooks/use-local-storage';
 const fullOptometryCaseSchema = z.object({
   // Patient Info
   patientId: z.string().optional(),
-  name: z.string().min(1, "Name is required"), // Replaced firstName and lastName
+  name: z.string().min(1, "Name is required"),
   age: z.coerce.number()
     .int("Age must be a whole number.")
     .positive("Age must be a positive number.")
@@ -173,7 +173,7 @@ export default function LogNewCasePage() {
 
   const form = useForm<FullOptometryCaseFormValues>({
     resolver: zodResolver(fullOptometryCaseSchema),
-    defaultValues: defaultFormValues as FullOptometryCaseFormValues, // Cast after defining with string age
+    defaultValues: defaultFormValues as FullOptometryCaseFormValues,
   });
 
   const desktopTabsScrollAreaRef = useRef<HTMLDivElement>(null); 
@@ -280,8 +280,8 @@ export default function LogNewCasePage() {
   useEffect(() => {
     const observerOptions = {
       root: null,
-      rootMargin: '0px 0px -70% 0px',
-      threshold: 0.1, 
+      rootMargin: '0px 0px -70% 0px', // Section active when its top enters top 30% of viewport
+      threshold: 0.1, // At least 10% of the section is visible
     };
     
     const observerCallback = (entries: IntersectionObserverEntry[]) => {
@@ -311,7 +311,7 @@ export default function LogNewCasePage() {
     return () => {
       observers.forEach(observer => observer.disconnect());
     };
-  }, []); 
+  }, []); // Empty dependency array: set up observers once
 
 
   useEffect(() => {
@@ -341,7 +341,6 @@ export default function LogNewCasePage() {
     
     let ocularHealthStatus = values.assessment;
     if (!ocularHealthStatus || ocularHealthStatus.trim() === '') {
-      // Fallback if assessment is empty, try to construct from posterior segment details
       const odHealth = [values.opticDiscOD, values.maculaOD, values.vesselsOD, values.peripheryOD].filter(Boolean).join(', ');
       const osHealth = [values.opticDiscOS, values.maculaOS, values.vesselsOS, values.peripheryOS].filter(Boolean).join(', ');
       ocularHealthStatus = `OD Health: ${odHealth || 'Not specified'}. OS Health: ${osHealth || 'Not specified'}.`;
@@ -467,8 +466,8 @@ export default function LogNewCasePage() {
 
   return (
     <MainLayout>
-      <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <Card className="shadow-xl">
+      <div className="py-8 px-4 sm:px-6 lg:px-8">
+        <Card className="shadow-xl max-w-7xl mx-auto">
           <CardHeader className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm border-b pb-2">
             <div className="flex items-center justify-between mb-2">
                 <Button variant="ghost" size="icon" onClick={() => router.back()} className="mr-2">
@@ -493,9 +492,10 @@ export default function LogNewCasePage() {
                         >
                             <ChevronLeft className="h-5 w-5" />
                         </Button>
-                        <div className="text-center">
-                            <span className="text-sm font-medium text-primary">{TABS_CONFIG[currentTabIndex]?.label}</span>
-                            <span className="text-xs text-muted-foreground"> ({TABS_CONFIG[currentTabIndex] ? currentTabIndex + 1 : 0}/{TABS_CONFIG.length})</span>
+                        <div className="text-center flex items-center justify-center">
+                           {TABS_CONFIG[currentTabIndex]?.icon && React.createElement(TABS_CONFIG[currentTabIndex].icon, { className: "mr-2 h-5 w-5 text-primary" })}
+                           <span className="text-sm font-medium text-primary">{TABS_CONFIG[currentTabIndex]?.label}</span>
+                           <span className="text-xs text-muted-foreground ml-1"> ({TABS_CONFIG[currentTabIndex] ? currentTabIndex + 1 : 0}/{TABS_CONFIG.length})</span>
                         </div>
                         <Button
                             variant="outline"
