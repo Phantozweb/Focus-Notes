@@ -74,7 +74,7 @@ Current EMR Section in Focus: {{{sectionContext}}}
 Available EMR fields (example subset, adapt based on section): ${KNOWN_EMR_FIELDS}
 
 {{#if formSnapshot}}
-Current Form Data Snapshot (Review this to avoid asking for info already provided):
+Current Form Data Snapshot (Review this to avoid asking for info already provided, and to understand context for updates):
 {{#each formSnapshot}}
 - {{ @key }}: {{this}}
 {{/each}}
@@ -83,11 +83,14 @@ The form is currently empty.
 {{/if}}
 
 Your Task, based on the user's message below:
-1. Analyze the user's message in the context of the EMR section: "{{{sectionContext}}}".
-2. Check the 'Current Form Data Snapshot'. Do NOT ask for information that is already filled unless the user explicitly wants to change it. If the user provides an update for an existing field, extract it.
+1. Analyze the user's message in the context of the EMR section: "{{{sectionContext}}}" and the ongoing conversation history.
+2. Review the 'Current Form Data Snapshot' and recent chat history.
+   - If the user's current message provides NEW information for an EMPTY field in the current section, extract it.
+   - If the user's current message CLARIFIES, CORRECTS, or EXPANDS on information for a field that is ALREADY FILLED (either in the snapshot or from a very recent turn in this conversation), you MUST use the LATEST information provided by the user to update that field in 'fieldsToUpdateJson'. For instance, if 'chiefComplaint' was "redness in right eye" and the user now says "actually it's in both eyes", you should update 'chiefComplaint' to "redness in both eyes".
+   - Do NOT ask for information that is already satisfactorily filled and hasn't been mentioned by the user in the current or immediately preceding message unless the user is explicitly asking to change it.
 3. If the user's message provides information that can directly fill one or more EMR form fields relevant to this section (refer to "Available EMR fields"), identify those fields and their values.
    - Populate the 'fieldsToUpdateJson' field with a JSON STRING. This string should represent an object where keys EXACTLY MATCH the EMR form field names (e.g., "name", "age", "chiefComplaint") and values are the data to update. Example: '{"name": "John Doe", "age": 45}'. If no fields need updating, this can be omitted or be an empty string or an empty JSON object string like '{}'.
-   - For OD/OS specific fields, if the user says "Right eye 20/20", you should extract "visualAcuityUncorrectedOD": "20/20" or similar within the JSON string.
+   - For OD/OS specific fields, if the user says "Right eye 20/20", you should extract "visualAcuityUncorrectedOD": "20/20" or similar within the JSON string. If they later say "Actually, the left eye is 20/25", ensure the appropriate OS field is updated.
 4. Formulate an 'aiResponseMessage'. This message should:
    - If data was extracted and fieldsToUpdateJson is populated: Briefly confirm what was updated (e.g., "Okay, I've noted the age as 30.") AND then ask a relevant, specific follow-up question for the *current section* ({{{sectionContext}}}).
    - If no specific data for known fields was extracted from the user's message OR if more information is needed for the current section: Ask a clear, guiding, and detailed follow-up question to help the user provide the next piece of information for "{{{sectionContext}}}".
@@ -111,6 +114,10 @@ IMPORTANT:
 Example Interaction (Section: Patient Info, Form Snapshot: {}, User message: "The patient is John Doe, he's 45.")
 AI fieldsToUpdateJson: '{"name": "John Doe", "age": 45}'
 AI aiResponseMessage: "Got it. Name set to John Doe and age to 45. What is Mr. Doe's contact number?"
+
+Example Interaction (Updating existing info - Section: Chief Complaint, Form Snapshot: {"chiefComplaint": "Redness in right eye for 1 day"}, User message: "The redness is actually in both eyes, and it started yesterday evening.")
+AI fieldsToUpdateJson: '{"chiefComplaint": "Redness in both eyes, started yesterday evening"}'
+AI aiResponseMessage: "Noted. Chief complaint updated to: Redness in both eyes, started yesterday evening. Is there any pain, itching, or discharge associated with this?"
 
 Example Interaction (Section: Chief Complaint, Form Snapshot: {"name": "Jane"}, User message: "blurry vision for 2 weeks in OD")
 AI fieldsToUpdateJson: '{"chiefComplaint": "blurry vision for 2 weeks in OD"}'
@@ -202,5 +209,7 @@ export async function interactiveEmrAssistant(flowInput: InteractiveEmrAssistant
     return { aiResponseMessage: `Sorry, I encountered an error connecting to the AI assistant: ${errorMessage}` };
   }
 }
+
+    
 
     
