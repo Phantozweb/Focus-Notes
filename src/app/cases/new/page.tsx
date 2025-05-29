@@ -23,7 +23,8 @@ import { useToast } from '@/hooks/use-toast';
 import {
   User, Briefcase, History, Eye, Microscope, BookOpen, Edit3, Save, FileTextIcon, ScanEye, ChevronLeft, ChevronRight, NotebookPen, ArrowLeft, Sparkles, Loader2, Bot, Send, MessageSquarePlus
 } from 'lucide-react'; 
-import type { FullOptometryCaseData, StoredOptometryCase, ChatMessage as AssistantChatMessage, GenkitChatMessage as AssistantGenkitChatMessage, InteractiveEmrAssistantInput, InteractiveEmrAssistantOutput } from '@/types/case';
+import type { FullOptometryCaseData, StoredOptometryCase, ChatMessage as AssistantChatMessage, GenkitChatMessage as AssistantGenkitChatMessage, InteractiveEmrAssistantInput } from '@/types/case';
+// Removed InteractiveEmrAssistantOutput from types as it's used internally in the flow
 
 import { cn } from '@/lib/utils';
 import { useRef, useState, useEffect, useCallback }
@@ -31,7 +32,7 @@ from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useRouter } from 'next/navigation';
 import { extractCaseInsights, type ExtractCaseInsightsInput } from '@/ai/flows/extract-case-insights';
-import { interactiveEmrAssistant } from '@/ai/flows/interactive-emr-assistant';
+import { interactiveEmrAssistant, type InteractiveEmrAssistantOutput } from '@/ai/flows/interactive-emr-assistant'; // Keep type import
 import useLocalStorage from '@/hooks/use-local-storage';
 import {
   Sheet,
@@ -149,16 +150,16 @@ const SectionTitle = React.forwardRef<HTMLHeadingElement, { title: string; icon:
 SectionTitle.displayName = "SectionTitle";
 
 
-const TABS_CONFIG = [
-  { value: "patientInfo", label: "Patient Info", icon: User, ref: React.createRef<HTMLDivElement>() },
-  { value: "chiefComplaint", label: "Chief Complaint", icon: Briefcase, ref: React.createRef<HTMLDivElement>() },
-  { value: "history", label: "History", icon: History, ref: React.createRef<HTMLDivElement>() },
-  { value: "examination", label: "Examination", icon: Eye, ref: React.createRef<HTMLDivElement>() },
-  { value: "slitLamp", label: "Slit Lamp", icon: Microscope, ref: React.createRef<HTMLDivElement>() },
-  { value: "posteriorSegment", label: "Posterior Segment", icon: ScanEye, ref: React.createRef<HTMLDivElement>() },
-  { value: "investigations", label: "Investigations", icon: BookOpen, ref: React.createRef<HTMLDivElement>() },
-  { value: "assessmentPlan", label: "Assessment & Plan", icon: Edit3, ref: React.createRef<HTMLDivElement>() },
-  { value: "notesReflection", label: "Notes & Reflection", icon: NotebookPen, ref: React.createRef<HTMLDivElement>() },
+const TABS_CONFIG_BASE = [
+  { value: "patientInfo", label: "Patient Info", icon: User },
+  { value: "chiefComplaint", label: "Chief Complaint", icon: Briefcase },
+  { value: "history", label: "History", icon: History },
+  { value: "examination", label: "Examination", icon: Eye },
+  { value: "slitLamp", label: "Slit Lamp", icon: Microscope },
+  { value: "posteriorSegment", label: "Posterior Segment", icon: ScanEye },
+  { value: "investigations", label: "Investigations", icon: BookOpen },
+  { value: "assessmentPlan", label: "Assessment & Plan", icon: Edit3 },
+  { value: "notesReflection", label: "Notes & Reflection", icon: NotebookPen },
 ];
 
 
@@ -182,6 +183,9 @@ export default function LogNewCasePage() {
   const isScrollingProgrammatically = React.useRef(false);
   const [isAiLoading, setIsAiLoading] = useState(false);
   
+  const TABS_CONFIG = React.useMemo(() => TABS_CONFIG_BASE.map(tab => ({ ...tab, ref: React.createRef<HTMLDivElement>() })), []);
+
+
   const memoizedInitialStoredCases = React.useMemo<StoredOptometryCase[]>(() => [], []);
   const [storedCases, setStoredCases] = useLocalStorage<StoredOptometryCase[]>('optometryCases', memoizedInitialStoredCases);
 
@@ -214,7 +218,8 @@ export default function LogNewCasePage() {
     }, 1000); 
   }, []);
 
- const handleTabChange = useCallback((index: number, isMobileNav: boolean) => {
+ const handleTabChange = useCallback((index: number, isMobileNav: boolean = false) => { // isMobileNav default to false
+    if (index < 0 || index >= TABS_CONFIG.length) return;
     setCurrentTabIndex(index);
     scrollToSection(TABS_CONFIG[index].ref as React.RefObject<HTMLElement>);
     if (!isMobileNav && !isMobile && desktopTabsListRef.current) {
@@ -233,7 +238,7 @@ export default function LogNewCasePage() {
         }
       }
     }
-  }, [scrollToSection, isMobile]);
+  }, [scrollToSection, isMobile, TABS_CONFIG]);
 
 
   const checkDesktopScrollability = useCallback(() => {
@@ -245,8 +250,8 @@ export default function LogNewCasePage() {
       const scrollWidth = list.scrollWidth;
       const clientWidth = viewport.clientWidth;
       
-      setCanScrollDesktopLeft(scrollLeft > 0.5); 
-      setCanScrollDesktopRight(scrollLeft + clientWidth < scrollWidth - 0.5);
+      setCanScrollDesktopLeft(scrollLeft > 1); 
+      setCanScrollDesktopRight(scrollWidth - clientWidth - scrollLeft > 1);
     } else {
       setCanScrollDesktopLeft(false);
       setCanScrollDesktopRight(false);
@@ -307,8 +312,8 @@ export default function LogNewCasePage() {
       threshold: 0.1, 
     };
 
-    const observerCallback = (entries: IntersectionObserverEntry[]) => {
-      if (isProgrammaticScrollRef.current) return;
+    const callback = (entries: IntersectionObserverEntry[]) => {
+      if (isScrollingProgrammatically.current) return;
 
       const entry = entries.find(e => e.isIntersecting);
       if (entry) {
@@ -325,7 +330,7 @@ export default function LogNewCasePage() {
     const observers: IntersectionObserver[] = [];
     TABS_CONFIG.forEach(tabConfig => {
       if (tabConfig.ref.current) {
-        const observer = new IntersectionObserver(observerCallback, observerOptions);
+        const observer = new IntersectionObserver(callback, observerOptions);
         observer.observe(tabConfig.ref.current);
         observers.push(observer);
       }
@@ -334,7 +339,7 @@ export default function LogNewCasePage() {
     return () => {
       observers.forEach(observer => observer.disconnect());
     };
-  }, []);
+  }, [TABS_CONFIG]);
 
 
   useEffect(() => {
@@ -354,12 +359,12 @@ export default function LogNewCasePage() {
         }
       }
     }
-  }, [currentTabIndex, isMobile]);
+  }, [currentTabIndex, isMobile, TABS_CONFIG]);
 
   const handleAiInsightGeneration = async () => {
     setIsAiLoading(true);
     const values = form.getValues();
-    const visualAcuity = `OD: ${values.visualAcuityCorrectedOD || 'N/A'}, OS: ${values.visualAcuityCorrectedOS || 'N/A'}`;
+    const visualAcuity = `OD: ${values.visualAcuityCorrectedOD || values.visualAcuityUncorrectedOD || 'N/A'}, OS: ${values.visualAcuityCorrectedOS || values.visualAcuityUncorrectedOS || 'N/A'}`;
     const refraction = `OD: ${values.manifestRefractionOD || 'N/A'}, OS: ${values.manifestRefractionOS || 'N/A'}`;
     
     let ocularHealthStatus = values.assessment;
@@ -540,7 +545,7 @@ export default function LogNewCasePage() {
             for (const [key, value] of Object.entries(fieldsToUpdate)) {
               if (value !== undefined && value !== null && fullOptometryCaseSchema.shape.hasOwnProperty(key)) {
                 // @ts-ignore
-                form.setValue(key as keyof FullOptometryCaseFormValues, value, { shouldValidate: true, shouldDirty: true });
+                form.setValue(key as keyof FullOptometryCaseFormValues, String(value), { shouldValidate: true, shouldDirty: true });
                 fieldUpdateMessages.push(`${key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}`);
               }
             }
@@ -587,7 +592,7 @@ export default function LogNewCasePage() {
         // This part can be adjusted or removed if proactive prompts on tab change feel too intrusive.
         // For now, it won't ask a new question automatically on tab change if a conversation is ongoing.
     }
-  }, [currentTabIndex, isAssistantSheetOpen]);
+  }, [currentTabIndex, isAssistantSheetOpen, TABS_CONFIG, assistantMessages.length]);
 
 
   return (
@@ -600,13 +605,19 @@ export default function LogNewCasePage() {
                     <ArrowLeft className="h-6 w-6 text-primary" />
                     <span className="sr-only">Back</span>
                 </Button>
-                <CardTitle className="text-3xl font-bold text-primary flex items-center">
-                <FileTextIcon className="mr-3 h-8 w-8" /> Log New Optometry Case
+                <CardTitle className="text-3xl font-bold text-primary flex items-center text-center flex-grow justify-center">
+                  <FileTextIcon className="mr-3 h-8 w-8" /> Log New Optometry Case
                 </CardTitle>
-                <Button variant="outline" size="icon" onClick={() => setIsAssistantSheetOpen(true)} className="ml-2">
-                    <MessageSquarePlus className="h-6 w-6 text-primary" />
-                    <span className="sr-only">Open AI Assistant</span>
-                </Button>
+                {isMobile ? (
+                    <Button variant="outline" size="sm" onClick={() => setIsAssistantSheetOpen(true)} className="ml-2 whitespace-nowrap">
+                        <Bot className="mr-1.5 h-4 w-4" /> Open EMR Assistant
+                    </Button>
+                ) : (
+                    <Button variant="outline" size="icon" onClick={() => setIsAssistantSheetOpen(true)} className="ml-2">
+                        <Bot className="h-5 w-5 text-primary" />
+                        <span className="sr-only">Open EMR Assistant</span>
+                    </Button>
+                )}
             </div>
             
             <div className="h-14 flex items-center">
