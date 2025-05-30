@@ -21,7 +21,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import {
-  User, Briefcase, History, Eye, Microscope, BookOpen, Edit3, Save, FileTextIcon, ScanEye, ChevronLeft, ChevronRight, NotebookPen, ArrowLeft, Sparkles, Loader2, Bot, Send, MessageSquarePlus, X
+  User, Briefcase, History, Eye, Microscope, BookOpen, Edit3, Save, FileTextIcon, ScanEye, ChevronLeft, ChevronRight, NotebookPen, ArrowLeft, Bot, Send, MessageSquarePlus, X
 } from 'lucide-react'; 
 import type { FullOptometryCaseData, StoredOptometryCase, ChatMessage as AssistantChatMessage, GenkitChatMessage as AssistantGenkitChatMessage, InteractiveEmrAssistantInput } from '@/types/case';
 
@@ -181,7 +181,7 @@ export default function LogNewCasePage() {
   const [isAiLoading, setIsAiLoading] = useState(false);
   
   const TABS_CONFIG = React.useMemo(() => TABS_CONFIG_BASE.map(tab => ({ ...tab, ref: React.createRef<HTMLDivElement>() })), []);
-
+  const isScrollingProgrammatically = React.useRef(false);
 
   const memoizedInitialStoredCases = React.useMemo<StoredOptometryCase[]>(() => [], []);
   const [storedCases, setStoredCases] = useLocalStorage<StoredOptometryCase[]>('optometryCases', memoizedInitialStoredCases);
@@ -192,8 +192,6 @@ export default function LogNewCasePage() {
   const [isAssistantLoading, setIsAssistantLoading] = useState(false);
   const assistantScrollAreaRef = React.useRef<HTMLDivElement>(null);
   
-  const isScrollingProgrammatically = React.useRef(false);
-
   const form = useForm<FullOptometryCaseFormValues>({
     resolver: zodResolver(fullOptometryCaseSchema),
     defaultValues: defaultFormValues as FullOptometryCaseFormValues,
@@ -248,8 +246,8 @@ export default function LogNewCasePage() {
       const scrollWidth = list.scrollWidth;
       const clientWidth = viewport.clientWidth;
       
-      setCanScrollDesktopLeft(scrollLeft > 1); 
-      setCanScrollDesktopRight(scrollWidth - clientWidth - scrollLeft > 1);
+      setCanScrollDesktopLeft(scrollLeft > 0.5); 
+      setCanScrollDesktopRight(scrollLeft + clientWidth < scrollWidth - 0.5);
     } else {
       setCanScrollDesktopLeft(false);
       setCanScrollDesktopRight(false);
@@ -590,9 +588,78 @@ export default function LogNewCasePage() {
 
   return (
     <MainLayout>
-      <div className="flex-1 flex flex-row overflow-hidden">
+      <div className={cn("flex-1 flex flex-row overflow-hidden")}>
+        {/* Desktop AI Assistant Panel (now on the left) */}
+        {!isMobile && isAssistantSheetOpen && (
+            <div className="lg:w-1/3 md:w-2/5 w-full max-w-md flex-shrink-0 border-r bg-card shadow-lg flex flex-col transition-[width] duration-300 ease-in-out h-full overflow-hidden">
+                <div className="p-4 border-b flex justify-between items-center flex-shrink-0">
+                    <h3 className="text-lg font-semibold flex items-center gap-2 text-primary"><Bot className="h-6 w-6" />Focus AI Assistant</h3>
+                    <Button variant="ghost" size="icon" onClick={() => setIsAssistantSheetOpen(false)}>
+                        <X className="h-5 w-5" />
+                        <span className="sr-only">Close AI Assistant</span>
+                    </Button>
+                </div>
+                <ScrollArea className="flex-grow p-4 space-y-4" ref={assistantScrollAreaRef}>
+                    {assistantMessages.map((message) => (
+                    <div
+                        key={message.id}
+                        className={cn(
+                        "flex items-start gap-2.5 p-3 rounded-lg max-w-[90%] mb-2 text-sm",
+                        message.role === 'user' ? 'ml-auto bg-primary text-primary-foreground' : 
+                        message.role === 'assistant' ? 'mr-auto bg-muted text-muted-foreground' : 
+                        'mx-auto bg-amber-100 text-amber-800 border border-amber-300 text-xs italic w-full' 
+                        )}
+                    >
+                        {message.role === 'assistant' && <Bot className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />}
+                        <div className="flex-grow break-words prose prose-sm dark:prose-invert max-w-none">
+                            <ReactMarkdown
+                                components={{
+                                p: ({node, ...props}) => <p className="mb-0.5 last:mb-0" {...props} />,
+                                }}
+                            >
+                                {message.content}
+                            </ReactMarkdown>
+                        </div>
+                        {message.role === 'user' && <User className="h-5 w-5 text-primary-foreground flex-shrink-0 mt-0.5" />}
+                    </div>
+                    ))}
+                    {assistantMessages.length === 0 && !isAssistantLoading && (
+                    <div className="text-center text-muted-foreground py-6">
+                        <Bot className="h-10 w-10 mx-auto mb-2 text-primary/50" />
+                        <p>Ask Focus AI to help fill this section, or provide details.</p>
+                        <p className="text-xs mt-1">e.g., "Patient name is Jane Doe, age 42."</p>
+                    </div>
+                    )}
+                    {isAssistantLoading && assistantMessages[assistantMessages.length -1]?.role === 'user' && (
+                        <div className="flex items-start gap-2.5 p-3 rounded-lg max-w-[90%] mb-2 text-sm mr-auto bg-muted text-muted-foreground">
+                            <Bot className="h-5 w-5 text-primary flex-shrink-0 mt-0.5 animate-pulse" />
+                            <p className="italic">Focus AI is thinking...</p>
+                        </div>
+                    )}
+                </ScrollArea>
+                <div className="p-4 border-t bg-muted/50 flex-shrink-0">
+                    <div className="flex items-center gap-2 w-full">
+                    <Input
+                        type="text"
+                        placeholder="Type your EMR details or ask AI..."
+                        value={currentAssistantInput}
+                        onChange={(e) => setCurrentAssistantInput(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && !isAssistantLoading && handleSendToAssistant()}
+                        className="flex-grow bg-background focus:ring-primary"
+                        disabled={isAssistantLoading}
+                    />
+                    <Button onClick={handleSendToAssistant} disabled={isAssistantLoading || !currentAssistantInput.trim()} size="icon">
+                        {isAssistantLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
+                        <span className="sr-only">Send to AI Assistant</span>
+                    </Button>
+                    </div>
+                </div>
+            </div>
+        )}
+        
+        {/* EMR Form Area */}
         <div className={cn(
-            "flex-1 flex flex-col overflow-y-auto transition-all duration-300 ease-in-out py-8 px-4 sm:px-6 lg:px-8",
+            "flex-1 flex flex-col overflow-y-auto transition-[width] duration-300 ease-in-out py-8 px-4 sm:px-6 lg:px-8",
             isAssistantSheetOpen && !isMobile ? "lg:w-2/3 md:w-3/5" : "w-full"
         )}>
             <Card className="shadow-xl w-full flex-1 flex flex-col max-w-7xl mx-auto">
@@ -803,7 +870,7 @@ export default function LogNewCasePage() {
                         {renderFormField('reflection', 'Personal Reflection/Learning Points', 'e.g., This case highlights the importance of cycloplegic refraction in young myopes.', true, 4)}
                         <div className="flex justify-start pt-2">
                         <Button type="button" onClick={handleAiInsightGeneration} disabled={isAiLoading} variant="outline">
-                            {isAiLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                            {isAiLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Bot className="mr-2 h-4 w-4" />}
                             {isAiLoading ? 'Generating...' : 'Generate AI Draft for Notes & Reflection'}
                         </Button>
                         </div>
@@ -824,73 +891,6 @@ export default function LogNewCasePage() {
             </Card>
         </div>
         
-        {/* Desktop AI Assistant Panel */}
-        {!isMobile && isAssistantSheetOpen && (
-            <div className="lg:w-1/3 md:w-2/5 w-full max-w-md flex-shrink-0 border-l bg-card shadow-lg flex flex-col transition-all duration-300 ease-in-out h-full overflow-hidden">
-                <div className="p-4 border-b flex justify-between items-center flex-shrink-0">
-                    <h3 className="text-lg font-semibold flex items-center gap-2 text-primary"><Bot className="h-6 w-6" />Focus AI Assistant</h3>
-                    <Button variant="ghost" size="icon" onClick={() => setIsAssistantSheetOpen(false)}>
-                        <X className="h-5 w-5" />
-                        <span className="sr-only">Close AI Assistant</span>
-                    </Button>
-                </div>
-                <ScrollArea className="flex-grow p-4 space-y-4" ref={assistantScrollAreaRef}>
-                    {assistantMessages.map((message) => (
-                    <div
-                        key={message.id}
-                        className={cn(
-                        "flex items-start gap-2.5 p-3 rounded-lg max-w-[90%] mb-2 text-sm",
-                        message.role === 'user' ? 'ml-auto bg-primary text-primary-foreground' : 
-                        message.role === 'assistant' ? 'mr-auto bg-muted text-muted-foreground' : 
-                        'mx-auto bg-amber-100 text-amber-800 border border-amber-300 text-xs italic w-full' 
-                        )}
-                    >
-                        {message.role === 'assistant' && <Bot className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />}
-                        <div className="flex-grow break-words prose prose-sm dark:prose-invert max-w-none">
-                            <ReactMarkdown
-                                components={{
-                                p: ({node, ...props}) => <p className="mb-0.5 last:mb-0" {...props} />,
-                                }}
-                            >
-                                {message.content}
-                            </ReactMarkdown>
-                        </div>
-                        {message.role === 'user' && <User className="h-5 w-5 text-primary-foreground flex-shrink-0 mt-0.5" />}
-                    </div>
-                    ))}
-                    {assistantMessages.length === 0 && !isAssistantLoading && (
-                    <div className="text-center text-muted-foreground py-6">
-                        <Bot className="h-10 w-10 mx-auto mb-2 text-primary/50" />
-                        <p>Ask Focus AI to help fill this section, or provide details.</p>
-                        <p className="text-xs mt-1">e.g., "Patient name is Jane Doe, age 42."</p>
-                    </div>
-                    )}
-                    {isAssistantLoading && assistantMessages[assistantMessages.length -1]?.role === 'user' && (
-                        <div className="flex items-start gap-2.5 p-3 rounded-lg max-w-[90%] mb-2 text-sm mr-auto bg-muted text-muted-foreground">
-                            <Bot className="h-5 w-5 text-primary flex-shrink-0 mt-0.5 animate-pulse" />
-                            <p className="italic">Focus AI is thinking...</p>
-                        </div>
-                    )}
-                </ScrollArea>
-                <div className="p-4 border-t bg-muted/50 flex-shrink-0">
-                    <div className="flex items-center gap-2 w-full">
-                    <Input
-                        type="text"
-                        placeholder="Type your EMR details or ask AI..."
-                        value={currentAssistantInput}
-                        onChange={(e) => setCurrentAssistantInput(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && !isAssistantLoading && handleSendToAssistant()}
-                        className="flex-grow bg-background focus:ring-primary"
-                        disabled={isAssistantLoading}
-                    />
-                    <Button onClick={handleSendToAssistant} disabled={isAssistantLoading || !currentAssistantInput.trim()} size="icon">
-                        {isAssistantLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
-                        <span className="sr-only">Send to AI Assistant</span>
-                    </Button>
-                    </div>
-                </div>
-            </div>
-        )}
 
         {/* Mobile AI Assistant Sheet */}
         {isMobile && (
@@ -964,4 +964,6 @@ export default function LogNewCasePage() {
     </MainLayout>
   );
 }
+    
+
     
