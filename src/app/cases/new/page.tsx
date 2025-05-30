@@ -2,7 +2,7 @@
 'use client';
 import * as React from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import {
@@ -21,7 +21,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import {
-  User, Briefcase, History, Eye, Microscope, Edit3, Save, FileTextIcon, ScanEye, ChevronLeft, ChevronRight, NotebookPen, ArrowLeft, Bot, Send, MessageSquarePlus, X, Loader2, Sparkles
+  User, Briefcase, History, Eye, Microscope, Edit3, Save, FileTextIcon, ScanEye, ChevronLeft, ChevronRight, NotebookPen, ArrowLeft, Bot, Send, X, Loader2
 } from 'lucide-react';
 import type { FullOptometryCaseData, StoredOptometryCase, ChatMessage as AssistantChatMessage, GenkitChatMessage as AssistantGenkitChatMessage, InteractiveEmrAssistantInput } from '@/types/case';
 
@@ -176,9 +176,9 @@ export default function LogNewCasePage() {
   const { toast } = useToast();
   const router = useRouter();
   const isMobile = useIsMobile();
-  const [currentTabIndex, setCurrentTabIndex] = useState(0);
+  const [currentTabIndex, setCurrentTabIndex] = React.useState(0);
   
-  const [isAiLoading, setIsAiLoading] = useState(false);
+  const [isAiLoading, setIsAiLoading] = React.useState(false);
   
   const TABS_CONFIG = React.useMemo(() => TABS_CONFIG_BASE.map(tab => ({ ...tab, ref: React.createRef<HTMLDivElement>() })), []);
   const isScrollingProgrammatically = React.useRef(false);
@@ -186,10 +186,10 @@ export default function LogNewCasePage() {
   const memoizedInitialStoredCases = React.useMemo<StoredOptometryCase[]>(() => [], []);
   const [storedCases, setStoredCases] = useLocalStorage<StoredOptometryCase[]>('optometryCases', memoizedInitialStoredCases);
 
-  const [isAssistantSheetOpen, setIsAssistantSheetOpen] = useState(false);
-  const [assistantMessages, setAssistantMessages] = useState<AssistantChatMessage[]>([]);
-  const [currentAssistantInput, setCurrentAssistantInput] = useState('');
-  const [isAssistantLoading, setIsAssistantLoading] = useState(false);
+  const [isAssistantSheetOpen, setIsAssistantSheetOpen] = React.useState(false);
+  const [assistantMessages, setAssistantMessages] = React.useState<AssistantChatMessage[]>([]);
+  const [currentAssistantInput, setCurrentAssistantInput] = React.useState('');
+  const [isAssistantLoading, setIsAssistantLoading] = React.useState(false);
   const assistantScrollAreaRef = React.useRef<HTMLDivElement>(null);
   
   const form = useForm<FullOptometryCaseFormValues>({
@@ -201,8 +201,8 @@ export default function LogNewCasePage() {
   const desktopTabsViewportRef = React.useRef<HTMLDivElement | null>(null); 
   const desktopTabsListRef = React.useRef<HTMLDivElement>(null); 
   
-  const [canScrollDesktopLeft, setCanScrollDesktopLeft] = useState(false);
-  const [canScrollDesktopRight, setCanScrollDesktopRight] = useState(false);
+  const [canScrollDesktopLeft, setCanScrollDesktopLeft] = React.useState(false);
+  const [canScrollDesktopRight, setCanScrollDesktopRight] = React.useState(false);
   const DESKTOP_SCROLL_AMOUNT = 250;
 
 
@@ -314,7 +314,7 @@ export default function LogNewCasePage() {
       const entry = entries.find(e => e.isIntersecting);
       if (entry) {
         const intersectingTabIndex = TABS_CONFIG.findIndex(tab => tab.ref.current === entry.target);
-        setCurrentTabIndex(prevCurrentTabIndex => {
+         setCurrentTabIndex(prevCurrentTabIndex => {
           if (intersectingTabIndex !== -1 && intersectingTabIndex !== prevCurrentTabIndex) {
             return intersectingTabIndex;
           }
@@ -584,18 +584,18 @@ export default function LogNewCasePage() {
     } else if (isAssistantSheetOpen && assistantMessages.length > 0 && assistantMessages[assistantMessages.length -1].role !== 'user') {
         // Proactive question on tab change might be too intrusive.
     }
-  }, [currentTabIndex, isAssistantSheetOpen, TABS_CONFIG, assistantMessages.length]);
+  }, [currentTabIndex, isAssistantSheetOpen, TABS_CONFIG, assistantMessages.length]); // Removed assistantMessages from deps
 
   return (
     <MainLayout>
-      <div className={cn("flex-1 flex flex-row h-screen overflow-hidden")}> {/* Changed: Ensure full height and overflow hidden for flex children */}
+      <div className={cn("flex-1 flex flex-row h-full overflow-hidden")}>
         
         {/* EMR Form Area (Left Panel on Desktop) */}
         <div className={cn(
             "flex-1 flex flex-col overflow-hidden transition-[width] duration-300 ease-in-out py-8 px-4 sm:px-6 lg:px-8",
             isAssistantSheetOpen && !isMobile ? "lg:w-2/3 md:w-3/5" : "w-full"
         )}>
-            <Card className="shadow-xl w-full flex-1 flex flex-col max-w-7xl mx-auto overflow-hidden"> {/* Added overflow-hidden */}
+            <Card className="shadow-xl w-full flex-1 flex flex-col max-w-7xl mx-auto overflow-hidden">
             <CardHeader className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm border-b pb-4 pt-4">
                 <div className="flex items-center justify-between mb-4">
                     <Button variant="ghost" size="icon" onClick={() => router.back()} className="mr-2">
@@ -605,13 +605,13 @@ export default function LogNewCasePage() {
                     <CardTitle className="text-2xl md:text-3xl font-bold text-primary flex items-center text-center flex-grow justify-center">
                     <FileTextIcon className="mr-3 h-7 w-7 md:h-8 md:w-8" /> Log New Optometry Case
                     </CardTitle>
-                    <div className="w-10 h-10"> {/* Spacer */}</div>
+                    <div className="w-10 h-10"> {/* Spacer to balance the back button */}</div>
                 </div>
 
                 <div className="mb-4 flex justify-center">
                 <Button
                     variant="default"
-                    className="relative overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out group rounded-md py-3 px-6 animate-shine-pass"
+                    className="relative overflow-hidden shadow-lg hover:shadow-xl group rounded-md py-3 px-6 animate-shine-pass"
                     onClick={() => setIsAssistantSheetOpen(true)}
                 >
                     <span className="absolute inset-0 w-full h-full block animate-shine-pass">
@@ -650,15 +650,15 @@ export default function LogNewCasePage() {
                             </Button>
                         </div>
                     ) : (
-                        <Tabs 
-                            value={TABS_CONFIG[currentTabIndex]?.value} 
-                            onValueChange={(newTabValue) => {
-                                const newIndex = TABS_CONFIG.findIndex(tab => tab.value === newTabValue);
-                                if (newIndex !== -1) {
-                                    handleTabChange(newIndex, false);
-                                }
-                            }}
-                            className="w-full"
+                       <Tabs
+                        value={TABS_CONFIG[currentTabIndex]?.value}
+                        onValueChange={(newTabValue) => {
+                            const newIndex = TABS_CONFIG.findIndex(tab => tab.value === newTabValue);
+                            if (newIndex !== -1) {
+                                handleTabChange(newIndex, false);
+                            }
+                        }}
+                        className="w-full"
                         >
                             <div className="flex items-center space-x-1 w-full">
                                 <Button
@@ -824,7 +824,7 @@ export default function LogNewCasePage() {
             </Card>
         </div>
         
-        {/* Desktop AI Assistant Side Panel (Right Side) */}
+        {/* AI Assistant Side Panel (Desktop - RIGHT) */}
         {!isMobile && isAssistantSheetOpen && (
             <div className="lg:w-1/3 md:w-2/5 w-full max-w-md flex-shrink-0 border-l bg-card shadow-lg flex flex-col h-full overflow-hidden">
                 <div className="p-4 border-b flex justify-between items-center flex-shrink-0">
@@ -965,4 +965,6 @@ export default function LogNewCasePage() {
     </MainLayout>
   );
 }
+    
+
     
