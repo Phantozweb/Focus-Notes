@@ -659,7 +659,7 @@ export default function LogNewCasePage() {
         
         {/* EMR Form Area */}
         <div className={cn(
-            "flex-1 flex flex-col overflow-y-auto transition-[width] duration-300 ease-in-out py-8 px-4 sm:px-6 lg:px-8",
+            "flex-1 flex flex-col transition-[width] duration-300 ease-in-out py-8 px-4 sm:px-6 lg:px-8",
             isAssistantSheetOpen && !isMobile ? "lg:w-2/3 md:w-3/5" : "w-full"
         )}>
             <Card className="shadow-xl w-full flex-1 flex flex-col max-w-7xl mx-auto">
@@ -678,7 +678,7 @@ export default function LogNewCasePage() {
                 <div className="mb-4 flex justify-center">
                 <Button
                     variant="default"
-                    className="relative overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out group animate-shine-pass py-3 px-6 rounded-md"
+                    className="relative overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out group animate-shine-pass rounded-md py-3 px-6"
                     onClick={() => setIsAssistantSheetOpen(true)}
                 >
                     <span className="absolute inset-0 w-full h-full block animate-shine-pass">
@@ -964,6 +964,4 @@ export default function LogNewCasePage() {
     </MainLayout>
   );
 }
-    
-
     
