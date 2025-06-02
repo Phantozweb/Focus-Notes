@@ -21,7 +21,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import {
-  User, Briefcase, History, Eye, Microscope, Edit3, Save, FileTextIcon, ScanEye, ChevronLeft, ChevronRight, NotebookPen, ArrowLeft, Bot, Send, X, Loader2
+  User, Briefcase, History, Eye, Microscope, Edit3, Save, FileTextIcon, ScanEye, ChevronLeft, ChevronRight, NotebookPen, ArrowLeft, Bot, Send, X, Loader2, Baby
 } from 'lucide-react';
 import type { FullOptometryCaseData, StoredOptometryCase, ChatMessage as AssistantChatMessage, GenkitChatMessage as AssistantGenkitChatMessage, InteractiveEmrAssistantInput } from '@/types/case';
 
@@ -589,7 +589,7 @@ export default function LogNewCasePage() {
 
   return (
     <MainLayout>
-      <div className={cn("flex-1 flex flex-row h-full overflow-hidden")}>
+      <div className={cn("flex-1 flex flex-row h-full overflow-hidden")}> {/* Changed: Ensure full height and overflow hidden for flex children */}
         
         {/* EMR Form Area */}
         <div className={cn(
@@ -609,7 +609,7 @@ export default function LogNewCasePage() {
                     <div className="w-10 h-10"> {/* Spacer to balance the back button */}</div>
                 </div>
 
-                <div className="mb-4 flex justify-start"> {/* Changed: justify-start for AI Button */}
+                <div className={cn("mb-4 flex", isMobile ? "justify-center" : "justify-start")}>
                 <Button
                     variant="default"
                     className="relative overflow-hidden shadow-lg hover:shadow-xl group rounded-md py-3 px-6"
