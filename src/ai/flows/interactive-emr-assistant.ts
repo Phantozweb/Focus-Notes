@@ -50,7 +50,7 @@ const KNOWN_EMR_FIELDS = [
   // Chief Complaint
   "chiefComplaint", "presentIllnessHistory",
   // History
-  "pastOcularHistory", "pastMedicalHistory", "familyOcularHistory", "familyMedicalHistory", "medications", "allergies",
+  "birthHistory", "pastOcularHistory", "pastMedicalHistory", "familyOcularHistory", "familyMedicalHistory", "medications", "allergies", // Added birthHistory
   // Examination - Visual Acuity
   "visualAcuityUncorrectedOD", "visualAcuityUncorrectedOS", "visualAcuityCorrectedOD", "visualAcuityCorrectedOS",
   // Examination - General

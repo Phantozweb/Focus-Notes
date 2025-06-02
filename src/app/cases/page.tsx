@@ -125,6 +125,7 @@ export default function ViewCasesPage() {
         address: c.address || '',
         chiefComplaint: c.chiefComplaint,
         presentIllnessHistory: c.presentIllnessHistory || '',
+        birthHistory: c.birthHistory || '', // Added birthHistory
         pastOcularHistory: c.pastOcularHistory || '',
         pastMedicalHistory: c.pastMedicalHistory || '',
         familyOcularHistory: c.familyOcularHistory || '',
@@ -209,7 +210,8 @@ export default function ViewCasesPage() {
       c.name.toLowerCase().includes(lowerSearchTerm) ||
       (c.patientId && c.patientId.toLowerCase().includes(lowerSearchTerm)) ||
       c.chiefComplaint.toLowerCase().includes(lowerSearchTerm) ||
-      c.assessment.toLowerCase().includes(lowerSearchTerm)
+      c.assessment.toLowerCase().includes(lowerSearchTerm) ||
+      (c.birthHistory && c.birthHistory.toLowerCase().includes(lowerSearchTerm)) // Added birthHistory to search
     ).sort((a, b) => b.timestamp - a.timestamp); 
   }, [storedCases, searchTerm]);
 
@@ -239,7 +241,7 @@ export default function ViewCasesPage() {
             <CardContent className="pt-6">
               <Input
                   type="text"
-                  placeholder="Search cases (ID, Name, Complaint, Assessment)..."
+                  placeholder="Search cases (ID, Name, Complaint, Assessment, Birth Hx)..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full"
@@ -294,3 +296,4 @@ export default function ViewCasesPage() {
     </MainLayout>
   );
 }
+

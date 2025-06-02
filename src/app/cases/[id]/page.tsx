@@ -17,7 +17,7 @@ import ReactMarkdown from 'react-markdown';
 import { 
   Eye, Glasses, ShieldCheck, FileText, Brain, Lightbulb, AlertTriangle, Loader2, 
   User as UserIcon, Calendar, Briefcase, History, Microscope, ScanEye, Edit3, NotebookPen, UserCircle, Phone, Mail, MapPin, Pill, Info, Users, ArrowLeft,
-  Send, Bot, MessageSquare
+  Send, Bot, MessageSquare, Baby // Added Baby icon for Birth History
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { analyzeOptometryCase } from '@/ai/flows/analyze-optometry-case';
@@ -151,7 +151,7 @@ export default function CaseDetailPage() {
       visualAcuity: `OD: ${currentCase.visualAcuityCorrectedOD || currentCase.visualAcuityUncorrectedOD || 'N/A'}, OS: ${currentCase.visualAcuityCorrectedOS || currentCase.visualAcuityUncorrectedOS || 'N/A'}`,
       refraction: `OD: ${currentCase.manifestRefractionOD || 'N/A'}, OS: ${currentCase.manifestRefractionOS || 'N/A'}`,
       ocularHealthStatus: currentCase.assessment || 'Not specified',
-      additionalNotes: `Chief Complaint: ${currentCase.chiefComplaint}. Hx Present Illness: ${currentCase.presentIllnessHistory || 'N/A'}. Internal Notes: ${currentCase.internalNotes || 'N/A'}. Age: ${currentCase.age || 'N/A'}.`,
+      additionalNotes: `Chief Complaint: ${currentCase.chiefComplaint}. Hx Present Illness: ${currentCase.presentIllnessHistory || 'N/A'}. Birth Hx: ${currentCase.birthHistory || 'N/A'}. Internal Notes: ${currentCase.internalNotes || 'N/A'}. Age: ${currentCase.age || 'N/A'}.`,
     };
 
     try {
@@ -182,7 +182,8 @@ export default function CaseDetailPage() {
 
     const fieldsToInclude: (keyof StoredOptometryCase)[] = [
       'patientId', 'name', 'age', 'gender', 'contactNumber', 'email', 'address', 
-      'chiefComplaint', 'presentIllnessHistory', 'pastOcularHistory', 'pastMedicalHistory',
+      'chiefComplaint', 'presentIllnessHistory', 
+      'birthHistory', 'pastOcularHistory', 'pastMedicalHistory', // Added birthHistory
       'familyOcularHistory', 'familyMedicalHistory', 'medications', 'allergies',
       'visualAcuityUncorrectedOD', 'visualAcuityUncorrectedOS', 'visualAcuityCorrectedOD', 'visualAcuityCorrectedOS',
       'pupils', 'extraocularMotility', 'intraocularPressureOD', 'intraocularPressureOS', 'confrontationVisualFields',
@@ -341,6 +342,7 @@ export default function CaseDetailPage() {
                 <section>
                   <h3 className="text-lg font-semibold mb-3 text-primary flex items-center"><History className="mr-2 h-5 w-5" />Medical & Ocular History</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 p-4 border rounded-lg bg-card/50">
+                    <DetailItem icon={Baby} label="Birth History" value={currentCase.birthHistory} isFullWidth isPreWrap />
                     <DetailItem icon={Eye} label="Past Ocular History" value={currentCase.pastOcularHistory} isFullWidth isPreWrap />
                     <DetailItem icon={ShieldCheck} label="Past Medical History" value={currentCase.pastMedicalHistory} isFullWidth isPreWrap />
                     <DetailItem icon={Users} label="Family Ocular History" value={currentCase.familyOcularHistory} isFullWidth isPreWrap />

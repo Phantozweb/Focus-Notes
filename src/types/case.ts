@@ -22,6 +22,7 @@ export interface FullOptometryCaseData {
   presentIllnessHistory?: string;
 
   // History
+  birthHistory?: string; // Added Birth History
   pastOcularHistory?: string;
   pastMedicalHistory?: string;
   familyOcularHistory?: string;
@@ -136,3 +137,4 @@ export interface InteractiveEmrAssistantOutput {
   fieldsToUpdate?: Record<string, string | number | boolean | undefined | null>;
   aiResponseMessage: string;
 }
+

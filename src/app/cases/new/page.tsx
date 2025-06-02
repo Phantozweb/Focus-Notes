@@ -63,6 +63,7 @@ const fullOptometryCaseSchema = z.object({
   presentIllnessHistory: z.string().optional(),
 
   // History
+  birthHistory: z.string().optional(), // Added birthHistory
   pastOcularHistory: z.string().optional(),
   pastMedicalHistory: z.string().optional(),
   familyOcularHistory: z.string().optional(),
@@ -168,7 +169,7 @@ const TwoColumnField = ({ label, children }: { label: string; children: React.Re
 );
 
 const defaultFormValues: Omit<FullOptometryCaseFormValues, 'age'> & { age?: number | string; name: string } = { 
-  patientId: '', name: '', age: '', gender: '', contactNumber: '', email: '', address: '', chiefComplaint: '', presentIllnessHistory: '', pastOcularHistory: '', pastMedicalHistory: '', familyOcularHistory: '', familyMedicalHistory: '', medications: '', allergies: '', visualAcuityUncorrectedOD: '', visualAcuityUncorrectedOS: '', visualAcuityCorrectedOD: '', visualAcuityCorrectedOS: '', pupils: '', extraocularMotility: '', intraocularPressureOD: '', intraocularPressureOS: '', confrontationVisualFields: '', manifestRefractionOD: '', manifestRefractionOS: '', cycloplegicRefractionOD: '', cycloplegicRefractionOS: '', currentSpectacleRx: '', currentContactLensRx: '', lidsLashesOD: '', lidsLashesOS: '', conjunctivaScleraOD: '', conjunctivaScleraOS: '', corneaOD: '', corneaOS: '', anteriorChamberOD: '', anteriorChamberOS: '', irisOD: '', irisOS: '', lensOD: '', lensOS: '', vitreousOD: '', vitreousOS: '', opticDiscOD: '', opticDiscOS: '', cupDiscRatioOD: '', cupDiscRatioOS: '', maculaOD: '', maculaOS: '', vesselsOD: '', vesselsOS: '', peripheryOD: '', peripheryOS: '', octFindings: '', visualFieldFindings: '', fundusPhotographyFindings: '', otherInvestigations: '', assessment: '', plan: '', prognosis: '', followUp: '', internalNotes: '', reflection: '',
+  patientId: '', name: '', age: '', gender: '', contactNumber: '', email: '', address: '', chiefComplaint: '', presentIllnessHistory: '', birthHistory: '', pastOcularHistory: '', pastMedicalHistory: '', familyOcularHistory: '', familyMedicalHistory: '', medications: '', allergies: '', visualAcuityUncorrectedOD: '', visualAcuityUncorrectedOS: '', visualAcuityCorrectedOD: '', visualAcuityCorrectedOS: '', pupils: '', extraocularMotility: '', intraocularPressureOD: '', intraocularPressureOS: '', confrontationVisualFields: '', manifestRefractionOD: '', manifestRefractionOS: '', cycloplegicRefractionOD: '', cycloplegicRefractionOS: '', currentSpectacleRx: '', currentContactLensRx: '', lidsLashesOD: '', lidsLashesOS: '', conjunctivaScleraOD: '', conjunctivaScleraOS: '', corneaOD: '', corneaOS: '', anteriorChamberOD: '', anteriorChamberOS: '', irisOD: '', irisOS: '', lensOD: '', lensOS: '', vitreousOD: '', vitreousOS: '', opticDiscOD: '', opticDiscOS: '', cupDiscRatioOD: '', cupDiscRatioOS: '', maculaOD: '', maculaOS: '', vesselsOD: '', vesselsOS: '', peripheryOD: '', peripheryOS: '', octFindings: '', visualFieldFindings: '', fundusPhotographyFindings: '', otherInvestigations: '', assessment: '', plan: '', prognosis: '', followUp: '', internalNotes: '', reflection: '',
 };
 
 
@@ -584,15 +585,15 @@ export default function LogNewCasePage() {
     } else if (isAssistantSheetOpen && assistantMessages.length > 0 && assistantMessages[assistantMessages.length -1].role !== 'user') {
         // Proactive question on tab change might be too intrusive.
     }
-  }, [currentTabIndex, isAssistantSheetOpen, TABS_CONFIG, assistantMessages.length]); // Removed assistantMessages from deps
+  }, [currentTabIndex, isAssistantSheetOpen, TABS_CONFIG, assistantMessages.length]);
 
   return (
     <MainLayout>
       <div className={cn("flex-1 flex flex-row h-full overflow-hidden")}>
         
-        {/* EMR Form Area (Left Panel on Desktop) */}
+        {/* EMR Form Area */}
         <div className={cn(
-            "flex-1 flex flex-col overflow-hidden transition-[width] duration-300 ease-in-out py-8 px-4 sm:px-6 lg:px-8",
+            "flex-1 flex flex-col overflow-hidden py-8 px-4 sm:px-6 lg:px-8",
             isAssistantSheetOpen && !isMobile ? "lg:w-2/3 md:w-3/5" : "w-full"
         )}>
             <Card className="shadow-xl w-full flex-1 flex flex-col max-w-7xl mx-auto overflow-hidden">
@@ -611,7 +612,7 @@ export default function LogNewCasePage() {
                 <div className="mb-4 flex justify-center">
                 <Button
                     variant="default"
-                    className="relative overflow-hidden shadow-lg hover:shadow-xl group rounded-md py-3 px-6 animate-shine-pass"
+                    className="relative overflow-hidden shadow-lg hover:shadow-xl group rounded-md py-3 px-6"
                     onClick={() => setIsAssistantSheetOpen(true)}
                 >
                     <span className="absolute inset-0 w-full h-full block animate-shine-pass">
@@ -731,6 +732,7 @@ export default function LogNewCasePage() {
 
                     <div ref={TABS_CONFIG[2].ref as React.RefObject<HTMLDivElement>} className="space-y-6 py-2">
                         <SectionTitle title={TABS_CONFIG[2].label} icon={TABS_CONFIG[2].icon} />
+                        {renderFormField('birthHistory', 'Birth History', 'e.g., Full term, normal spontaneous vaginal delivery, no complications.', true, 3)}
                         {renderFormField('pastOcularHistory', 'Past Ocular History', 'e.g., Previous eye surgeries, conditions like glaucoma, AMD', true, 4)}
                         {renderFormField('pastMedicalHistory', 'Past Medical History', 'e.g., Diabetes, Hypertension, Thyroid issues', true, 4)}
                         {renderFormField('familyOcularHistory', 'Family Ocular History', 'e.g., Glaucoma in mother, Strabismus in sibling', true, 3)}
