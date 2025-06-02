@@ -185,33 +185,30 @@ export async function interactiveEmrAssistant(flowInput: InteractiveEmrAssistant
         { history: flowInput.chatHistory }
     );
 
-    const output = result.output;
-
-    if (!output || typeof output.aiResponseMessage !== 'string') { 
+    // More robust check for output structure
+    if (!result || !result.output || typeof result.output.aiResponseMessage !== 'string') { 
       console.error('CRITICAL_AI_DEBUG: interactiveEmrAssistantPrompt did not return a valid output structure. Full result:', JSON.stringify(result, null, 2));
       let detailMessage = 'AI assistant prompt did not return the expected output structure (missing or invalid aiResponseMessage).';
-      // @ts-ignore
-      if (result && result.response && result.response.candidates && result.response.candidates.length > 0) {
-        // @ts-ignore
-        const firstCandidate = result.response.candidates[0];
-        if (firstCandidate) {
-            detailMessage += ` Finish Reason: ${firstCandidate.finishReason || 'N/A'}.`;
-            if (firstCandidate.safetyRatings && firstCandidate.safetyRatings.length > 0) {
-                detailMessage += ` Safety Ratings: ${JSON.stringify(firstCandidate.safetyRatings)}.`;
-            }
-        } else {
-            detailMessage += ' No valid candidate found in response.';
+
+      // Safely access candidate details
+      const candidate = result?.response?.candidates?.[0];
+      if (candidate) {
+        detailMessage += ` Finish Reason: ${candidate.finishReason || 'N/A'}.`;
+        if (candidate.safetyRatings && candidate.safetyRatings.length > 0) {
+          detailMessage += ` Safety Ratings: ${JSON.stringify(candidate.safetyRatings)}.`;
         }
-      } else if (result && result.response) {
-          detailMessage += ' No candidates found in response object.';
-      } else if (result) {
-          detailMessage += ' No response object in result from prompt execution.';
-      } else {
-          detailMessage += ' Prompt execution result itself is null or undefined.';
+      } else if (result && result.response && (!result.response.candidates || result.response.candidates.length === 0) ) {
+        detailMessage += ' No valid candidates found in response.';
+      } else if (result && !result.response) {
+        detailMessage += ' No response object in result.';
+      } else if (!result) {
+        detailMessage += ' Prompt execution result itself is null or undefined.';
       }
-      // Return a user-facing error message but don't crash the app if AI fails unexpectedly.
+      // Return a user-facing error message
       return { aiResponseMessage: `Sorry, I encountered an issue processing your request: ${detailMessage}. Please try again or rephrase.` };
     }
+    
+    const output = result.output; // Now we know output and output.aiResponseMessage are valid
     console.log("CRITICAL_AI_DEBUG: AI Assistant Output: ", JSON.stringify(output, null, 2));
     return output;
 

@@ -589,7 +589,7 @@ export default function LogNewCasePage() {
 
   return (
     <MainLayout>
-      <div className={cn("flex-1 flex flex-row h-full overflow-hidden")}> {/* Changed: Ensure full height and overflow hidden for flex children */}
+      <div className={cn("flex-1 flex flex-row h-full overflow-hidden")}>
         
         {/* EMR Form Area */}
         <div className={cn(
@@ -609,7 +609,7 @@ export default function LogNewCasePage() {
                     <div className="w-10 h-10"> {/* Spacer to balance the back button */}</div>
                 </div>
 
-                <div className={cn("mb-4 flex", isMobile ? "justify-center" : "justify-start")}>
+                <div className="mb-4 flex justify-center">
                 <Button
                     variant="default"
                     className="relative overflow-hidden shadow-lg hover:shadow-xl group rounded-md py-3 px-6"
