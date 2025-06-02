@@ -2,6 +2,7 @@
 'use client';
 import * as React from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
+import type { UseFormReturn } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
@@ -23,6 +24,13 @@ import { useToast } from '@/hooks/use-toast';
 import {
   User, Briefcase, History, Eye, Microscope, Edit3, Save, FileTextIcon, ScanEye, ChevronLeft, ChevronRight, NotebookPen, ArrowLeft, Bot, Send, X, Loader2, Baby
 } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { FullOptometryCaseData, StoredOptometryCase, ChatMessage as AssistantChatMessage, GenkitChatMessage as AssistantGenkitChatMessage, InteractiveEmrAssistantInput } from '@/types/case';
 
 import { cn } from '@/lib/utils';
@@ -63,13 +71,13 @@ const fullOptometryCaseSchema = z.object({
   presentIllnessHistory: z.string().optional(),
 
   // History
-  birthHistory: z.string().optional(), 
   pastOcularHistory: z.string().optional(),
   pastMedicalHistory: z.string().optional(),
   familyOcularHistory: z.string().optional(),
   familyMedicalHistory: z.string().optional(),
   medications: z.string().optional(),
   allergies: z.string().optional(),
+  birthHistory: z.string().optional(), 
 
   // Examination
   visualAcuityUncorrectedOD: z.string().optional(),
@@ -87,6 +95,8 @@ const fullOptometryCaseSchema = z.object({
   manifestRefractionOS: z.string().optional(),
   cycloplegicRefractionOD: z.string().optional(),
   cycloplegicRefractionOS: z.string().optional(),
+  autoRefractionOD: z.string().optional(),
+  autoRefractionOS: z.string().optional(),
   currentSpectacleRx: z.string().optional(),
   currentContactLensRx: z.string().optional(),
 
@@ -169,8 +179,101 @@ const TwoColumnField = ({ label, children }: { label: string; children: React.Re
 );
 
 const defaultFormValues: Omit<FullOptometryCaseFormValues, 'age'> & { age?: number | string; name: string } = { 
-  patientId: '', name: '', age: '', gender: '', contactNumber: '', email: '', address: '', chiefComplaint: '', presentIllnessHistory: '', birthHistory: '', pastOcularHistory: '', pastMedicalHistory: '', familyOcularHistory: '', familyMedicalHistory: '', medications: '', allergies: '', visualAcuityUncorrectedOD: '', visualAcuityUncorrectedOS: '', visualAcuityCorrectedOD: '', visualAcuityCorrectedOS: '', pupils: '', extraocularMotility: '', intraocularPressureOD: '', intraocularPressureOS: '', confrontationVisualFields: '', manifestRefractionOD: '', manifestRefractionOS: '', cycloplegicRefractionOD: '', cycloplegicRefractionOS: '', currentSpectacleRx: '', currentContactLensRx: '', lidsLashesOD: '', lidsLashesOS: '', conjunctivaScleraOD: '', conjunctivaScleraOS: '', corneaOD: '', corneaOS: '', anteriorChamberOD: '', anteriorChamberOS: '', irisOD: '', irisOS: '', lensOD: '', lensOS: '', vitreousOD: '', vitreousOS: '', opticDiscOD: '', opticDiscOS: '', cupDiscRatioOD: '', cupDiscRatioOS: '', maculaOD: '', maculaOS: '', vesselsOD: '', vesselsOS: '', peripheryOD: '', peripheryOS: '', octFindings: '', visualFieldFindings: '', fundusPhotographyFindings: '', otherInvestigations: '', assessment: '', plan: '', prognosis: '', followUp: '', internalNotes: '', reflection: '',
+  patientId: '', name: '', age: '', gender: '', contactNumber: '', email: '', address: '', chiefComplaint: '', presentIllnessHistory: '', pastOcularHistory: '', pastMedicalHistory: '', familyOcularHistory: '', familyMedicalHistory: '', medications: '', allergies: '', birthHistory: '', visualAcuityUncorrectedOD: '', visualAcuityUncorrectedOS: '', visualAcuityCorrectedOD: '', visualAcuityCorrectedOS: '', pupils: '', extraocularMotility: '', intraocularPressureOD: '', intraocularPressureOS: '', confrontationVisualFields: '', manifestRefractionOD: '', manifestRefractionOS: '', cycloplegicRefractionOD: '', cycloplegicRefractionOS: '', autoRefractionOD: '', autoRefractionOS: '', currentSpectacleRx: '', currentContactLensRx: '', lidsLashesOD: '', lidsLashesOS: '', conjunctivaScleraOD: '', conjunctivaScleraOS: '', corneaOD: '', corneaOS: '', anteriorChamberOD: '', anteriorChamberOS: '', irisOD: '', irisOS: '', lensOD: '', lensOS: '', vitreousOD: '', vitreousOS: '', opticDiscOD: '', opticDiscOS: '', cupDiscRatioOD: '', cupDiscRatioOS: '', maculaOD: '', maculaOS: '', vesselsOD: '', vesselsOS: '', peripheryOD: '', peripheryOS: '', octFindings: '', visualFieldFindings: '', fundusPhotographyFindings: '', otherInvestigations: '', assessment: '', plan: '', prognosis: '', followUp: '', internalNotes: '', reflection: '',
 };
+
+const VA_OPTIONS = [
+  { value: '6/5 (20/15)', label: '6/5 (20/15)' },
+  { value: '6/6 (20/20)', label: '6/6 (20/20)' },
+  { value: '6/7.5 (20/25)', label: '6/7.5 (20/25)' },
+  { value: '6/9 (20/30)', label: '6/9 (20/30)' },
+  { value: '6/12 (20/40)', label: '6/12 (20/40)' },
+  { value: '6/15 (20/50)', label: '6/15 (20/50)' },
+  { value: '6/18 (20/60)', label: '6/18 (20/60)' },
+  { value: '6/24 (20/80)', label: '6/24 (20/80)' },
+  { value: '6/30 (20/100)', label: '6/30 (20/100)' },
+  { value: '6/60 (20/200)', label: '6/60 (20/200)' },
+  { value: '3/60 (20/400)', label: '3/60 (20/400)' },
+  { value: '1/60 (20/1200)', label: '1/60 (20/1200)' },
+  { value: 'CF', label: 'CF (Counts Fingers)' },
+  { value: 'HM', label: 'HM (Hand Motion)' },
+  { value: 'LP', label: 'LP (Light Perception)' },
+  { value: 'NLP', label: 'NLP (No Light Perception)' },
+];
+
+interface VisualAcuityInputProps {
+  form: UseFormReturn<FullOptometryCaseFormValues>;
+  name: keyof FullOptometryCaseFormValues;
+  placeholder?: string;
+}
+
+const VisualAcuityInput: React.FC<VisualAcuityInputProps> = ({ form, name, placeholder }) => (
+  <div className="flex items-center gap-2">
+    <FormField
+      control={form.control}
+      name={name}
+      render={({ field }) => (
+        <Input
+          placeholder={placeholder}
+          {...field}
+          value={field.value || ''}
+          className="flex-grow"
+        />
+      )}
+    />
+    <Select
+      onValueChange={(value) => {
+        if (value) {
+          form.setValue(name, value, { shouldValidate: true, shouldDirty: true });
+        }
+      }}
+    >
+      <SelectTrigger className="w-[80px] shrink-0">
+        <SelectValue placeholder="Set" />
+      </SelectTrigger>
+      <SelectContent>
+        {VA_OPTIONS.map(option => (
+          <SelectItem key={option.value} value={option.value}>
+            {option.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  </div>
+);
+
+interface VisualAcuityDoubleFormFieldProps {
+  form: UseFormReturn<FullOptometryCaseFormValues>;
+  nameOD: keyof FullOptometryCaseFormValues;
+  nameOS: keyof FullOptometryCaseFormValues;
+  label: string;
+  placeholderOD?: string;
+  placeholderOS?: string;
+}
+
+const VisualAcuityDoubleFormField: React.FC<VisualAcuityDoubleFormFieldProps> = ({
+  form, nameOD, nameOS, label, placeholderOD, placeholderOS
+}) => (
+  <div className="md:grid md:grid-cols-3 md:gap-3 items-start">
+    <FormLabel className="md:col-span-1 md:mt-2 block text-sm font-medium text-muted-foreground">{label}</FormLabel>
+    <div className="md:col-span-2 mt-1 md:mt-0 grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <FormItem>
+        <FormLabel className="text-xs text-muted-foreground">OD (Right Eye)</FormLabel>
+        <FormControl>
+          <VisualAcuityInput form={form} name={nameOD} placeholder={placeholderOD || "OD..."} />
+        </FormControl>
+        <FormMessage />
+      </FormItem>
+      <FormItem>
+        <FormLabel className="text-xs text-muted-foreground">OS (Left Eye)</FormLabel>
+        <FormControl>
+          <VisualAcuityInput form={form} name={nameOS} placeholder={placeholderOS || "OS..."} />
+        </FormControl>
+        <FormMessage />
+      </FormItem>
+    </div>
+  </div>
+);
 
 
 export default function LogNewCasePage() {
@@ -594,7 +697,7 @@ export default function LogNewCasePage() {
         {/* EMR Form Area */}
         <div className={cn(
             "flex-1 flex flex-col overflow-hidden transition-[width] duration-300 ease-in-out py-8 px-4 sm:px-6 lg:px-8",
-            isAssistantSheetOpen && !isMobile ? "lg:w-2/3 md:w-3/5" : "w-full"
+            isAssistantSheetOpen && !isMobile ? "lg:pr-0 md:pr-0" : "" // Remove right padding when AI panel is open
         )}>
             <Card className="shadow-xl w-full flex-1 flex flex-col max-w-7xl mx-auto overflow-hidden">
             <CardHeader className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm border-b pb-4 pt-4">
@@ -609,7 +712,7 @@ export default function LogNewCasePage() {
                     <div className="w-10 h-10"> {/* Spacer to balance the back button */}</div>
                 </div>
 
-                <div className="mb-4 flex justify-center">
+                <div className={cn("mb-4 flex justify-center")}>
                 <Button
                     variant="default"
                     className="relative overflow-hidden shadow-lg hover:shadow-xl group rounded-md py-3 px-6"
@@ -732,21 +835,22 @@ export default function LogNewCasePage() {
 
                     <div ref={TABS_CONFIG[2].ref as React.RefObject<HTMLDivElement>} className="space-y-6 py-2">
                         <SectionTitle title={TABS_CONFIG[2].label} icon={TABS_CONFIG[2].icon} />
-                        {renderFormField('birthHistory', 'Birth History', 'e.g., Full term, normal spontaneous vaginal delivery, no complications.', true, 3)}
                         {renderFormField('pastOcularHistory', 'Past Ocular History', 'e.g., Previous eye surgeries, conditions like glaucoma, AMD', true, 4)}
                         {renderFormField('pastMedicalHistory', 'Past Medical History', 'e.g., Diabetes, Hypertension, Thyroid issues', true, 4)}
                         {renderFormField('familyOcularHistory', 'Family Ocular History', 'e.g., Glaucoma in mother, Strabismus in sibling', true, 3)}
                         {renderFormField('familyMedicalHistory', 'Family Medical History', 'e.g., Diabetes in father', true, 3)}
                         {renderFormField('medications', 'Current Medications', 'List all medications and dosages', true, 4)}
                         {renderFormField('allergies', 'Allergies', 'e.g., Penicillin (rash), NKDA', true, 3)}
+                        {renderFormField('birthHistory', 'Birth History', 'e.g., Full term, normal spontaneous vaginal delivery, no complications.', true, 3)}
                     </div>
                     
                     <div ref={TABS_CONFIG[3].ref as React.RefObject<HTMLDivElement>} className="space-y-6 py-2">
                         <SectionTitle title={TABS_CONFIG[3].label} icon={TABS_CONFIG[3].icon} />
                         <h4 className="text-md font-medium text-muted-foreground mb-2">Visual Acuity (Uncorrected)</h4>
-                        {renderDoubleFormField('visualAcuityUncorrectedOD', 'visualAcuityUncorrectedOS', 'UCVA', 'e.g., 20/40', 'e.g., 20/50')}
+                        <VisualAcuityDoubleFormField form={form} nameOD="visualAcuityUncorrectedOD" nameOS="visualAcuityUncorrectedOS" label="UCVA" placeholderOD="e.g., 20/40" placeholderOS="e.g., 20/50" />
+                        
                         <h4 className="text-md font-medium text-muted-foreground mt-4 mb-2">Visual Acuity (Corrected/Best Corrected)</h4>
-                        {renderDoubleFormField('visualAcuityCorrectedOD', 'visualAcuityCorrectedOS', 'BCVA/Pin Hole', 'e.g., 20/20', 'e.g., 20/25')}
+                        <VisualAcuityDoubleFormField form={form} nameOD="visualAcuityCorrectedOD" nameOS="visualAcuityCorrectedOS" label="BCVA/Pin Hole" placeholderOD="e.g., 20/20" placeholderOS="e.g., 20/25" />
                         
                         {renderFormField('pupils', 'Pupils', 'e.g., PERRLA, APD OS', true, 2)}
                         {renderFormField('extraocularMotility', 'Extraocular Motility (EOMs)', 'e.g., SAFE, Full, any restrictions noted', true, 2)}
@@ -757,10 +861,11 @@ export default function LogNewCasePage() {
                         {renderFormField('confrontationVisualFields', 'Confrontation Visual Fields', 'e.g., Full to finger counting OU', true, 2)}
 
                         <h4 className="text-md font-medium text-muted-foreground mt-4 mb-2">Refraction</h4>
-                            {renderDoubleFormField('manifestRefractionOD', 'manifestRefractionOS', 'Manifest Refraction (Sphere/Cyl/Axis/Add)', 'e.g., -2.00 -0.50 x 180 Add +2.00', 'e.g., -1.75 DS Add +2.00')}
-                            {renderDoubleFormField('cycloplegicRefractionOD', 'cycloplegicRefractionOS', 'Cycloplegic Refraction (Optional)', 'e.g., -1.75 -0.50 x 175', 'e.g., -1.50 DS')}
-                            {renderFormField('currentSpectacleRx', 'Current Spectacle Rx', 'Details of current glasses', true, 2)}
-                            {renderFormField('currentContactLensRx', 'Current Contact Lens Rx', 'Details of current contact lenses', true, 2)}
+                        {renderDoubleFormField('autoRefractionOD', 'autoRefractionOS', 'Auto-Refractor Values', 'e.g., -1.75 -0.25 x 180', 'e.g., -1.50 DS')}
+                        {renderDoubleFormField('manifestRefractionOD', 'manifestRefractionOS', 'Manifest Refraction (Sphere/Cyl/Axis/Add)', 'e.g., -2.00 -0.50 x 180 Add +2.00', 'e.g., -1.75 DS Add +2.00')}
+                        {renderDoubleFormField('cycloplegicRefractionOD', 'cycloplegicRefractionOS', 'Cycloplegic Refraction (Optional)', 'e.g., -1.75 -0.50 x 175', 'e.g., -1.50 DS')}
+                        {renderFormField('currentSpectacleRx', 'Current Spectacle Rx', 'Details of current glasses', true, 2)}
+                        {renderFormField('currentContactLensRx', 'Current Contact Lens Rx', 'Details of current contact lenses', true, 2)}
                     </div>
 
                     <div ref={TABS_CONFIG[4].ref as React.RefObject<HTMLDivElement>} className="space-y-6 py-2">
@@ -967,4 +1072,3 @@ export default function LogNewCasePage() {
     </MainLayout>
   );
 }
-    

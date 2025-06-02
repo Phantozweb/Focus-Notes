@@ -22,7 +22,7 @@ export interface FullOptometryCaseData {
   presentIllnessHistory?: string;
 
   // History
-  birthHistory?: string; // Added Birth History
+  birthHistory?: string; 
   pastOcularHistory?: string;
   pastMedicalHistory?: string;
   familyOcularHistory?: string;
@@ -46,6 +46,8 @@ export interface FullOptometryCaseData {
   manifestRefractionOS?: string;
   cycloplegicRefractionOD?: string;
   cycloplegicRefractionOS?: string;
+  autoRefractionOD?: string; // Added Auto-Refractor OD
+  autoRefractionOS?: string; // Added Auto-Refractor OS
   currentSpectacleRx?: string;
   currentContactLensRx?: string;
 

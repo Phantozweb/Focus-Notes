@@ -12,12 +12,20 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Input } from '@/components/ui/input';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import ReactMarkdown from 'react-markdown';
 
 import { 
   Eye, Glasses, ShieldCheck, FileText, Brain, Lightbulb, AlertTriangle, Loader2, 
   User as UserIcon, Calendar, Briefcase, History, Microscope, ScanEye, Edit3, NotebookPen, UserCircle, Phone, Mail, MapPin, Pill, Info, Users, ArrowLeft,
-  Send, Bot, MessageSquare, Baby // Added Baby icon for Birth History
+  Send, Bot, MessageSquare, Baby
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { analyzeOptometryCase } from '@/ai/flows/analyze-optometry-case';
@@ -149,9 +157,9 @@ export default function CaseDetailPage() {
     setIsAnalyzing(true);
     const aiInput: AnalyzeOptometryCaseInput = {
       visualAcuity: `OD: ${currentCase.visualAcuityCorrectedOD || currentCase.visualAcuityUncorrectedOD || 'N/A'}, OS: ${currentCase.visualAcuityCorrectedOS || currentCase.visualAcuityUncorrectedOS || 'N/A'}`,
-      refraction: `OD: ${currentCase.manifestRefractionOD || 'N/A'}, OS: ${currentCase.manifestRefractionOS || 'N/A'}`,
+      refraction: `OD: ${currentCase.manifestRefractionOD || currentCase.autoRefractionOD || 'N/A'}, OS: ${currentCase.manifestRefractionOS || currentCase.autoRefractionOS || 'N/A'}`,
       ocularHealthStatus: currentCase.assessment || 'Not specified',
-      additionalNotes: `Chief Complaint: ${currentCase.chiefComplaint}. Hx Present Illness: ${currentCase.presentIllnessHistory || 'N/A'}. Birth Hx: ${currentCase.birthHistory || 'N/A'}. Internal Notes: ${currentCase.internalNotes || 'N/A'}. Age: ${currentCase.age || 'N/A'}.`,
+      additionalNotes: `Chief Complaint: ${currentCase.chiefComplaint}. Hx Present Illness: ${currentCase.presentIllnessHistory || 'N/A'}. Allergies: ${currentCase.allergies || 'N/A'}. Birth Hx: ${currentCase.birthHistory || 'N/A'}. Internal Notes: ${currentCase.internalNotes || 'N/A'}. Age: ${currentCase.age || 'N/A'}.`,
     };
 
     try {
@@ -183,11 +191,12 @@ export default function CaseDetailPage() {
     const fieldsToInclude: (keyof StoredOptometryCase)[] = [
       'patientId', 'name', 'age', 'gender', 'contactNumber', 'email', 'address', 
       'chiefComplaint', 'presentIllnessHistory', 
-      'birthHistory', 'pastOcularHistory', 'pastMedicalHistory', // Added birthHistory
-      'familyOcularHistory', 'familyMedicalHistory', 'medications', 'allergies',
+      'pastOcularHistory', 'pastMedicalHistory', 
+      'familyOcularHistory', 'familyMedicalHistory', 'medications', 'allergies', 'birthHistory',
       'visualAcuityUncorrectedOD', 'visualAcuityUncorrectedOS', 'visualAcuityCorrectedOD', 'visualAcuityCorrectedOS',
       'pupils', 'extraocularMotility', 'intraocularPressureOD', 'intraocularPressureOS', 'confrontationVisualFields',
       'manifestRefractionOD', 'manifestRefractionOS', 'cycloplegicRefractionOD', 'cycloplegicRefractionOS',
+      'autoRefractionOD', 'autoRefractionOS',
       'currentSpectacleRx', 'currentContactLensRx',
       'lidsLashesOD', 'lidsLashesOS', 'conjunctivaScleraOD', 'conjunctivaScleraOS', 'corneaOD', 'corneaOS',
       'anteriorChamberOD', 'anteriorChamberOS', 'irisOD', 'irisOS', 'lensOD', 'lensOS',
@@ -342,27 +351,98 @@ export default function CaseDetailPage() {
                 <section>
                   <h3 className="text-lg font-semibold mb-3 text-primary flex items-center"><History className="mr-2 h-5 w-5" />Medical & Ocular History</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 p-4 border rounded-lg bg-card/50">
-                    <DetailItem icon={Baby} label="Birth History" value={currentCase.birthHistory} isFullWidth isPreWrap />
                     <DetailItem icon={Eye} label="Past Ocular History" value={currentCase.pastOcularHistory} isFullWidth isPreWrap />
                     <DetailItem icon={ShieldCheck} label="Past Medical History" value={currentCase.pastMedicalHistory} isFullWidth isPreWrap />
                     <DetailItem icon={Users} label="Family Ocular History" value={currentCase.familyOcularHistory} isFullWidth isPreWrap />
                     <DetailItem icon={Users} label="Family Medical History" value={currentCase.familyMedicalHistory} isFullWidth isPreWrap />
                     <DetailItem icon={Pill} label="Medications" value={currentCase.medications} isFullWidth isPreWrap />
                     <DetailItem icon={AlertTriangle} label="Allergies" value={currentCase.allergies} isFullWidth isPreWrap />
+                    <DetailItem icon={Baby} label="Birth History" value={currentCase.birthHistory} isFullWidth isPreWrap />
                   </div>
                 </section>
 
                  <section>
                   <h3 className="text-lg font-semibold mb-3 text-primary flex items-center"><Eye className="mr-2 h-5 w-5" />Examination & Refraction</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 p-4 border rounded-lg bg-card/50">
-                    <ODOSDetailItem icon={Eye} label="Uncorrected Visual Acuity (UCVA)" valueOD={currentCase.visualAcuityUncorrectedOD} valueOS={currentCase.visualAcuityUncorrectedOS} />
-                    <ODOSDetailItem icon={Eye} label="Corrected Visual Acuity (BCVA/PH)" valueOD={currentCase.visualAcuityCorrectedOD} valueOS={currentCase.visualAcuityCorrectedOS} />
-                    <DetailItem icon={Eye} label="Pupils" value={currentCase.pupils} isFullWidth isPreWrap />
-                    <DetailItem icon={Eye} label="Extraocular Motility (EOMs)" value={currentCase.extraocularMotility} isFullWidth isPreWrap />
-                    <ODOSDetailItem icon={Eye} label="Intraocular Pressure (IOP)" valueOD={currentCase.intraocularPressureOD} valueOS={currentCase.intraocularPressureOS} />
+                  <div className="p-4 border rounded-lg bg-card/50 space-y-6">
+                    <div>
+                      <h4 className="font-medium flex items-center gap-1.5 mb-2 text-foreground"><Eye className="h-4 w-4 text-primary" />Visual Acuity</h4>
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="w-[150px]">Type</TableHead>
+                            <TableHead>OD (Right Eye)</TableHead>
+                            <TableHead>OS (Left Eye)</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          <TableRow>
+                            <TableCell className="font-medium">Uncorrected (UCVA)</TableCell>
+                            <TableCell>{currentCase.visualAcuityUncorrectedOD || 'N/A'}</TableCell>
+                            <TableCell>{currentCase.visualAcuityUncorrectedOS || 'N/A'}</TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className="font-medium">Corrected (BCVA/PH)</TableCell>
+                            <TableCell>{currentCase.visualAcuityCorrectedOD || 'N/A'}</TableCell>
+                            <TableCell>{currentCase.visualAcuityCorrectedOS || 'N/A'}</TableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 pt-2">
+                        <DetailItem icon={Eye} label="Pupils" value={currentCase.pupils} isFullWidth isPreWrap />
+                        <DetailItem icon={Eye} label="Extraocular Motility (EOMs)" value={currentCase.extraocularMotility} isFullWidth isPreWrap />
+                    </div>
+                    
+                    <div>
+                        <h4 className="font-medium flex items-center gap-1.5 mb-2 text-foreground"><Eye className="h-4 w-4 text-primary" />Intraocular Pressure (IOP)</h4>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                <TableHead>OD (Right Eye)</TableHead>
+                                <TableHead>OS (Left Eye)</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                <TableRow>
+                                <TableCell>{currentCase.intraocularPressureOD || 'N/A'}</TableCell>
+                                <TableCell>{currentCase.intraocularPressureOS || 'N/A'}</TableCell>
+                                </TableRow>
+                            </TableBody>
+                        </Table>
+                    </div>
+
                     <DetailItem icon={Eye} label="Confrontation Visual Fields" value={currentCase.confrontationVisualFields} isFullWidth isPreWrap />
-                    <ODOSDetailItem icon={Glasses} label="Manifest Refraction" valueOD={currentCase.manifestRefractionOD} valueOS={currentCase.manifestRefractionOS} isPreWrap />
-                    <ODOSDetailItem icon={Glasses} label="Cycloplegic Refraction" valueOD={currentCase.cycloplegicRefractionOD} valueOS={currentCase.cycloplegicRefractionOS} isPreWrap />
+                    
+                    <div>
+                        <h4 className="font-medium flex items-center gap-1.5 mb-2 text-foreground"><Glasses className="h-4 w-4 text-primary" />Refraction Details</h4>
+                        <Table>
+                            <TableHeader>
+                            <TableRow>
+                                <TableHead className="w-[180px]">Type</TableHead>
+                                <TableHead>OD (Right Eye)</TableHead>
+                                <TableHead>OS (Left Eye)</TableHead>
+                            </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                            <TableRow>
+                                <TableCell className="font-medium">Auto-Refraction</TableCell>
+                                <TableCell className="whitespace-pre-wrap font-mono text-xs">{currentCase.autoRefractionOD || 'N/A'}</TableCell>
+                                <TableCell className="whitespace-pre-wrap font-mono text-xs">{currentCase.autoRefractionOS || 'N/A'}</TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell className="font-medium">Manifest Refraction</TableCell>
+                                <TableCell className="whitespace-pre-wrap font-mono text-xs">{currentCase.manifestRefractionOD || 'N/A'}</TableCell>
+                                <TableCell className="whitespace-pre-wrap font-mono text-xs">{currentCase.manifestRefractionOS || 'N/A'}</TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell className="font-medium">Cycloplegic Refraction</TableCell>
+                                <TableCell className="whitespace-pre-wrap font-mono text-xs">{currentCase.cycloplegicRefractionOD || 'N/A'}</TableCell>
+                                <TableCell className="whitespace-pre-wrap font-mono text-xs">{currentCase.cycloplegicRefractionOS || 'N/A'}</TableCell>
+                            </TableRow>
+                            </TableBody>
+                        </Table>
+                    </div>
                     <DetailItem icon={Glasses} label="Current Spectacle Rx" value={currentCase.currentSpectacleRx} isFullWidth isPreWrap />
                     <DetailItem icon={Glasses} label="Current Contact Lens Rx" value={currentCase.currentContactLensRx} isFullWidth isPreWrap />
                   </div>
@@ -536,5 +616,3 @@ export default function CaseDetailPage() {
     </MainLayout>
   );
 }
-
-    

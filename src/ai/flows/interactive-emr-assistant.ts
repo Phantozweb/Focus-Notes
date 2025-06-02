@@ -50,13 +50,15 @@ const KNOWN_EMR_FIELDS = [
   // Chief Complaint
   "chiefComplaint", "presentIllnessHistory",
   // History
-  "birthHistory", "pastOcularHistory", "pastMedicalHistory", "familyOcularHistory", "familyMedicalHistory", "medications", "allergies", // Added birthHistory
+  "birthHistory", "pastOcularHistory", "pastMedicalHistory", "familyOcularHistory", "familyMedicalHistory", "medications", "allergies",
   // Examination - Visual Acuity
   "visualAcuityUncorrectedOD", "visualAcuityUncorrectedOS", "visualAcuityCorrectedOD", "visualAcuityCorrectedOS",
   // Examination - General
   "pupils", "extraocularMotility", "intraocularPressureOD", "intraocularPressureOS", "confrontationVisualFields",
   // Refraction
-  "manifestRefractionOD", "manifestRefractionOS", "cycloplegicRefractionOD", "cycloplegicRefractionOS", "currentSpectacleRx", "currentContactLensRx",
+  "manifestRefractionOD", "manifestRefractionOS", "cycloplegicRefractionOD", "cycloplegicRefractionOS", 
+  "autoRefractionOD", "autoRefractionOS", // Added auto-refractor fields
+  "currentSpectacleRx", "currentContactLensRx",
   // Slit Lamp - OD
   "lidsLashesOD", "conjunctivaScleraOD", "corneaOD", "anteriorChamberOD", "irisOD", "lensOD",
   // Slit Lamp - OS
@@ -112,7 +114,7 @@ Your Task, based on the user's message below:
        - When asking for data for specific fields, guide the user on the expected format:
          - For Visual Acuity fields (like \`visualAcuityUncorrectedOD\`): Suggest common formats. E.g., 'What is the uncorrected visual acuity for the right eye? Please use a format like 6/6, 20/20, or CF.'
          - For IOP fields (like \`intraocularPressureOD\`): Ask for a numerical value and mention units. E.g., 'What is the intraocular pressure for the right eye in mmHg?'
-         - For Refraction fields (like \`manifestRefractionOD\`): Suggest the typical components. E.g., 'What is the manifest refraction for the right eye? Please include sphere, cylinder, axis, and add if applicable (e.g., -2.00 / -0.50 x 180 Add +2.00).'
+         - For Refraction fields (like \`manifestRefractionOD\` or \`autoRefractionOD\`): Suggest the typical components. E.g., 'What is the manifest refraction for the right eye? Please include sphere, cylinder, axis, and add if applicable (e.g., -2.00 / -0.50 x 180 Add +2.00).'
      - After asking, try to extract the user's response into the corresponding field(s) in \`fieldsToUpdateJson\`.
    - If the user's input is unclear, ambiguous, or irrelevant to the current section, ask for clarification.
    - If the user asks a general question, try to answer it concisely or guide them back to data entry for the current section.
@@ -184,7 +186,7 @@ export async function interactiveEmrAssistant(flowInput: InteractiveEmrAssistant
         mainPromptData,
         { history: flowInput.chatHistory }
     );
-
+    
     // More robust check for output structure
     if (!result || !result.output || typeof result.output.aiResponseMessage !== 'string') { 
       console.error('CRITICAL_AI_DEBUG: interactiveEmrAssistantPrompt did not return a valid output structure. Full result:', JSON.stringify(result, null, 2));
@@ -227,5 +229,3 @@ export async function interactiveEmrAssistant(flowInput: InteractiveEmrAssistant
     return { aiResponseMessage: `Sorry, I encountered an error connecting to the AI assistant: ${errorMessage}` };
   }
 }
-
-    
