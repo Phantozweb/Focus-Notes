@@ -57,8 +57,9 @@ const KNOWN_EMR_FIELDS = [
   "pupils", "extraocularMotility", "intraocularPressureOD", "intraocularPressureOS", "confrontationVisualFields",
   // Refraction
   "manifestRefractionOD", "manifestRefractionOS", "cycloplegicRefractionOD", "cycloplegicRefractionOS", 
-  "autoRefractionOD", "autoRefractionOS", // Added auto-refractor fields
+  "autoRefractionOD", "autoRefractionOS",
   "currentSpectacleRx", "currentContactLensRx",
+  "lensType", "prismDioptersOD", "prismBaseOD", "prismDioptersOS", "prismBaseOS", // Added Lens Type & Prism fields
   // Slit Lamp - OD
   "lidsLashesOD", "conjunctivaScleraOD", "corneaOD", "anteriorChamberOD", "irisOD", "lensOD",
   // Slit Lamp - OS
@@ -97,8 +98,8 @@ Your Task, based on the user's message below:
    - If the user's current message CLARIFIES, CORRECTS, or EXPANDS on information for a field that is ALREADY FILLED (either in the snapshot or from a very recent turn in this conversation), you MUST use the LATEST information provided by the user to update that field in 'fieldsToUpdateJson'.
    - Do NOT ask for information that is already satisfactorily filled and hasn't been mentioned by the user in the current or immediately preceding message unless the user is explicitly asking to change it.
 3. If the user's message provides information that can directly fill one or more EMR form fields relevant to this section (refer to "Available EMR fields"), identify those fields and their values.
-   - Populate the 'fieldsToUpdateJson' field with a JSON STRING. This string should represent an object where keys EXACTLY MATCH the EMR form field names (e.g., "name", "age", "chiefComplaint") and values are the data to update. Example: '{"name": "John Doe", "age": 45}'. If no fields need updating, this can be omitted or be an empty string or an empty JSON object string like '{}'.
-   - For ophthalmology-specific findings (e.g., visual acuity, slit lamp, posterior segment), if the user mentions specific eyes (right, left, both), try to reflect that using standard abbreviations like OD, OS, or OU within the extracted value IF APPROPRIATE for the field being updated. For example, if updating 'chiefComplaint' and the user says "redness in both eyes", the value might be "redness in both eyes (OU)". This depends on the specific field; some fields are inherently OD/OS specific.
+   - Populate the 'fieldsToUpdateJson' field with a JSON STRING. This string should represent an object where keys EXACTLY MATCH the EMR form field names (e.g., "name", "age", "chiefComplaint", "lensType", "prismDioptersOD", "prismBaseOD") and values are the data to update. Example: '{"name": "John Doe", "age": 45, "lensType": "Progressive", "prismDioptersOD": "2.0", "prismBaseOD": "BU"}'. If no fields need updating, this can be omitted or be an empty string or an empty JSON object string like '{}'.
+   - For ophthalmology-specific findings (e.g., visual acuity, slit lamp, posterior segment, prism), if the user mentions specific eyes (right, left, both), try to reflect that using standard abbreviations like OD, OS, or OU within the extracted value IF APPROPRIATE for the field being updated. For example, if updating 'chiefComplaint' and the user says "redness in both eyes", the value might be "redness in both eyes (OU)". This depends on the specific field; some fields are inherently OD/OS specific (like prismDioptersOD).
 4. Formulate an 'aiResponseMessage'. This message should:
    - If data was extracted and fieldsToUpdateJson is populated and non-empty:
      - Check if the updated field(s) were previously empty or significantly different in the form snapshot or very recent conversation.
@@ -115,6 +116,7 @@ Your Task, based on the user's message below:
          - For Visual Acuity fields (like \`visualAcuityUncorrectedOD\`): Suggest common formats. E.g., 'What is the uncorrected visual acuity for the right eye? Please use a format like 6/6, 20/20, or CF.'
          - For IOP fields (like \`intraocularPressureOD\`): Ask for a numerical value and mention units. E.g., 'What is the intraocular pressure for the right eye in mmHg?'
          - For Refraction fields (like \`manifestRefractionOD\` or \`autoRefractionOD\`): Suggest the typical components. E.g., 'What is the manifest refraction for the right eye? Please include sphere, cylinder, axis, and add if applicable (e.g., -2.00 / -0.50 x 180 Add +2.00).'
+         - For Prism fields (like \`prismDioptersOD\` and \`prismBaseOD\`): Ask for diopters and base direction. E.g., 'Is there any prism for the right eye? If so, what are the diopters and base direction (e.g., 2.0 Base UP)?'
      - After asking, try to extract the user's response into the corresponding field(s) in \`fieldsToUpdateJson\`.
    - If the user's input is unclear, ambiguous, or irrelevant to the current section, ask for clarification.
    - If the user asks a general question, try to answer it concisely or guide them back to data entry for the current section.
@@ -138,6 +140,11 @@ AI aiResponseMessage: "Understood. I've updated the Chief Complaint to: Redness 
 Example Interaction (Section: Chief Complaint, Form Snapshot: {"name": "Jane"}, User message: "blurry vision for 2 weeks in OD")
 AI fieldsToUpdateJson: '{"chiefComplaint": "blurry vision for 2 weeks in OD"}'
 AI aiResponseMessage: "Okay, chief complaint for Jane noted as 'blurry vision for 2 weeks in OD'. Can you tell me more about this? For example, is it constant or intermittent? Any associated pain or floaters?"
+
+Example Interaction (Section: Examination & Refraction, User message: "Patient uses progressive lenses. For OD, 2 prism diopters base up.")
+AI fieldsToUpdateJson: '{"lensType": "Progressive", "prismDioptersOD": "2.0", "prismBaseOD": "UP"}'
+AI aiResponseMessage: "Okay, I've noted the lens type as Progressive, and for the right eye, 2.0 prism diopters Base Up. What about the prism for the left eye?"
+
 
 Process the user's message now.
 `;

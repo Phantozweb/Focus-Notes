@@ -46,10 +46,16 @@ export interface FullOptometryCaseData {
   manifestRefractionOS?: string;
   cycloplegicRefractionOD?: string;
   cycloplegicRefractionOS?: string;
-  autoRefractionOD?: string; // Added Auto-Refractor OD
-  autoRefractionOS?: string; // Added Auto-Refractor OS
+  autoRefractionOD?: string; 
+  autoRefractionOS?: string; 
   currentSpectacleRx?: string;
   currentContactLensRx?: string;
+  lensType?: string; // Added Lens Type
+  prismDioptersOD?: string; // Added Prism Diopters OD
+  prismBaseOD?: string; // Added Prism Base OD
+  prismDioptersOS?: string; // Added Prism Diopters OS
+  prismBaseOS?: string; // Added Prism Base OS
+
 
   // Slit Lamp
   lidsLashesOD?: string;

@@ -149,6 +149,11 @@ export default function ViewCasesPage() {
         autoRefractionOS: c.autoRefractionOS || '',
         currentSpectacleRx: c.currentSpectacleRx || '',
         currentContactLensRx: c.currentContactLensRx || '',
+        lensType: c.lensType || '',
+        prismDioptersOD: c.prismDioptersOD || '',
+        prismBaseOD: c.prismBaseOD || '',
+        prismDioptersOS: c.prismDioptersOS || '',
+        prismBaseOS: c.prismBaseOS || '',
         lidsLashesOD: c.lidsLashesOD || '',
         lidsLashesOS: c.lidsLashesOS || '',
         conjunctivaScleraOD: c.conjunctivaScleraOD || '',
@@ -213,7 +218,7 @@ export default function ViewCasesPage() {
       (c.patientId && c.patientId.toLowerCase().includes(lowerSearchTerm)) ||
       c.chiefComplaint.toLowerCase().includes(lowerSearchTerm) ||
       c.assessment.toLowerCase().includes(lowerSearchTerm) ||
-      (c.birthHistory && c.birthHistory.toLowerCase().includes(lowerSearchTerm)) // Added birthHistory to search
+      (c.birthHistory && c.birthHistory.toLowerCase().includes(lowerSearchTerm))
     ).sort((a, b) => b.timestamp - a.timestamp); 
   }, [storedCases, searchTerm]);
 

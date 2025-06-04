@@ -25,7 +25,7 @@ import ReactMarkdown from 'react-markdown';
 import { 
   Eye, Glasses, ShieldCheck, FileText, Brain, Lightbulb, AlertTriangle, Loader2, 
   User as UserIcon, Calendar, Briefcase, History, Microscope, ScanEye, Edit3, NotebookPen, UserCircle, Phone, Mail, MapPin, Pill, Info, Users, ArrowLeft,
-  Send, Bot, MessageSquare, Baby
+  Send, Bot, MessageSquare, Baby, HelpCircle
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { analyzeOptometryCase } from '@/ai/flows/analyze-optometry-case';
@@ -159,7 +159,7 @@ export default function CaseDetailPage() {
       visualAcuity: `OD: ${currentCase.visualAcuityCorrectedOD || currentCase.visualAcuityUncorrectedOD || 'N/A'}, OS: ${currentCase.visualAcuityCorrectedOS || currentCase.visualAcuityUncorrectedOS || 'N/A'}`,
       refraction: `OD: ${currentCase.manifestRefractionOD || currentCase.autoRefractionOD || 'N/A'}, OS: ${currentCase.manifestRefractionOS || currentCase.autoRefractionOS || 'N/A'}`,
       ocularHealthStatus: currentCase.assessment || 'Not specified',
-      additionalNotes: `Chief Complaint: ${currentCase.chiefComplaint}. Hx Present Illness: ${currentCase.presentIllnessHistory || 'N/A'}. Allergies: ${currentCase.allergies || 'N/A'}. Birth Hx: ${currentCase.birthHistory || 'N/A'}. Internal Notes: ${currentCase.internalNotes || 'N/A'}. Age: ${currentCase.age || 'N/A'}.`,
+      additionalNotes: `Chief Complaint: ${currentCase.chiefComplaint}. Hx Present Illness: ${currentCase.presentIllnessHistory || 'N/A'}. Allergies: ${currentCase.allergies || 'N/A'}. Birth Hx: ${currentCase.birthHistory || 'N/A'}. Internal Notes: ${currentCase.internalNotes || 'N/A'}. Age: ${currentCase.age || 'N/A'}. Lens Type: ${currentCase.lensType || 'N/A'}. Prism OD: ${currentCase.prismDioptersOD || 'N/A'} ^ ${currentCase.prismBaseOD || 'N/A'}. Prism OS: ${currentCase.prismDioptersOS || 'N/A'} ^ ${currentCase.prismBaseOS || 'N/A'}.`,
     };
 
     try {
@@ -197,7 +197,8 @@ export default function CaseDetailPage() {
       'pupils', 'extraocularMotility', 'intraocularPressureOD', 'intraocularPressureOS', 'confrontationVisualFields',
       'manifestRefractionOD', 'manifestRefractionOS', 'cycloplegicRefractionOD', 'cycloplegicRefractionOS',
       'autoRefractionOD', 'autoRefractionOS',
-      'currentSpectacleRx', 'currentContactLensRx',
+      'currentSpectacleRx', 'currentContactLensRx', 'lensType', 
+      'prismDioptersOD', 'prismBaseOD', 'prismDioptersOS', 'prismBaseOS',
       'lidsLashesOD', 'lidsLashesOS', 'conjunctivaScleraOD', 'conjunctivaScleraOS', 'corneaOD', 'corneaOS',
       'anteriorChamberOD', 'anteriorChamberOS', 'irisOD', 'irisOS', 'lensOD', 'lensOS',
       'vitreousOD', 'vitreousOS', 'opticDiscOD', 'opticDiscOS', 'cupDiscRatioOD', 'cupDiscRatioOS',
@@ -353,11 +354,11 @@ export default function CaseDetailPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 p-4 border rounded-lg bg-card/50">
                     <DetailItem icon={Eye} label="Past Ocular History" value={currentCase.pastOcularHistory} isFullWidth isPreWrap />
                     <DetailItem icon={ShieldCheck} label="Past Medical History" value={currentCase.pastMedicalHistory} isFullWidth isPreWrap />
+                    <DetailItem icon={AlertTriangle} label="Allergies" value={currentCase.allergies} isFullWidth isPreWrap />
+                    <DetailItem icon={Baby} label="Birth History" value={currentCase.birthHistory} isFullWidth isPreWrap />
                     <DetailItem icon={Users} label="Family Ocular History" value={currentCase.familyOcularHistory} isFullWidth isPreWrap />
                     <DetailItem icon={Users} label="Family Medical History" value={currentCase.familyMedicalHistory} isFullWidth isPreWrap />
                     <DetailItem icon={Pill} label="Medications" value={currentCase.medications} isFullWidth isPreWrap />
-                    <DetailItem icon={AlertTriangle} label="Allergies" value={currentCase.allergies} isFullWidth isPreWrap />
-                    <DetailItem icon={Baby} label="Birth History" value={currentCase.birthHistory} isFullWidth isPreWrap />
                   </div>
                 </section>
 
@@ -445,6 +446,11 @@ export default function CaseDetailPage() {
                     </div>
                     <DetailItem icon={Glasses} label="Current Spectacle Rx" value={currentCase.currentSpectacleRx} isFullWidth isPreWrap />
                     <DetailItem icon={Glasses} label="Current Contact Lens Rx" value={currentCase.currentContactLensRx} isFullWidth isPreWrap />
+                    <DetailItem icon={Glasses} label="Lens Type" value={currentCase.lensType} isFullWidth />
+                    <ODOSDetailItem icon={HelpCircle} label="Prism Correction" 
+                      valueOD={(currentCase.prismDioptersOD || currentCase.prismBaseOD) ? `${currentCase.prismDioptersOD || 'N/A'} Δ ${currentCase.prismBaseOD || 'N/A'}` : 'N/A'}
+                      valueOS={(currentCase.prismDioptersOS || currentCase.prismBaseOS) ? `${currentCase.prismDioptersOS || 'N/A'} Δ ${currentCase.prismBaseOS || 'N/A'}` : 'N/A'}
+                    />
                   </div>
                 </section>
 
