@@ -52,7 +52,7 @@ import {
   SheetClose,
   SheetFooter,
 } from "@/components/ui/sheet";
-import ReactMarkdown from 'react-reactdown';
+import ReactMarkdown from 'react-markdown';
 import { format } from 'date-fns';
 
 // Zod schema based on the new detailed specification
@@ -96,6 +96,10 @@ const fullOptometryCaseSchema = z.object({
   pgpSphOS: z.string().optional(),
   pgpCylOS: z.string().optional(),
   pgpAxisOS: z.string().optional(),
+
+  // Auto Refractor
+  autoRefractionOD: z.string().optional(),
+  autoRefractionOS: z.string().optional(),
   
   // Refraction - Objective
   objRefractionOD: z.string().optional(),
@@ -113,6 +117,12 @@ const fullOptometryCaseSchema = z.object({
   finalAcuityOD: z.string().optional(),
   finalAcuityOS: z.string().optional(),
   finalCorrectionPreference: z.enum(['Prefers new glasses', 'Continue same PGP']).optional(),
+  lensType: z.string().optional(),
+  prismDioptersOD: z.string().optional(),
+  prismBaseOD: z.string().optional(),
+  prismDioptersOS: z.string().optional(),
+  prismBaseOS: z.string().optional(),
+
 
   // Ancillary Ocular Tests
   keratometryVerticalOD: z.string().optional(),
@@ -182,14 +192,16 @@ type FullOptometryCaseFormValues = z.infer<typeof fullOptometryCaseSchema>;
 const defaultFormValues: FullOptometryCaseFormValues = {
   posting: 'General OPD', mrdNo: '', dateOfVisit: Date.now(), name: '',
   chiefComplaint: '', pastOcularHistory: '', currentMedications: '', pastMedicalHistory: '',
-  recentInvestigations: '', familyHistory: '', birthHistory: '', allergies: '',
+  recentInvestigations: '', familyHistory: '', allergies: '', birthHistory: '', 
   distanceUnaidedOD: '', distanceUnaidedOS: '', distancePinholeOD: '', distancePinholeOS: '',
   distanceOldGlassesOD: '', distanceOldGlassesOS: '', nearUnaidedOD: '', nearUnaidedOS: '',
   nearPinholeOD: '', nearPinholeOS: '', nearOldGlassesOD: '', nearOldGlassesOS: '',
   pgpSphOD: '', pgpCylOD: '', pgpAxisOD: '', pgpSphOS: '', pgpCylOS: '', pgpAxisOS: '',
+  autoRefractionOD: '', autoRefractionOS: '',
   objRefractionOD: '', objRefractionOS: '', objRefractionFindingsOD: [], objRefractionFindingsOS: [],
   subjRefractionOD: '', subjRefractionOS: '', subjRefractionChecksOD: [], subjRefractionChecksOS: [],
   finalAcuityOD: '', finalAcuityOS: '',
+  lensType: '', prismDioptersOD: '', prismBaseOD: '', prismDioptersOS: '', prismBaseOS: '',
   keratometryVerticalOD: '', keratometryHorizontalOD: '', keratometryVerticalOS: '', keratometryHorizontalOS: '',
   keratometryComments: '', coverTest: '', eom: '', npcSubj: '', npcObj: '', npaOD: '', npaOS: '',
   npaOU: '', wfdtDistance: '', wfdtNear: '', stereopsis: '', pupillaryEvaluation: '',
@@ -279,6 +291,148 @@ const CheckboxGroup = ({
     )}
   />
 );
+
+const VA_OPTIONS = ["6/6 (20/20)", "6/9 (20/30)", "6/12 (20/40)", "6/18 (20/60)", "6/24 (20/80)", "6/36 (20/120)", "6/60 (20/200)", "CF", "HM", "PL/PR", "NPL"];
+
+const VisualAcuityDoubleFormField = ({
+  form,
+  nameOD,
+  nameOS,
+  label,
+}: {
+  form: UseFormReturn<FullOptometryCaseFormValues>;
+  nameOD: keyof FullOptometryCaseFormValues;
+  nameOS: keyof FullOptometryCaseFormValues;
+  label: string;
+}) => (
+  <div className="md:grid md:grid-cols-3 md:gap-3 items-center">
+    <FormLabel className="md:col-span-1 text-right">{label}</FormLabel>
+    <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <FormField
+        control={form.control}
+        name={nameOD}
+        render={({ field }) => (
+          <FormItem>
+            <div className="flex items-center gap-1">
+              <Input {...field} placeholder="OD..." />
+              <Select onValueChange={(value) => form.setValue(nameOD, value, { shouldValidate: true })}>
+                <SelectTrigger className="w-[60px] shrink-0"><ChevronDown className="h-4 w-4" /></SelectTrigger>
+                <SelectContent>
+                  {VA_OPTIONS.map(opt => <SelectItem key={`${nameOD}-${opt}`} value={opt}>{opt}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={form.control}
+        name={nameOS}
+        render={({ field }) => (
+          <FormItem>
+            <div className="flex items-center gap-1">
+              <Input {...field} placeholder="OS..." />
+              <Select onValueChange={(value) => form.setValue(nameOS, value, { shouldValidate: true })}>
+                <SelectTrigger className="w-[60px] shrink-0"><ChevronDown className="h-4 w-4" /></SelectTrigger>
+                <SelectContent>
+                  {VA_OPTIONS.map(opt => <SelectItem key={`${nameOS}-${opt}`} value={opt}>{opt}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    </div>
+  </div>
+);
+
+const InputWithSelect = ({
+  form,
+  name,
+  label,
+  options,
+  placeholder,
+}: {
+  form: UseFormReturn<FullOptometryCaseFormValues>;
+  name: keyof FullOptometryCaseFormValues;
+  label: string;
+  options: string[];
+  placeholder?: string;
+}) => (
+  <FormField
+    control={form.control}
+    name={name}
+    render={({ field }) => (
+      <FormItem>
+        <TwoColumnField label={label}>
+          <div className="flex items-center gap-1">
+            <Input {...field} value={field.value as string || ''} placeholder={placeholder} />
+            <Select onValueChange={(value) => form.setValue(name, value, { shouldValidate: true })}>
+              <SelectTrigger className="w-[60px] shrink-0"><ChevronDown className="h-4 w-4" /></SelectTrigger>
+              <SelectContent>
+                {options.map(opt => <SelectItem key={`${name}-${opt}`} value={opt}>{opt}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+          <FormMessage />
+        </TwoColumnField>
+      </FormItem>
+    )}
+  />
+);
+
+const PrismSingleEyeFormField = ({ form, diopterName, baseName, eyeLabel }: { form: UseFormReturn<FullOptometryCaseFormValues>, diopterName: keyof FullOptometryCaseFormValues, baseName: keyof FullOptometryCaseFormValues, eyeLabel: string }) => (
+    <FormItem>
+        <FormLabel className="text-xs text-muted-foreground">{eyeLabel}</FormLabel>
+        <div className="flex items-start gap-2">
+            <FormField
+                control={form.control}
+                name={diopterName}
+                render={({ field }) => (
+                    <FormItem className="flex-grow">
+                        <FormControl>
+                            <Input placeholder="Diopters (Δ)" {...field} value={field.value as string || ''} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
+            <FormField
+                control={form.control}
+                name={baseName}
+                render={({ field }) => (
+                    <FormItem className="w-[100px] shrink-0">
+                        <Select onValueChange={field.onChange} defaultValue={field.value as string}>
+                            <FormControl>
+                                <SelectTrigger><SelectValue placeholder="Base" /></SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                                <SelectItem value="UP">UP</SelectItem>
+                                <SelectItem value="DOWN">DOWN</SelectItem>
+                                <SelectItem value="IN">IN</SelectItem>
+                                <SelectItem value="OUT">OUT</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
+        </div>
+    </FormItem>
+);
+
+const PrismDoubleFormField = ({ form, label }: { form: UseFormReturn<FullOptometryCaseFormValues>, label: string }) => (
+  <div className="md:grid md:grid-cols-3 md:gap-3 items-start">
+    <FormLabel className="md:col-span-1 md:mt-2 block text-sm font-medium text-muted-foreground">{label}</FormLabel>
+    <div className="md:col-span-2 mt-1 md:mt-0 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <PrismSingleEyeFormField form={form} diopterName="prismDioptersOD" baseName="prismBaseOD" eyeLabel="OD (Right Eye)" />
+        <PrismSingleEyeFormField form={form} diopterName="prismDioptersOS" baseName="prismBaseOS" eyeLabel="OS (Left Eye)" />
+    </div>
+  </div>
+);
+
 
 export default function LogNewCasePage() {
   const { toast } = useToast();
@@ -600,6 +754,7 @@ export default function LogNewCasePage() {
   return (
     <MainLayout>
       <div className={cn("flex-1 flex flex-row h-full overflow-hidden")}>
+        
         <div className={cn("flex-1 flex flex-col overflow-hidden transition-[width] duration-300 ease-in-out py-8 px-4 sm:px-6 lg:px-8", isAssistantSheetOpen && !isMobile ? "lg:w-2/3 md:w-3/5" : "w-full")}>
             <Card className="shadow-xl w-full flex-1 flex flex-col max-w-7xl mx-auto overflow-hidden">
             <CardHeader className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm border-b pb-4 pt-4">
@@ -608,12 +763,12 @@ export default function LogNewCasePage() {
                     <CardTitle className="text-2xl md:text-3xl font-bold text-primary flex items-center text-center flex-grow justify-center"><FileTextIcon className="mr-3 h-7 w-7 md:h-8 md:w-8" /> Log New Case</CardTitle>
                     <div className="w-10 h-10"></div>
                 </div>
-                <div className={cn("mb-4 flex justify-center")}>
-                  <Button variant="default" className="relative overflow-hidden shadow-lg hover:shadow-xl group rounded-md py-3 px-6" onClick={() => setIsAssistantSheetOpen(true)}>
-                      <span className="absolute inset-0 w-full h-full block animate-shine-pass"><span className="absolute top-0 -inset-full h-full w-1/2 z-5 block transform -skew-x-12 bg-gradient-to-r from-transparent via-white/30 to-transparent"></span></span>
-                      <Bot className="mr-2 h-5 w-5 transition-transform duration-300 ease-in-out group-hover:scale-110" />
-                      Focus AI Assistant
-                  </Button>
+                 <div className={cn("mb-4 flex justify-center")}>
+                    <Button variant="default" className="relative overflow-hidden shadow-lg hover:shadow-xl group rounded-md py-3 px-6" onClick={() => setIsAssistantSheetOpen(true)}>
+                        <span className="absolute inset-0 w-full h-full block animate-shine-pass"><span className="absolute top-0 -inset-full h-full w-1/2 z-5 block transform -skew-x-12 bg-gradient-to-r from-transparent via-white/30 to-transparent"></span></span>
+                        <Bot className="mr-2 h-5 w-5 transition-transform duration-300 ease-in-out group-hover:scale-110" />
+                        Focus AI Assistant
+                    </Button>
                 </div>
                 
                 <div className="h-14 flex items-center">
@@ -681,18 +836,22 @@ export default function LogNewCasePage() {
                         <div className="p-4 border rounded-lg bg-card/50">
                             <h4 className="font-medium text-center mb-4">Visual Acuity</h4>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center text-sm font-medium"><div className="md:col-start-2">OD (Right Eye)</div><div>OS (Left Eye)</div></div>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-2 items-center"><FormLabel className="text-right">Distance - Unaided</FormLabel><FormField control={form.control} name="distanceUnaidedOD" render={({ field }) => (<Input {...field} />)}/><FormField control={form.control} name="distanceUnaidedOS" render={({ field }) => (<Input {...field} />)}/></div>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-2 items-center mt-2"><FormLabel className="text-right">Distance - Pinhole</FormLabel><FormField control={form.control} name="distancePinholeOD" render={({ field }) => (<Input {...field} />)}/><FormField control={form.control} name="distancePinholeOS" render={({ field }) => (<Input {...field} />)}/></div>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-2 items-center mt-2"><FormLabel className="text-right">Distance - Old Glasses</FormLabel><FormField control={form.control} name="distanceOldGlassesOD" render={({ field }) => (<Input {...field} />)}/><FormField control={form.control} name="distanceOldGlassesOS" render={({ field }) => (<Input {...field} />)}/></div>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-2 items-center mt-4"><FormLabel className="text-right">Near - Unaided</FormLabel><FormField control={form.control} name="nearUnaidedOD" render={({ field }) => (<Input {...field} />)}/><FormField control={form.control} name="nearUnaidedOS" render={({ field }) => (<Input {...field} />)}/></div>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-2 items-center mt-2"><FormLabel className="text-right">Near - Pinhole</FormLabel><FormField control={form.control} name="nearPinholeOD" render={({ field }) => (<Input {...field} />)}/><FormField control={form.control} name="nearPinholeOS" render={({ field }) => (<Input {...field} />)}/></div>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-2 items-center mt-2"><FormLabel className="text-right">Near - Old Glasses</FormLabel><FormField control={form.control} name="nearOldGlassesOD" render={({ field }) => (<Input {...field} />)}/><FormField control={form.control} name="nearOldGlassesOS" render={({ field }) => (<Input {...field} />)}/></div>
+                            <VisualAcuityDoubleFormField form={form} nameOD="distanceUnaidedOD" nameOS="distanceUnaidedOS" label="Distance - Unaided" />
+                            <VisualAcuityDoubleFormField form={form} nameOD="distancePinholeOD" nameOS="distancePinholeOS" label="Distance - Pinhole" />
+                            <VisualAcuityDoubleFormField form={form} nameOD="distanceOldGlassesOD" nameOS="distanceOldGlassesOS" label="Distance - Old Glasses" />
+                            <VisualAcuityDoubleFormField form={form} nameOD="nearUnaidedOD" nameOS="nearUnaidedOS" label="Near - Unaided" />
+                            <VisualAcuityDoubleFormField form={form} nameOD="nearPinholeOD" nameOS="nearPinholeOS" label="Near - Pinhole" />
+                            <VisualAcuityDoubleFormField form={form} nameOD="nearOldGlassesOD" nameOS="nearOldGlassesOS" label="Near - Old Glasses" />
                         </div>
                         <div className="p-4 border rounded-lg bg-card/50">
                             <h4 className="font-medium text-center mb-4">Previous Glasses Rx (PGP)</h4>
                             <div className="grid grid-cols-4 gap-2 text-center text-sm font-medium"><div className="col-start-2">Sph (D)</div><div>Cyl (D)</div><div>Axis</div></div>
                             <div className="grid grid-cols-4 gap-x-2 gap-y-2 items-center"><FormLabel className="text-right">OD</FormLabel><FormField control={form.control} name="pgpSphOD" render={({ field }) => (<Input {...field} />)}/><FormField control={form.control} name="pgpCylOD" render={({ field }) => (<Input {...field} />)}/><FormField control={form.control} name="pgpAxisOD" render={({ field }) => (<Input {...field} />)}/></div>
                             <div className="grid grid-cols-4 gap-x-2 gap-y-2 items-center mt-2"><FormLabel className="text-right">OS</FormLabel><FormField control={form.control} name="pgpSphOS" render={({ field }) => (<Input {...field} />)}/><FormField control={form.control} name="pgpCylOS" render={({ field }) => (<Input {...field} />)}/><FormField control={form.control} name="pgpAxisOS" render={({ field }) => (<Input {...field} />)}/></div>
+                        </div>
+                         <div className="p-4 border rounded-lg bg-card/50 space-y-4">
+                            <h4 className="font-medium text-center mb-2">Auto-Refractor Values</h4>
+                            {renderDoubleFormField('autoRefractionOD', 'autoRefractionOS', 'Auto-Refraction', 'e.g., -1.00 / -0.50 x 180', 'e.g., -1.25 DS')}
                         </div>
                         <div className="p-4 border rounded-lg bg-card/50 space-y-4">
                           <h4 className="font-medium text-center mb-2">Objective Refraction</h4>
@@ -708,6 +867,8 @@ export default function LogNewCasePage() {
                           <h4 className="font-medium text-center mb-2">Final Correction</h4>
                           {renderDoubleFormField('finalAcuityOD', 'finalAcuityOS', 'Visual Acuity w/ New Rx')}
                           <FormField control={form.control} name="finalCorrectionPreference" render={({ field }) => (<FormItem><TwoColumnField label="Decision"><FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex items-center space-x-4"><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="Prefers new glasses" /></FormControl><FormLabel className="font-normal">Prefers new glasses</FormLabel></FormItem><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="Continue same PGP" /></FormControl><FormLabel className="font-normal">Continue same PGP</FormLabel></FormItem></RadioGroup></FormControl><FormMessage /></TwoColumnField></FormItem>)} />
+                          <InputWithSelect form={form} name="lensType" label="Lens Type" options={["Single Vision", "Bifocal", "Trifocal", "Progressive", "Occupational", "Other"]} placeholder="Enter lens type..." />
+                          <PrismDoubleFormField form={form} label="Prism" />
                         </div>
                     </div>
 
@@ -780,6 +941,7 @@ export default function LogNewCasePage() {
             </Card>
         </div>
         
+        {/* Desktop Side Panel */}
         {!isMobile && isAssistantSheetOpen && (
             <div className="lg:w-1/3 md:w-2/5 w-full max-w-md flex-shrink-0 border-l bg-card shadow-lg flex flex-col h-full overflow-hidden">
                 <div className="p-4 border-b flex justify-between items-center flex-shrink-0">
@@ -806,6 +968,7 @@ export default function LogNewCasePage() {
             </div>
         )}
         
+        {/* Mobile Sheet */}
         {isMobile && (
             <Sheet open={isAssistantSheetOpen} onOpenChange={setIsAssistantSheetOpen}>
                 <SheetContent className="w-full sm:max-w-md flex flex-col p-0">
