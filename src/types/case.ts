@@ -6,58 +6,86 @@ export interface AnalyzeOptometryCaseOutput {
   caseInsights: string;
 }
 
-// Form data structure - used by the Zod schema in cases/new/page.tsx
+// Form data structure - based on the new detailed specification
 export interface FullOptometryCaseData {
-  // Patient Info
-  patientId?: string;
+  // Patient & Visit Information
+  posting?: string; // Dropdown: "General OPD", "Community OPD", etc.
+  mrdNo?: string; // Medical Record Number
+  dateOfVisit?: number; // Date picker timestamp
   name: string; 
   age?: number; 
-  gender?: string;
-  contactNumber?: string;
-  email?: string;
-  address?: string;
-
-  // Chief Complaint
+  sex?: 'Male' | 'Female' | 'Other'; // Radio buttons
+  
+  // Patient History
   chiefComplaint: string;
-  presentIllnessHistory?: string;
-
-  // History
-  birthHistory?: string; 
   pastOcularHistory?: string;
+  currentMedications?: string; // New field
   pastMedicalHistory?: string;
-  familyOcularHistory?: string;
-  familyMedicalHistory?: string;
-  medications?: string;
+  recentInvestigations?: string; // New field
+  familyHistory?: string; // Combines family ocular and medical
+  birthHistory?: string;
   allergies?: string;
 
-  // Examination
-  visualAcuityUncorrectedOD?: string;
-  visualAcuityUncorrectedOS?: string;
-  visualAcuityCorrectedOD?: string;
-  visualAcuityCorrectedOS?: string;
-  pupils?: string;
-  extraocularMotility?: string;
-  intraocularPressureOD?: string;
-  intraocularPressureOS?: string;
-  confrontationVisualFields?: string;
+  // Visual Acuity
+  distanceUnaidedOD?: string;
+  distanceUnaidedOS?: string;
+  distancePinholeOD?: string;
+  distancePinholeOS?: string;
+  distanceOldGlassesOD?: string;
+  distanceOldGlassesOS?: string;
+  nearUnaidedOD?: string;
+  nearUnaidedOS?: string;
+  nearPinholeOD?: string;
+  nearPinholeOS?: string;
+  nearOldGlassesOD?: string;
+  nearOldGlassesOS?: string;
   
-  // Refraction
-  manifestRefractionOD?: string;
-  manifestRefractionOS?: string;
-  cycloplegicRefractionOD?: string;
-  cycloplegicRefractionOS?: string;
-  autoRefractionOD?: string; 
-  autoRefractionOS?: string; 
-  currentSpectacleRx?: string;
-  currentContactLensRx?: string;
-  lensType?: string; // Added Lens Type
-  prismDioptersOD?: string; // Added Prism Diopters OD
-  prismBaseOD?: string; // Added Prism Base OD
-  prismDioptersOS?: string; // Added Prism Diopters OS
-  prismBaseOS?: string; // Added Prism Base OS
+  // Refraction - Previous Glasses (PGP)
+  pgpSphOD?: string;
+  pgpCylOD?: string;
+  pgpAxisOD?: string;
+  pgpSphOS?: string;
+  pgpCylOS?: string;
+  pgpAxisOS?: string;
 
+  // Refraction - Objective (Retinoscopy)
+  objRefractionOD?: string; // Replaces previous manifest/cyclo fields for general notes
+  objRefractionOS?: string;
+  objRefractionFindingsOD?: string[]; // Checkboxes: 'No Glow', 'Dull Glow', 'Central Opacity'
+  objRefractionFindingsOS?: string[];
 
-  // Slit Lamp
+  // Refraction - Subjective
+  subjRefractionOD?: string; // Replaces previous manifest/cyclo fields for general notes
+  subjRefractionOS?: string;
+  subjRefractionChecksOD?: string[]; // Checkboxes: 'Fogging', 'Duo chrome', 'JCC'
+  subjRefractionChecksOS?: string[];
+
+  // Final Correction
+  finalAcuityOD?: string;
+  finalAcuityOS?: string;
+  finalCorrectionPreference?: 'Prefers new glasses' | 'Continue same PGP'; // Radio
+
+  // Ancillary Ocular Tests
+  keratometryVerticalOD?: string;
+  keratometryHorizontalOD?: string;
+  keratometryVerticalOS?: string;
+  keratometryHorizontalOS?: string;
+  keratometryComments?: string;
+  coverTest?: string;
+  eom?: string; // Extraocular Motility
+  npcSubj?: string;
+  npcObj?: string;
+  npaOD?: string;
+  npaOS?: string;
+  npaOU?: string;
+  wfdtDistance?: string;
+  wfdtNear?: string;
+  stereopsis?: string;
+
+  // Slit Lamp & Anterior Segment
+  pupillaryEvaluation?: string;
+  externalExamination?: string;
+  // Slit Lamp Diagram (Text Fields as substitute)
   lidsLashesOD?: string;
   lidsLashesOS?: string;
   conjunctivaScleraOD?: string;
@@ -70,8 +98,19 @@ export interface FullOptometryCaseData {
   irisOS?: string;
   lensOD?: string;
   lensOS?: string;
+  // Tonometry
+  tonometryPressureOD?: string;
+  tonometryPressureOS?: string;
+  tonometryMethod?: 'GAT' | 'NCT' | 'Perkins';
+  tonometryTime?: string;
+  // Dry Eye Tests
+  tbutOD?: string;
+  tbutOS?: string;
+  schirmerOD?: string;
+  schirmerOS?: string;
 
   // Posterior Segment
+  // Fundus Diagram (Text Fields as substitute)
   vitreousOD?: string;
   vitreousOS?: string;
   opticDiscOD?: string;
@@ -84,22 +123,14 @@ export interface FullOptometryCaseData {
   vesselsOS?: string;
   peripheryOD?: string;
   peripheryOS?: string;
-
-  // Investigations
-  octFindings?: string;
-  visualFieldFindings?: string;
-  fundusPhotographyFindings?: string;
-  otherInvestigations?: string;
-
-  // Assessment & Plan
-  assessment: string;
-  plan: string;
-  prognosis?: string;
-  followUp?: string;
-
-  // Notes & Reflection
-  internalNotes?: string;
-  reflection?: string;
+  
+  // Final Plan
+  diagnosis?: string; // Replaces 'assessment'
+  interventionPlanned?: string; // Replaces 'plan'
+  learning?: string; // Replaces 'reflection'
+  
+  // Deprecated/Legacy fields - keep for backward compatibility if needed, but hide from new forms.
+  // Not including them for a fresh start based on the new spec.
 }
 
 // This is the main type that will be stored in localStorage and listed
@@ -110,15 +141,15 @@ export interface StoredOptometryCase extends FullOptometryCaseData {
   analysisError?: string; 
 }
 
-// Chat related types (re-added for the new AI assistant sidebar)
+// Chat related types
 export interface ChatMessage {
   id: string;
-  role: 'user' | 'assistant' | 'system'; // Added 'system' for AI updates confirmation
+  role: 'user' | 'assistant' | 'system';
   content: string;
 }
 
 export interface GenkitChatMessage {
-  role: 'user' | 'model'; // 'model' corresponds to 'assistant'
+  role: 'user' | 'model';
   parts: Array<{ text: string }>;
 }
 
@@ -142,7 +173,6 @@ export interface InteractiveEmrAssistantInput {
 }
 
 export interface InteractiveEmrAssistantOutput {
-  fieldsToUpdate?: Record<string, string | number | boolean | undefined | null>;
+  fieldsToUpdateJson?: string;
   aiResponseMessage: string;
 }
-

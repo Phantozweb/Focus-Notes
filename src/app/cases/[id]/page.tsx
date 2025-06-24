@@ -21,11 +21,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import ReactMarkdown from 'react-markdown';
-
 import { 
   Eye, Glasses, ShieldCheck, FileText, Brain, Lightbulb, AlertTriangle, Loader2, 
   User as UserIcon, Calendar, Briefcase, History, Microscope, ScanEye, Edit3, NotebookPen, UserCircle, Phone, Mail, MapPin, Pill, Info, Users, ArrowLeft,
-  Send, Bot, MessageSquare, Baby, HelpCircle
+  Send, Bot, MessageSquare, Baby, HelpCircle, Activity, Clock
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { analyzeOptometryCase } from '@/ai/flows/analyze-optometry-case';
@@ -114,7 +113,6 @@ export default function CaseDetailPage() {
     return undefined;
   }, [plainParams]);
 
-
   const memoizedInitialCases = React.useMemo<StoredOptometryCase[]>(() => [], []);
   const [storedCases, setStoredCases] = useLocalStorage<StoredOptometryCase[]>('optometryCases', memoizedInitialCases);
   
@@ -156,10 +154,10 @@ export default function CaseDetailPage() {
     if (!currentCase) return;
     setIsAnalyzing(true);
     const aiInput: AnalyzeOptometryCaseInput = {
-      visualAcuity: `OD: ${currentCase.visualAcuityCorrectedOD || currentCase.visualAcuityUncorrectedOD || 'N/A'}, OS: ${currentCase.visualAcuityCorrectedOS || currentCase.visualAcuityUncorrectedOS || 'N/A'}`,
-      refraction: `OD: ${currentCase.manifestRefractionOD || currentCase.autoRefractionOD || 'N/A'}, OS: ${currentCase.manifestRefractionOS || currentCase.autoRefractionOS || 'N/A'}`,
-      ocularHealthStatus: currentCase.assessment || 'Not specified',
-      additionalNotes: `Chief Complaint: ${currentCase.chiefComplaint}. Hx Present Illness: ${currentCase.presentIllnessHistory || 'N/A'}. Allergies: ${currentCase.allergies || 'N/A'}. Birth Hx: ${currentCase.birthHistory || 'N/A'}. Internal Notes: ${currentCase.internalNotes || 'N/A'}. Age: ${currentCase.age || 'N/A'}. Lens Type: ${currentCase.lensType || 'N/A'}. Prism OD: ${currentCase.prismDioptersOD || 'N/A'} ^ ${currentCase.prismBaseOD || 'N/A'}. Prism OS: ${currentCase.prismDioptersOS || 'N/A'} ^ ${currentCase.prismBaseOS || 'N/A'}.`,
+      visualAcuity: `Final Acuity OD: ${currentCase.finalAcuityOD || 'N/A'}, OS: ${currentCase.finalAcuityOS || 'N/A'}`,
+      refraction: `Subjective Rx OD: ${currentCase.subjRefractionOD || 'N/A'}, OS: ${currentCase.subjRefractionOS || 'N/A'}`,
+      ocularHealthStatus: currentCase.diagnosis || 'Not specified',
+      additionalNotes: `Chief Complaint: ${currentCase.chiefComplaint}. History: ${currentCase.pastOcularHistory || 'N/A'}. Allergies: ${currentCase.allergies || 'N/A'}.`,
     };
 
     try {
@@ -187,32 +185,14 @@ export default function CaseDetailPage() {
   const prepareCaseSummaryString = (caseData: StoredOptometryCase): string => {
     let summary = `Optometry Case Summary for Patient: ${caseData.name}\n`;
     summary += `Logged: ${format(new Date(caseData.timestamp), 'PPPp')}\n\n`;
-
-    const fieldsToInclude: (keyof StoredOptometryCase)[] = [
-      'patientId', 'name', 'age', 'gender', 'contactNumber', 'email', 'address', 
-      'chiefComplaint', 'presentIllnessHistory', 
-      'pastOcularHistory', 'pastMedicalHistory', 
-      'familyOcularHistory', 'familyMedicalHistory', 'medications', 'allergies', 'birthHistory',
-      'visualAcuityUncorrectedOD', 'visualAcuityUncorrectedOS', 'visualAcuityCorrectedOD', 'visualAcuityCorrectedOS',
-      'pupils', 'extraocularMotility', 'intraocularPressureOD', 'intraocularPressureOS', 'confrontationVisualFields',
-      'manifestRefractionOD', 'manifestRefractionOS', 'cycloplegicRefractionOD', 'cycloplegicRefractionOS',
-      'autoRefractionOD', 'autoRefractionOS',
-      'currentSpectacleRx', 'currentContactLensRx', 'lensType', 
-      'prismDioptersOD', 'prismBaseOD', 'prismDioptersOS', 'prismBaseOS',
-      'lidsLashesOD', 'lidsLashesOS', 'conjunctivaScleraOD', 'conjunctivaScleraOS', 'corneaOD', 'corneaOS',
-      'anteriorChamberOD', 'anteriorChamberOS', 'irisOD', 'irisOS', 'lensOD', 'lensOS',
-      'vitreousOD', 'vitreousOS', 'opticDiscOD', 'opticDiscOS', 'cupDiscRatioOD', 'cupDiscRatioOS',
-      'maculaOD', 'maculaOS', 'vesselsOD', 'vesselsOS', 'peripheryOD', 'peripheryOS',
-      'octFindings', 'visualFieldFindings', 'fundusPhotographyFindings', 'otherInvestigations',
-      'assessment', 'plan', 'prognosis', 'followUp', 'internalNotes', 'reflection'
-    ];
+    const fieldsToInclude: (keyof StoredOptometryCase)[] = Object.keys(caseData) as (keyof StoredOptometryCase)[];
     
     fieldsToInclude.forEach(key => {
       const value = caseData[key];
-      if (value !== undefined && value !== null && String(value).trim() !== '') {
+      if (value !== undefined && value !== null && String(value).trim() !== '' && typeof value !== 'object') {
         const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()); 
-        if (value instanceof Date) { 
-            summary += `${label}: ${format(new Date(value), 'PPP')}\n`;
+        if (key === 'dateOfVisit' && typeof value === 'number') {
+            summary += `Date Of Visit: ${format(new Date(value), 'PPP')}\n`;
         } else {
             summary += `${label}: ${String(value)}\n`;
         }
@@ -231,43 +211,24 @@ export default function CaseDetailPage() {
   const handleSendQuery = async () => {
     if (!currentUserQuery.trim() || !currentCase) return;
 
-    const newUserMessage: ChatMessage = {
-      id: Date.now().toString(),
-      role: 'user',
-      content: currentUserQuery.trim(),
-    };
+    const newUserMessage: ChatMessage = { id: Date.now().toString(), role: 'user', content: currentUserQuery.trim() };
     setChatMessages(prev => [...prev, newUserMessage]);
     setCurrentUserQuery('');
     setIsSendingQuery(true);
 
     const caseSummary = prepareCaseSummaryString(currentCase);
-    const historyForAI: GenkitChatMessage[] = chatMessages.map(msg => ({
-      role: msg.role === 'user' ? 'user' : 'model',
-      parts: [{ text: msg.content }],
-    }));
+    const historyForAI: GenkitChatMessage[] = chatMessages.map(msg => ({ role: msg.role === 'user' ? 'user' : 'model', parts: [{ text: msg.content }] }));
     
-    const aiInput: ChatWithCaseInput = {
-      caseSummary,
-      userQuery: newUserMessage.content,
-      chatHistory: historyForAI,
-    };
+    const aiInput: ChatWithCaseInput = { caseSummary, userQuery: newUserMessage.content, chatHistory: historyForAI };
 
     try {
       const result = await chatWithCase(aiInput);
-      const aiResponse: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: result.aiResponse,
-      };
+      const aiResponse: ChatMessage = { id: (Date.now() + 1).toString(), role: 'assistant', content: result.aiResponse };
       setChatMessages(prev => [...prev, aiResponse]);
     } catch (error) {
       console.error('CRITICAL_AI_DEBUG: Chat AI Error on client:', error);
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred with Focus AI.';
-      const errorResponse: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: `Sorry, I encountered an error: ${errorMessage}`,
-      };
+      const errorResponse: ChatMessage = { id: (Date.now() + 1).toString(), role: 'assistant', content: `Sorry, I encountered an error: ${errorMessage}` };
       setChatMessages(prev => [...prev, errorResponse]);
       toast({ title: 'Focus AI Error', description: errorMessage, variant: 'destructive' });
     } finally {
@@ -275,29 +236,16 @@ export default function CaseDetailPage() {
     }
   };
 
-
-  if (currentCase === undefined || !caseId) { // Ensure caseId is also available
-    return (
-      <MainLayout>
-        <div className="flex justify-center items-center h-full flex-1 py-8 px-4 sm:px-6 lg:px-8">
-          <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        </div>
-      </MainLayout>
-    );
+  if (currentCase === undefined || !caseId) {
+    return ( <MainLayout><div className="flex justify-center items-center h-full flex-1 py-8 px-4 sm:px-6 lg:px-8"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div></MainLayout> );
   }
 
   if (!currentCase) {
     return (
       <MainLayout>
         <div className="py-8 px-4 sm:px-6 lg:px-8">
-          <Button variant="outline" onClick={() => router.push('/cases')} className="mb-6">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Cases
-          </Button>
-          <Alert variant="destructive">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertTitle>Case Not Found</AlertTitle>
-            <AlertDescription>The requested case could not be found. It might have been deleted.</AlertDescription>
-          </Alert>
+          <Button variant="outline" onClick={() => router.push('/cases')} className="mb-6"><ArrowLeft className="mr-2 h-4 w-4" /> Back to Cases</Button>
+          <Alert variant="destructive"><AlertTriangle className="h-4 w-4" /><AlertTitle>Case Not Found</AlertTitle><AlertDescription>The requested case could not be found. It might have been deleted.</AlertDescription></Alert>
         </div>
       </MainLayout>
     );
@@ -305,6 +253,7 @@ export default function CaseDetailPage() {
   
   const { analysis, analysisError } = currentCase;
   const patientName = currentCase.name ? currentCase.name.trim() : `Case ID: ${currentCase.id.substring(0,8)}...`;
+  const visitDate = currentCase.dateOfVisit ? new Date(currentCase.dateOfVisit) : new Date(currentCase.timestamp);
 
   return (
     <MainLayout>
@@ -312,15 +261,10 @@ export default function CaseDetailPage() {
         <Card className="shadow-xl max-w-7xl mx-auto">
           <CardHeader className="border-b">
             <div className="flex items-center justify-between mb-2">
-              <Button variant="outline" size="icon" onClick={() => router.push('/cases')} className="mr-4 flex-shrink-0">
-                <ArrowLeft className="h-5 w-5" />
-                <span className="sr-only">Back to Cases</span>
-              </Button>
+              <Button variant="outline" size="icon" onClick={() => router.push('/cases')} className="mr-4 flex-shrink-0"><ArrowLeft className="h-5 w-5" /><span className="sr-only">Back to Cases</span></Button>
               <div className="flex-grow min-w-0">
                 <CardTitle className="text-2xl md:text-3xl text-primary truncate" title={patientName}>{patientName}</CardTitle>
-                <CardDescription>
-                  Review the patient's case information. Logged on: {format(new Date(currentCase.timestamp), 'PPPp')}
-                </CardDescription>
+                <CardDescription>Review the patient's case information. Logged on: {format(visitDate, 'PPPp')}</CardDescription>
               </div>
             </div>
           </CardHeader>
@@ -329,140 +273,96 @@ export default function CaseDetailPage() {
               <div className="space-y-8 pr-4">
                 
                 <section>
-                  <h3 className="text-lg font-semibold mb-3 text-primary flex items-center"><UserCircle className="mr-2 h-5 w-5" />Patient Information</h3>
+                  <h3 className="text-lg font-semibold mb-3 text-primary flex items-center"><UserCircle className="mr-2 h-5 w-5" />Patient & Visit Information</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 p-4 border rounded-lg bg-card/50">
-                    <DetailItem icon={Info} label="Patient ID" value={currentCase.patientId} />
+                    <DetailItem icon={Briefcase} label="Posting" value={currentCase.posting} />
+                    <DetailItem icon={Info} label="MRD No." value={currentCase.mrdNo} />
+                    <DetailItem icon={Calendar} label="Date of Visit" value={currentCase.dateOfVisit ? new Date(currentCase.dateOfVisit) : undefined} />
                     <DetailItem icon={UserIcon} label="Name" value={currentCase.name} />
                     <DetailItem icon={UserIcon} label="Age" value={currentCase.age} />
-                    <DetailItem icon={UserIcon} label="Gender" value={currentCase.gender} />
-                    <DetailItem icon={Phone} label="Contact Number" value={currentCase.contactNumber} />
-                    <DetailItem icon={Mail} label="Email" value={currentCase.email} />
-                    <DetailItem icon={MapPin} label="Address" value={currentCase.address} isFullWidth isPreWrap />
-                  </div>
-                </section>
-
-                <section>
-                  <h3 className="text-lg font-semibold mb-3 text-primary flex items-center"><Briefcase className="mr-2 h-5 w-5" />Chief Complaint & HPI</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-1 gap-4 p-4 border rounded-lg bg-card/50">
-                    <DetailItem icon={Briefcase} label="Chief Complaint" value={currentCase.chiefComplaint} isFullWidth isPreWrap />
-                    <DetailItem icon={History} label="History of Present Illness" value={currentCase.presentIllnessHistory} isFullWidth isPreWrap />
+                    <DetailItem icon={UserIcon} label="Sex" value={currentCase.sex} />
                   </div>
                 </section>
                 
                 <section>
-                  <h3 className="text-lg font-semibold mb-3 text-primary flex items-center"><History className="mr-2 h-5 w-5" />Medical & Ocular History</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 p-4 border rounded-lg bg-card/50">
+                  <h3 className="text-lg font-semibold mb-3 text-primary flex items-center"><History className="mr-2 h-5 w-5" />Patient History</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-1 gap-4 p-4 border rounded-lg bg-card/50">
+                    <DetailItem icon={Briefcase} label="Chief Complaints" value={currentCase.chiefComplaint} isFullWidth isPreWrap />
                     <DetailItem icon={Eye} label="Past Ocular History" value={currentCase.pastOcularHistory} isFullWidth isPreWrap />
+                    <DetailItem icon={Pill} label="Current Medications" value={currentCase.currentMedications} isFullWidth isPreWrap />
                     <DetailItem icon={ShieldCheck} label="Past Medical History" value={currentCase.pastMedicalHistory} isFullWidth isPreWrap />
-                    <DetailItem icon={AlertTriangle} label="Allergies" value={currentCase.allergies} isFullWidth isPreWrap />
+                    <DetailItem icon={FileText} label="Recent Investigations" value={currentCase.recentInvestigations} isFullWidth isPreWrap />
+                    <DetailItem icon={Users} label="Family History" value={currentCase.familyHistory} isFullWidth isPreWrap />
+                    <DetailItem icon={AlertTriangle} label="Allergy History" value={currentCase.allergies} isFullWidth isPreWrap />
                     <DetailItem icon={Baby} label="Birth History" value={currentCase.birthHistory} isFullWidth isPreWrap />
-                    <DetailItem icon={Users} label="Family Ocular History" value={currentCase.familyOcularHistory} isFullWidth isPreWrap />
-                    <DetailItem icon={Users} label="Family Medical History" value={currentCase.familyMedicalHistory} isFullWidth isPreWrap />
-                    <DetailItem icon={Pill} label="Medications" value={currentCase.medications} isFullWidth isPreWrap />
                   </div>
                 </section>
-
+                
                  <section>
-                  <h3 className="text-lg font-semibold mb-3 text-primary flex items-center"><Eye className="mr-2 h-5 w-5" />Examination & Refraction</h3>
+                  <h3 className="text-lg font-semibold mb-3 text-primary flex items-center"><Eye className="mr-2 h-5 w-5" />Visual Acuity & Refraction</h3>
                   <div className="p-4 border rounded-lg bg-card/50 space-y-6">
                     <div>
                       <h4 className="font-medium flex items-center gap-1.5 mb-2 text-foreground"><Eye className="h-4 w-4 text-primary" />Visual Acuity</h4>
                       <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead className="w-[150px]">Type</TableHead>
-                            <TableHead>OD (Right Eye)</TableHead>
-                            <TableHead>OS (Left Eye)</TableHead>
-                          </TableRow>
-                        </TableHeader>
+                        <TableHeader><TableRow><TableHead>Type</TableHead><TableHead>OD</TableHead><TableHead>OS</TableHead></TableRow></TableHeader>
                         <TableBody>
-                          <TableRow>
-                            <TableCell className="font-medium">Uncorrected (UCVA)</TableCell>
-                            <TableCell>{currentCase.visualAcuityUncorrectedOD || 'N/A'}</TableCell>
-                            <TableCell>{currentCase.visualAcuityUncorrectedOS || 'N/A'}</TableCell>
-                          </TableRow>
-                          <TableRow>
-                            <TableCell className="font-medium">Corrected (BCVA/PH)</TableCell>
-                            <TableCell>{currentCase.visualAcuityCorrectedOD || 'N/A'}</TableCell>
-                            <TableCell>{currentCase.visualAcuityCorrectedOS || 'N/A'}</TableCell>
-                          </TableRow>
+                          <TableRow><TableCell className="font-medium">Distance - Unaided</TableCell><TableCell>{currentCase.distanceUnaidedOD || 'N/A'}</TableCell><TableCell>{currentCase.distanceUnaidedOS || 'N/A'}</TableCell></TableRow>
+                          <TableRow><TableCell className="font-medium">Distance - Pinhole</TableCell><TableCell>{currentCase.distancePinholeOD || 'N/A'}</TableCell><TableCell>{currentCase.distancePinholeOS || 'N/A'}</TableCell></TableRow>
+                          <TableRow><TableCell className="font-medium">Distance - Old Glasses</TableCell><TableCell>{currentCase.distanceOldGlassesOD || 'N/A'}</TableCell><TableCell>{currentCase.distanceOldGlassesOS || 'N/A'}</TableCell></TableRow>
+                          <TableRow><TableCell className="font-medium">Near - Unaided</TableCell><TableCell>{currentCase.nearUnaidedOD || 'N/A'}</TableCell><TableCell>{currentCase.nearUnaidedOS || 'N/A'}</TableCell></TableRow>
+                           <TableRow><TableCell className="font-medium">Near - Pinhole</TableCell><TableCell>{currentCase.nearPinholeOD || 'N/A'}</TableCell><TableCell>{currentCase.nearPinholeOS || 'N/A'}</TableCell></TableRow>
+                          <TableRow><TableCell className="font-medium">Near - Old Glasses</TableCell><TableCell>{currentCase.nearOldGlassesOD || 'N/A'}</TableCell><TableCell>{currentCase.nearOldGlassesOS || 'N/A'}</TableCell></TableRow>
                         </TableBody>
                       </Table>
                     </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 pt-2">
-                        <DetailItem icon={Eye} label="Pupils" value={currentCase.pupils} isFullWidth isPreWrap />
-                        <DetailItem icon={Eye} label="Extraocular Motility (EOMs)" value={currentCase.extraocularMotility} isFullWidth isPreWrap />
-                    </div>
-                    
                     <div>
-                        <h4 className="font-medium flex items-center gap-1.5 mb-2 text-foreground"><Eye className="h-4 w-4 text-primary" />Intraocular Pressure (IOP)</h4>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                <TableHead>OD (Right Eye)</TableHead>
-                                <TableHead>OS (Left Eye)</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                <TableRow>
-                                <TableCell>{currentCase.intraocularPressureOD || 'N/A'}</TableCell>
-                                <TableCell>{currentCase.intraocularPressureOS || 'N/A'}</TableCell>
-                                </TableRow>
-                            </TableBody>
-                        </Table>
+                      <h4 className="font-medium flex items-center gap-1.5 my-4 text-foreground"><Glasses className="h-4 w-4 text-primary" />Refraction Details</h4>
+                      <Table>
+                        <TableHeader><TableRow><TableHead className="w-[180px]">Type</TableHead><TableHead>OD (Right Eye)</TableHead><TableHead>OS (Left Eye)</TableHead></TableRow></TableHeader>
+                        <TableBody>
+                          <TableRow><TableCell className="font-medium">Previous Glasses (PGP)</TableCell><TableCell className="whitespace-pre-wrap font-mono text-xs">{`Sph: ${currentCase.pgpSphOD||'N/A'} Cyl: ${currentCase.pgpCylOD||'N/A'} Axis: ${currentCase.pgpAxisOD||'N/A'}`}</TableCell><TableCell className="whitespace-pre-wrap font-mono text-xs">{`Sph: ${currentCase.pgpSphOS||'N/A'} Cyl: ${currentCase.pgpCylOS||'N/A'} Axis: ${currentCase.pgpAxisOS||'N/A'}`}</TableCell></TableRow>
+                          <TableRow><TableCell className="font-medium">Objective (Retinoscopy)</TableCell><TableCell className="whitespace-pre-wrap font-mono text-xs">{currentCase.objRefractionOD || 'N/A'}</TableCell><TableCell className="whitespace-pre-wrap font-mono text-xs">{currentCase.objRefractionOS || 'N/A'}</TableCell></TableRow>
+                          <TableRow><TableCell className="font-medium">Subjective</TableCell><TableCell className="whitespace-pre-wrap font-mono text-xs">{currentCase.subjRefractionOD || 'N/A'}</TableCell><TableCell className="whitespace-pre-wrap font-mono text-xs">{currentCase.subjRefractionOS || 'N/A'}</TableCell></TableRow>
+                          <TableRow><TableCell className="font-medium">Final Acuity</TableCell><TableCell>{currentCase.finalAcuityOD || 'N/A'}</TableCell><TableCell>{currentCase.finalAcuityOS || 'N/A'}</TableCell></TableRow>
+                        </TableBody>
+                      </Table>
                     </div>
-
-                    <DetailItem icon={Eye} label="Confrontation Visual Fields" value={currentCase.confrontationVisualFields} isFullWidth isPreWrap />
-                    
-                    <div>
-                        <h4 className="font-medium flex items-center gap-1.5 mb-2 text-foreground"><Glasses className="h-4 w-4 text-primary" />Refraction Details</h4>
-                        <Table>
-                            <TableHeader>
-                            <TableRow>
-                                <TableHead className="w-[180px]">Type</TableHead>
-                                <TableHead>OD (Right Eye)</TableHead>
-                                <TableHead>OS (Left Eye)</TableHead>
-                            </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                            <TableRow>
-                                <TableCell className="font-medium">Auto-Refraction</TableCell>
-                                <TableCell className="whitespace-pre-wrap font-mono text-xs">{currentCase.autoRefractionOD || 'N/A'}</TableCell>
-                                <TableCell className="whitespace-pre-wrap font-mono text-xs">{currentCase.autoRefractionOS || 'N/A'}</TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell className="font-medium">Manifest Refraction</TableCell>
-                                <TableCell className="whitespace-pre-wrap font-mono text-xs">{currentCase.manifestRefractionOD || 'N/A'}</TableCell>
-                                <TableCell className="whitespace-pre-wrap font-mono text-xs">{currentCase.manifestRefractionOS || 'N/A'}</TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell className="font-medium">Cycloplegic Refraction</TableCell>
-                                <TableCell className="whitespace-pre-wrap font-mono text-xs">{currentCase.cycloplegicRefractionOD || 'N/A'}</TableCell>
-                                <TableCell className="whitespace-pre-wrap font-mono text-xs">{currentCase.cycloplegicRefractionOS || 'N/A'}</TableCell>
-                            </TableRow>
-                            </TableBody>
-                        </Table>
-                    </div>
-                    <DetailItem icon={Glasses} label="Current Spectacle Rx" value={currentCase.currentSpectacleRx} isFullWidth isPreWrap />
-                    <DetailItem icon={Glasses} label="Current Contact Lens Rx" value={currentCase.currentContactLensRx} isFullWidth isPreWrap />
-                    <DetailItem icon={Glasses} label="Lens Type" value={currentCase.lensType} isFullWidth />
-                    <ODOSDetailItem icon={HelpCircle} label="Prism Correction" 
-                      valueOD={(currentCase.prismDioptersOD || currentCase.prismBaseOD) ? `${currentCase.prismDioptersOD || 'N/A'} Δ ${currentCase.prismBaseOD || 'N/A'}` : 'N/A'}
-                      valueOS={(currentCase.prismDioptersOS || currentCase.prismBaseOS) ? `${currentCase.prismDioptersOS || 'N/A'} Δ ${currentCase.prismBaseOS || 'N/A'}` : 'N/A'}
-                    />
+                    <ODOSDetailItem icon={HelpCircle} label="Objective Findings" valueOD={currentCase.objRefractionFindingsOD?.join(', ')} valueOS={currentCase.objRefractionFindingsOS?.join(', ')} />
+                    <ODOSDetailItem icon={HelpCircle} label="Subjective Checks" valueOD={currentCase.subjRefractionChecksOD?.join(', ')} valueOS={currentCase.subjRefractionChecksOS?.join(', ')} />
+                    <DetailItem icon={HelpCircle} label="Final Correction Preference" value={currentCase.finalCorrectionPreference} isFullWidth />
+                  </div>
+                </section>
+                
+                <section>
+                  <h3 className="text-lg font-semibold mb-3 text-primary flex items-center"><Activity className="mr-2 h-5 w-5" />Ancillary Ocular Tests</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 p-4 border rounded-lg bg-card/50">
+                    <ODOSDetailItem icon={Eye} label="Keratometry - Vertical" valueOD={currentCase.keratometryVerticalOD} valueOS={currentCase.keratometryVerticalOS} />
+                    <ODOSDetailItem icon={Eye} label="Keratometry - Horizontal" valueOD={currentCase.keratometryHorizontalOD} valueOS={currentCase.keratometryHorizontalOS} />
+                    <DetailItem icon={FileText} label="Keratometry Comments" value={currentCase.keratometryComments} isFullWidth isPreWrap />
+                    <DetailItem icon={Eye} label="Cover Test" value={currentCase.coverTest} isFullWidth />
+                    <DetailItem icon={Eye} label="EOM" value={currentCase.eom} isFullWidth />
+                    <DetailItem icon={Eye} label="NPC (Subj/Obj)" value={`Subj: ${currentCase.npcSubj || 'N/A'} cm / Obj: ${currentCase.npcObj || 'N/A'} cm`} isFullWidth />
+                    <DetailItem icon={Eye} label="NPA (OD/OS/OU)" value={`OD: ${currentCase.npaOD || 'N/A'} D / OS: ${currentCase.npaOS || 'N/A'} D / OU: ${currentCase.npaOU || 'N/A'} D`} isFullWidth />
+                    <DetailItem icon={Eye} label="WFDT (Dist/Near)" value={`Distance: ${currentCase.wfdtDistance || 'N/A'} / Near: ${currentCase.wfdtNear || 'N/A'}`} isFullWidth />
+                    <DetailItem icon={Eye} label="Stereopsis" value={currentCase.stereopsis} isFullWidth />
                   </div>
                 </section>
 
                 <section>
-                  <h3 className="text-lg font-semibold mb-3 text-primary flex items-center"><Microscope className="mr-2 h-5 w-5" />Slit Lamp Examination</h3>
+                  <h3 className="text-lg font-semibold mb-3 text-primary flex items-center"><Microscope className="mr-2 h-5 w-5" />Anterior Segment & Tonometry</h3>
                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 p-4 border rounded-lg bg-card/50">
+                    <DetailItem icon={Microscope} label="Pupillary Evaluation" value={currentCase.pupillaryEvaluation} isFullWidth isPreWrap />
+                    <DetailItem icon={Microscope} label="External Examination" value={currentCase.externalExamination} isFullWidth isPreWrap />
                     <ODOSDetailItem icon={Microscope} label="Lids & Lashes" valueOD={currentCase.lidsLashesOD} valueOS={currentCase.lidsLashesOS} isPreWrap />
                     <ODOSDetailItem icon={Microscope} label="Conjunctiva & Sclera" valueOD={currentCase.conjunctivaScleraOD} valueOS={currentCase.conjunctivaScleraOS} isPreWrap />
                     <ODOSDetailItem icon={Microscope} label="Cornea" valueOD={currentCase.corneaOD} valueOS={currentCase.corneaOS} isPreWrap />
                     <ODOSDetailItem icon={Microscope} label="Anterior Chamber" valueOD={currentCase.anteriorChamberOD} valueOS={currentCase.anteriorChamberOS} isPreWrap />
                     <ODOSDetailItem icon={Microscope} label="Iris" valueOD={currentCase.irisOD} valueOS={currentCase.irisOS} isPreWrap />
                     <ODOSDetailItem icon={Microscope} label="Lens" valueOD={currentCase.lensOD} valueOS={currentCase.lensOS} isPreWrap />
+                    <ODOSDetailItem icon={Eye} label="Tonometry Pressure (mmHg)" valueOD={currentCase.tonometryPressureOD} valueOS={currentCase.tonometryPressureOS} />
+                    <DetailItem icon={Clock} label="Tonometry Method & Time" value={`${currentCase.tonometryMethod || 'N/A'} at ${currentCase.tonometryTime || 'N/A'}`} isFullWidth />
+                    <ODOSDetailItem icon={Eye} label="TBUT (sec)" valueOD={currentCase.tbutOD} valueOS={currentCase.tbutOS} />
+                    <ODOSDetailItem icon={Eye} label="Schirmer's (mm)" valueOD={currentCase.schirmerOD} valueOS={currentCase.schirmerOS} />
                   </div>
                 </section>
 
@@ -477,143 +377,57 @@ export default function CaseDetailPage() {
                     <ODOSDetailItem icon={ScanEye} label="Periphery (Dilated)" valueOD={currentCase.peripheryOD} valueOS={currentCase.peripheryOS} isPreWrap />
                   </div>
                 </section>
-                
+
                 <section>
-                  <h3 className="text-lg font-semibold mb-3 text-primary flex items-center"><FileText className="mr-2 h-5 w-5" />Investigations</h3>
+                  <h3 className="text-lg font-semibold mb-3 text-primary flex items-center"><Edit3 className="mr-2 h-5 w-5" />Diagnosis & Plan</h3>
                    <div className="grid grid-cols-1 md:grid-cols-1 gap-4 p-4 border rounded-lg bg-card/50">
-                    <DetailItem icon={FileText} label="OCT Findings" value={currentCase.octFindings} isFullWidth isPreWrap />
-                    <DetailItem icon={FileText} label="Visual Field Findings" value={currentCase.visualFieldFindings} isFullWidth isPreWrap />
-                    <DetailItem icon={FileText} label="Fundus Photography Findings" value={currentCase.fundusPhotographyFindings} isFullWidth isPreWrap />
-                    <DetailItem icon={FileText} label="Other Investigations" value={currentCase.otherInvestigations} isFullWidth isPreWrap />
+                    <DetailItem icon={Edit3} label="Diagnosis" value={currentCase.diagnosis} isFullWidth isPreWrap />
+                    <DetailItem icon={Edit3} label="Intervention Planned" value={currentCase.interventionPlanned} isFullWidth isPreWrap />
+                    <DetailItem icon={NotebookPen} label="Learning / Reflection" value={currentCase.learning} isFullWidth isPreWrap />
                   </div>
                 </section>
 
-                <section>
-                  <h3 className="text-lg font-semibold mb-3 text-primary flex items-center"><Edit3 className="mr-2 h-5 w-5" />Assessment & Plan</h3>
-                   <div className="grid grid-cols-1 md:grid-cols-1 gap-4 p-4 border rounded-lg bg-card/50">
-                    <DetailItem icon={Edit3} label="Assessment / Diagnoses" value={currentCase.assessment} isFullWidth isPreWrap />
-                    <DetailItem icon={Edit3} label="Plan" value={currentCase.plan} isFullWidth isPreWrap />
-                    <DetailItem icon={Edit3} label="Prognosis" value={currentCase.prognosis} isFullWidth isPreWrap />
-                    <DetailItem icon={Edit3} label="Follow Up Instructions" value={currentCase.followUp} isFullWidth isPreWrap />
-                  </div>
-                </section>
-
-                <section>
-                  <h3 className="text-lg font-semibold mb-3 text-primary flex items-center"><NotebookPen className="mr-2 h-5 w-5" />Notes & Reflection</h3>
-                   <div className="grid grid-cols-1 md:grid-cols-1 gap-4 p-4 border rounded-lg bg-card/50">
-                    <DetailItem icon={NotebookPen} label="Internal Notes" value={currentCase.internalNotes} isFullWidth isPreWrap />
-                    <DetailItem icon={NotebookPen} label="Personal Reflection/Learning" value={currentCase.reflection} isFullWidth isPreWrap />
-                  </div>
-                </section>
-
-
-                {/* Initial AI Insights Section */}
                 <section>
                   <div className="flex justify-between items-center mb-3">
                     <h3 className="text-lg font-semibold text-primary flex items-center"><Brain className="mr-2 h-5 w-5" />Initial AI Insights</h3>
-                    {(!analysis || analysisError) && (
-                      <Button onClick={handleAnalyzeCase} disabled={isAnalyzing} size="sm">
-                        {isAnalyzing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Brain className="mr-2 h-4 w-4" />}
-                        {isAnalyzing ? 'Analyzing...' : 'Get Initial Insights'}
-                      </Button>
-                    )}
+                    {(!analysis || analysisError) && (<Button onClick={handleAnalyzeCase} disabled={isAnalyzing} size="sm">{isAnalyzing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Brain className="mr-2 h-4 w-4" />}{isAnalyzing ? 'Analyzing...' : 'Get Initial Insights'}</Button>)}
                   </div>
-
-                  {isAnalyzing && !analysis && !analysisError && (
-                    <div className="flex items-center justify-center p-8 border rounded-lg bg-card/50">
-                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                      <p className="ml-3 text-muted-foreground">AI is generating insights...</p>
-                    </div>
-                  )}
-
-                  {analysisError && !analysis?.caseInsights && (
-                    <Alert variant="destructive">
-                      <AlertTriangle className="h-4 w-4" />
-                      <AlertTitle>Insights Error</AlertTitle>
-                      <AlertDescription>{analysisError}</AlertDescription>
-                      <Button onClick={handleAnalyzeCase} disabled={isAnalyzing} size="sm" variant="outline" className="mt-2">
-                        {isAnalyzing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Brain className="mr-2 h-4 w-4" />}
-                        Retry Insights
-                      </Button>
-                    </Alert>
-                  )}
-
+                  {isAnalyzing && !analysis && !analysisError && (<div className="flex items-center justify-center p-8 border rounded-lg bg-card/50"><Loader2 className="h-8 w-8 animate-spin text-primary" /><p className="ml-3 text-muted-foreground">AI is generating insights...</p></div>)}
+                  {analysisError && !analysis?.caseInsights && (<Alert variant="destructive"><AlertTriangle className="h-4 w-4" /><AlertTitle>Insights Error</AlertTitle><AlertDescription>{analysisError}</AlertDescription><Button onClick={handleAnalyzeCase} disabled={isAnalyzing} size="sm" variant="outline" className="mt-2">{isAnalyzing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Brain className="mr-2 h-4 w-4" />}Retry Insights</Button></Alert>)}
                   {analysis?.caseInsights && (
                     <div className="space-y-4 p-4 border rounded-lg bg-card/50">
                       <div>
                         <h4 className="font-medium flex items-center gap-1 mb-2"><Lightbulb className="h-5 w-5 text-accent" />Case Insights:</h4>
                         <p className="text-sm bg-accent/10 p-3 rounded-md text-foreground/90 whitespace-pre-wrap">{analysis.caseInsights}</p>
                       </div>
-                      <Button onClick={handleAnalyzeCase} disabled={isAnalyzing} size="sm" variant="outline" className="mt-4">
-                        {isAnalyzing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Brain className="mr-2 h-4 w-4" />}
-                        {isAnalyzing ? 'Re-analyzing...' : 'Refresh Insights'}
-                      </Button>
+                      <Button onClick={handleAnalyzeCase} disabled={isAnalyzing} size="sm" variant="outline" className="mt-4">{isAnalyzing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Brain className="mr-2 h-4 w-4" />}{isAnalyzing ? 'Re-analyzing...' : 'Refresh Insights'}</Button>
                     </div>
                   )}
                 </section>
 
-                {/* Chat with Focus AI Section */}
                 <section>
                     <Accordion type="single" collapsible className="w-full border rounded-lg shadow-md">
                         <AccordionItem value="focus-ai-chat">
-                            <AccordionTrigger className="px-4 py-3 hover:bg-muted/50 rounded-t-lg">
-                                <div className="flex items-center text-lg font-semibold text-primary">
-                                    <MessageSquare className="mr-2 h-5 w-5" /> Chat with Focus AI
-                                </div>
-                            </AccordionTrigger>
+                            <AccordionTrigger className="px-4 py-3 hover:bg-muted/50 rounded-t-lg"><div className="flex items-center text-lg font-semibold text-primary"><MessageSquare className="mr-2 h-5 w-5" /> Chat with Focus AI</div></AccordionTrigger>
                             <AccordionContent className="px-4 py-3 border-t">
                                 <div className="flex flex-col h-[500px] bg-background rounded-b-lg">
                                     <ScrollArea className="flex-grow p-4 space-y-4" ref={chatScrollAreaRef}>
-                                        {chatMessages.map((message) => (
-                                            <div
-                                                key={message.id}
-                                                className={cn(
-                                                    "flex items-start gap-3 p-3 rounded-lg max-w-[85%] mb-3",
-                                                    message.role === 'user' ? 'ml-auto bg-primary text-primary-foreground' : 'mr-auto bg-muted text-muted-foreground'
-                                                )}
-                                            >
+                                        {chatMessages.map((message) => (<div key={message.id} className={cn("flex items-start gap-3 p-3 rounded-lg max-w-[85%] mb-3", message.role === 'user' ? 'ml-auto bg-primary text-primary-foreground' : 'mr-auto bg-muted text-muted-foreground')}>
                                                 {message.role === 'assistant' && <Bot className="h-6 w-6 text-primary flex-shrink-0 mt-0.5" />}
-                                                <div className="flex-grow break-words prose prose-sm dark:prose-invert max-w-none">
-                                                  <ReactMarkdown
-                                                    components={{
-                                                      p: ({node, ...props}) => <p className="mb-1 last:mb-0" {...props} />,
-                                                    }}
-                                                  >
-                                                    {message.content}
-                                                  </ReactMarkdown>
-                                                </div>
+                                                <div className="flex-grow break-words prose prose-sm dark:prose-invert max-w-none"><ReactMarkdown components={{ p: ({node, ...props}) => <p className="mb-1 last:mb-0" {...props} /> }}>{message.content}</ReactMarkdown></div>
                                                 {message.role === 'user' && <UserIcon className="h-6 w-6 text-primary-foreground flex-shrink-0 mt-0.5" />}
-                                            </div>
-                                        ))}
-                                        {chatMessages.length === 0 && (
-                                            <div className="text-center text-muted-foreground py-8">
-                                                <MessageSquare className="h-12 w-12 mx-auto mb-3 text-primary/50" />
-                                                <p>Ask Focus AI anything about this case!</p>
-                                                <p className="text-xs mt-1">e.g., "Summarize the key findings" or "What are the potential differentials?"</p>
-                                            </div>
-                                        )}
+                                        </div>))}
+                                        {chatMessages.length === 0 && (<div className="text-center text-muted-foreground py-8"><MessageSquare className="h-12 w-12 mx-auto mb-3 text-primary/50" /><p>Ask Focus AI anything about this case!</p><p className="text-xs mt-1">e.g., "Summarize the key findings" or "What are the potential differentials?"</p></div>)}
                                     </ScrollArea>
                                     <div className="flex items-center gap-2 p-3 border-t bg-muted/50 rounded-b-lg">
-                                        <Input
-                                            type="text"
-                                            placeholder="Ask Focus AI about this case..."
-                                            value={currentUserQuery}
-                                            onChange={(e) => setCurrentUserQuery(e.target.value)}
-                                            onKeyPress={(e) => e.key === 'Enter' && !isSendingQuery && handleSendQuery()}
-                                            className="flex-grow bg-background focus:ring-primary"
-                                            disabled={isSendingQuery}
-                                        />
-                                        <Button onClick={handleSendQuery} disabled={isSendingQuery || !currentUserQuery.trim()} size="icon" className="rounded-lg">
-                                            {isSendingQuery ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
-                                            <span className="sr-only">Send message</span>
-                                        </Button>
+                                        <Input type="text" placeholder="Ask Focus AI about this case..." value={currentUserQuery} onChange={(e) => setCurrentUserQuery(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && !isSendingQuery && handleSendQuery()} className="flex-grow bg-background focus:ring-primary" disabled={isSendingQuery} />
+                                        <Button onClick={handleSendQuery} disabled={isSendingQuery || !currentUserQuery.trim()} size="icon" className="rounded-lg">{isSendingQuery ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}<span className="sr-only">Send message</span></Button>
                                     </div>
                                 </div>
                             </AccordionContent>
                         </AccordionItem>
                     </Accordion>
                 </section>
-
               </div>
             </ScrollArea>
           </CardContent>

@@ -27,7 +27,6 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 
-
 interface CaseCardProps {
   caseData: StoredOptometryCase;
   onViewDetails: (caseId: string) => void;
@@ -35,7 +34,7 @@ interface CaseCardProps {
 }
 
 function StoredCaseCard({ caseData, onViewDetails, onDelete }: CaseCardProps) {
-  const displayDate = format(new Date(caseData.timestamp), 'MMM d, yyyy, h:mm a');
+  const displayDate = caseData.dateOfVisit ? format(new Date(caseData.dateOfVisit), 'MMM d, yyyy') : format(new Date(caseData.timestamp), 'MMM d, yyyy');
   const patientName = caseData.name ? caseData.name.trim() : 'N/A';
 
   return (
@@ -46,12 +45,12 @@ function StoredCaseCard({ caseData, onViewDetails, onDelete }: CaseCardProps) {
         </CardTitle>
         <p className="text-xs text-muted-foreground flex items-center pt-1">
           <CalendarDays className="mr-1.5 h-3.5 w-3.5" />
-          Logged: {displayDate}
+          Visited: {displayDate}
         </p>
       </CardHeader>
       <CardContent className="flex-grow space-y-2 text-sm">
         <p className="line-clamp-2"><span className="font-medium text-foreground">Complaint:</span> {caseData.chiefComplaint || 'N/A'}</p>
-        <p className="line-clamp-2"><span className="font-medium text-foreground">Assessment:</span> {caseData.assessment || 'N/A'}</p>
+        <p className="line-clamp-2"><span className="font-medium text-foreground">Diagnosis:</span> {caseData.diagnosis || 'N/A'}</p>
         {caseData.analysis && (
           <Badge variant="secondary" className="mt-2 text-xs">AI Analyzed</Badge>
         )}
@@ -97,7 +96,6 @@ export default function ViewCasesPage() {
   const [storedCases, setStoredCases] = useLocalStorage<StoredOptometryCase[]>('optometryCases', memoizedInitialCases);
   const [searchTerm, setSearchTerm] = React.useState('');
 
-
   const handleViewDetails = (caseId: string) => {
     router.push(`/cases/${caseId}`);
   };
@@ -109,97 +107,39 @@ export default function ViewCasesPage() {
   };
   
   const handleExport = () => {
-    if (storedCases.length === 0) {
-      toast({ title: 'No Cases to Export', description: 'There are no cases logged to export.', variant: 'destructive' });
+    if (filteredCases.length === 0) {
+      toast({ title: 'No Cases to Export', description: 'There are no cases to export.', variant: 'destructive' });
       return;
     }
-    const casesToExport = filteredCases.map(c => ({
-        id: c.id,
-        timestamp: c.timestamp,
-        patientId: c.patientId || '',
-        name: c.name,
-        age: c.age || '', 
-        gender: c.gender || '',
-        contactNumber: c.contactNumber || '',
-        email: c.email || '',
-        address: c.address || '',
-        chiefComplaint: c.chiefComplaint,
-        presentIllnessHistory: c.presentIllnessHistory || '',
-        pastOcularHistory: c.pastOcularHistory || '',
-        pastMedicalHistory: c.pastMedicalHistory || '',
-        familyOcularHistory: c.familyOcularHistory || '',
-        familyMedicalHistory: c.familyMedicalHistory || '',
-        medications: c.medications || '',
-        allergies: c.allergies || '',
-        birthHistory: c.birthHistory || '',
-        visualAcuityUncorrectedOD: c.visualAcuityUncorrectedOD || '',
-        visualAcuityUncorrectedOS: c.visualAcuityUncorrectedOS || '',
-        visualAcuityCorrectedOD: c.visualAcuityCorrectedOD || '',
-        visualAcuityCorrectedOS: c.visualAcuityCorrectedOS || '',
-        pupils: c.pupils || '',
-        extraocularMotility: c.extraocularMotility || '',
-        intraocularPressureOD: c.intraocularPressureOD || '',
-        intraocularPressureOS: c.intraocularPressureOS || '',
-        confrontationVisualFields: c.confrontationVisualFields || '',
-        manifestRefractionOD: c.manifestRefractionOD || '',
-        manifestRefractionOS: c.manifestRefractionOS || '',
-        cycloplegicRefractionOD: c.cycloplegicRefractionOD || '',
-        cycloplegicRefractionOS: c.cycloplegicRefractionOS || '',
-        autoRefractionOD: c.autoRefractionOD || '',
-        autoRefractionOS: c.autoRefractionOS || '',
-        currentSpectacleRx: c.currentSpectacleRx || '',
-        currentContactLensRx: c.currentContactLensRx || '',
-        lensType: c.lensType || '',
-        prismDioptersOD: c.prismDioptersOD || '',
-        prismBaseOD: c.prismBaseOD || '',
-        prismDioptersOS: c.prismDioptersOS || '',
-        prismBaseOS: c.prismBaseOS || '',
-        lidsLashesOD: c.lidsLashesOD || '',
-        lidsLashesOS: c.lidsLashesOS || '',
-        conjunctivaScleraOD: c.conjunctivaScleraOD || '',
-        conjunctivaScleraOS: c.conjunctivaScleraOS || '',
-        corneaOD: c.corneaOD || '',
-        corneaOS: c.corneaOS || '',
-        anteriorChamberOD: c.anteriorChamberOD || '',
-        anteriorChamberOS: c.anteriorChamberOS || '',
-        irisOD: c.irisOD || '',
-        irisOS: c.irisOS || '',
-        lensOD: c.lensOD || '',
-        lensOS: c.lensOS || '',
-        vitreousOD: c.vitreousOD || '',
-        vitreousOS: c.vitreousOS || '',
-        opticDiscOD: c.opticDiscOD || '',
-        opticDiscOS: c.opticDiscOS || '',
-        cupDiscRatioOD: c.cupDiscRatioOD || '',
-        cupDiscRatioOS: c.cupDiscRatioOS || '',
-        maculaOD: c.maculaOD || '',
-        maculaOS: c.maculaOS || '',
-        vesselsOD: c.vesselsOD || '',
-        vesselsOS: c.vesselsOS || '',
-        peripheryOD: c.peripheryOD || '',
-        peripheryOS: c.peripheryOS || '',
-        octFindings: c.octFindings || '',
-        visualFieldFindings: c.visualFieldFindings || '',
-        fundusPhotographyFindings: c.fundusPhotographyFindings || '',
-        otherInvestigations: c.otherInvestigations || '',
-        assessment: c.assessment,
-        plan: c.plan,
-        prognosis: c.prognosis || '',
-        followUp: c.followUp || '',
-        internalNotes: c.internalNotes || '',
-        reflection: c.reflection || '',
-        analysis_caseInsights: c.analysis?.caseInsights || '',
-        analysisError: c.analysisError || '',
-    }));
+    const casesToExport = filteredCases.map(c => {
+        const flatCase: Record<string, any> = {};
+        for (const [key, value] of Object.entries(c)) {
+            if (Array.isArray(value)) {
+                flatCase[key] = value.join('; '); // Join array values for CSV
+            } else if (typeof value === 'object' && value !== null) {
+                // Flatten nested objects like 'analysis'
+                for (const [subKey, subValue] of Object.entries(value)) {
+                    flatCase[`${key}_${subKey}`] = subValue;
+                }
+            }
+             else {
+                flatCase[key] = value;
+            }
+        }
+        return flatCase;
+    });
 
-    const headers = casesToExport.length > 0 ? Object.keys(casesToExport[0]) : [];
+    // Dynamically get all possible headers
+    const allHeaders = new Set<string>();
+    casesToExport.forEach(c => Object.keys(c).forEach(key => allHeaders.add(key)));
+    const headers = Array.from(allHeaders);
     
     const csvRows = [
         headers.join(','),
         ...casesToExport.map(row => 
             headers.map(header => {
-                const value = (row as any)[header];
-                const stringValue = typeof value === 'string' ? value : JSON.stringify(value);
+                const value = row[header];
+                const stringValue = (value === null || value === undefined) ? '' : String(value);
                 return `"${stringValue.replace(/"/g, '""')}"`; 
             }).join(',')
         )
@@ -215,13 +155,11 @@ export default function ViewCasesPage() {
     return storedCases.filter(c => 
       c.id.toLowerCase().includes(lowerSearchTerm) ||
       c.name.toLowerCase().includes(lowerSearchTerm) ||
-      (c.patientId && c.patientId.toLowerCase().includes(lowerSearchTerm)) ||
+      (c.mrdNo && c.mrdNo.toLowerCase().includes(lowerSearchTerm)) ||
       c.chiefComplaint.toLowerCase().includes(lowerSearchTerm) ||
-      c.assessment.toLowerCase().includes(lowerSearchTerm) ||
-      (c.birthHistory && c.birthHistory.toLowerCase().includes(lowerSearchTerm))
+      (c.diagnosis && c.diagnosis.toLowerCase().includes(lowerSearchTerm))
     ).sort((a, b) => b.timestamp - a.timestamp); 
   }, [storedCases, searchTerm]);
-
 
   return (
     <MainLayout>
@@ -248,7 +186,7 @@ export default function ViewCasesPage() {
             <CardContent className="pt-6">
               <Input
                   type="text"
-                  placeholder="Search cases (ID, Name, Complaint, Assessment, Birth Hx)..."
+                  placeholder="Search cases (MRD No, Name, Complaint, Diagnosis)..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full"
@@ -303,4 +241,3 @@ export default function ViewCasesPage() {
     </MainLayout>
   );
 }
-
