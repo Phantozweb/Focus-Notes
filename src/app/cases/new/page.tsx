@@ -316,7 +316,7 @@ const VisualAcuityDoubleFormField = ({
             <div className="flex items-center gap-1">
               <Input {...field} placeholder="OD..." />
               <Select onValueChange={(value) => form.setValue(nameOD, value, { shouldValidate: true })}>
-                <SelectTrigger className="w-[60px] shrink-0"><ChevronDown className="h-4 w-4" /></SelectTrigger>
+                <SelectTrigger className="w-[60px] shrink-0" />
                 <SelectContent>
                   {VA_OPTIONS.map(opt => <SelectItem key={`${nameOD}-${opt}`} value={opt}>{opt}</SelectItem>)}
                 </SelectContent>
@@ -334,7 +334,7 @@ const VisualAcuityDoubleFormField = ({
             <div className="flex items-center gap-1">
               <Input {...field} placeholder="OS..." />
               <Select onValueChange={(value) => form.setValue(nameOS, value, { shouldValidate: true })}>
-                <SelectTrigger className="w-[60px] shrink-0"><ChevronDown className="h-4 w-4" /></SelectTrigger>
+                <SelectTrigger className="w-[60px] shrink-0" />
                 <SelectContent>
                   {VA_OPTIONS.map(opt => <SelectItem key={`${nameOS}-${opt}`} value={opt}>{opt}</SelectItem>)}
                 </SelectContent>
@@ -370,7 +370,7 @@ const InputWithSelect = ({
           <div className="flex items-center gap-1">
             <Input {...field} value={field.value as string || ''} placeholder={placeholder} />
             <Select onValueChange={(value) => form.setValue(name, value, { shouldValidate: true })}>
-              <SelectTrigger className="w-[60px] shrink-0"><ChevronDown className="h-4 w-4" /></SelectTrigger>
+              <SelectTrigger className="w-[60px] shrink-0" />
               <SelectContent>
                 {options.map(opt => <SelectItem key={`${name}-${opt}`} value={opt}>{opt}</SelectItem>)}
               </SelectContent>
@@ -754,8 +754,10 @@ export default function LogNewCasePage() {
   return (
     <MainLayout>
       <div className={cn("flex-1 flex flex-row h-full overflow-hidden")}>
-        
-        <div className={cn("flex-1 flex flex-col overflow-hidden transition-[width] duration-300 ease-in-out py-8 px-4 sm:px-6 lg:px-8", isAssistantSheetOpen && !isMobile ? "lg:w-2/3 md:w-3/5" : "w-full")}>
+        <div className={cn(
+          "flex-1 flex flex-col overflow-hidden transition-[width] duration-300 ease-in-out py-8 px-4 sm:px-6 lg:px-8",
+          isAssistantSheetOpen && !isMobile ? "lg:w-2/3 md:w-3/5" : "w-full"
+        )}>
             <Card className="shadow-xl w-full flex-1 flex flex-col max-w-7xl mx-auto overflow-hidden">
             <CardHeader className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm border-b pb-4 pt-4">
                 <div className="flex items-center justify-between mb-4">
@@ -942,60 +944,56 @@ export default function LogNewCasePage() {
         </div>
         
         {/* Desktop Side Panel */}
-        {!isMobile && isAssistantSheetOpen && (
-            <div className="lg:w-1/3 md:w-2/5 w-full max-w-md flex-shrink-0 border-l bg-card shadow-lg flex flex-col h-full overflow-hidden">
-                <div className="p-4 border-b flex justify-between items-center flex-shrink-0">
-                    <h3 className="text-lg font-semibold flex items-center gap-2 text-primary"><Bot className="h-6 w-6" />Focus AI Assistant</h3>
-                    <Button variant="ghost" size="icon" onClick={() => setIsAssistantSheetOpen(false)}><X className="h-5 w-5" /><span className="sr-only">Close AI Assistant</span></Button>
+        <div className={cn("lg:w-1/3 md:w-2/5 flex-shrink-0 border-l bg-card shadow-lg flex-col h-full overflow-hidden", isMobile ? "hidden" : "flex", isAssistantSheetOpen ? "flex" : "hidden")}>
+            <div className="p-4 border-b flex justify-between items-center flex-shrink-0">
+                <h3 className="text-lg font-semibold flex items-center gap-2 text-primary"><Bot className="h-6 w-6" />Focus AI Assistant</h3>
+                <Button variant="ghost" size="icon" onClick={() => setIsAssistantSheetOpen(false)}><X className="h-5 w-5" /><span className="sr-only">Close AI Assistant</span></Button>
+            </div>
+            <ScrollArea className="flex-grow p-4 space-y-4" ref={assistantScrollAreaRef}>
+                {assistantMessages.map((message) => (
+                <div key={message.id} className={cn("flex items-start gap-2.5 p-3 rounded-lg max-w-[90%] mb-2 text-sm", message.role === 'user' ? 'ml-auto bg-primary text-primary-foreground' : message.role === 'assistant' ? 'mr-auto bg-muted text-muted-foreground' : 'mx-auto bg-amber-100 text-amber-800 border border-amber-300 text-xs italic w-full')}>
+                    {message.role === 'assistant' && <Bot className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />}
+                    <div className="flex-grow break-words prose prose-sm dark:prose-invert max-w-none"><ReactMarkdown components={{ p: ({node, ...props}) => <p className="mb-0.5 last:mb-0" {...props} /> }}>{message.content}</ReactMarkdown></div>
+                    {message.role === 'user' && <User className="h-5 w-5 text-primary-foreground flex-shrink-0 mt-0.5" />}
                 </div>
-                <ScrollArea className="flex-grow p-4 space-y-4" ref={assistantScrollAreaRef}>
-                    {assistantMessages.map((message) => (
-                    <div key={message.id} className={cn("flex items-start gap-2.5 p-3 rounded-lg max-w-[90%] mb-2 text-sm", message.role === 'user' ? 'ml-auto bg-primary text-primary-foreground' : message.role === 'assistant' ? 'mr-auto bg-muted text-muted-foreground' : 'mx-auto bg-amber-100 text-amber-800 border border-amber-300 text-xs italic w-full')}>
-                        {message.role === 'assistant' && <Bot className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />}
-                        <div className="flex-grow break-words prose prose-sm dark:prose-invert max-w-none"><ReactMarkdown components={{ p: ({node, ...props}) => <p className="mb-0.5 last:mb-0" {...props} /> }}>{message.content}</ReactMarkdown></div>
-                        {message.role === 'user' && <User className="h-5 w-5 text-primary-foreground flex-shrink-0 mt-0.5" />}
-                    </div>
-                    ))}
-                    {assistantMessages.length === 0 && !isAssistantLoading && ( <div className="text-center text-muted-foreground py-6"><Bot className="h-10 w-10 mx-auto mb-2 text-primary/50" /><p>Ask Focus AI to help fill this section, or provide details.</p><p className="text-xs mt-1">e.g., "Patient name is Jane Doe, age 42."</p></div> )}
-                    {isAssistantLoading && assistantMessages[assistantMessages.length -1]?.role === 'user' && ( <div className="flex items-start gap-2.5 p-3 rounded-lg max-w-[90%] mb-2 text-sm mr-auto bg-muted text-muted-foreground"><Bot className="h-5 w-5 text-primary flex-shrink-0 mt-0.5 animate-pulse" /><p className="italic">Focus AI is thinking...</p></div> )}
-                </ScrollArea>
-                <div className="p-4 border-t bg-muted/50 flex-shrink-0">
-                    <div className="flex items-center gap-2 w-full">
-                    <Input type="text" placeholder="Type your EMR details or ask AI..." value={currentAssistantInput} onChange={(e) => setCurrentAssistantInput(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && !isAssistantLoading && handleSendToAssistant()} className="flex-grow bg-background focus:ring-primary" disabled={isAssistantLoading} />
-                    <Button onClick={handleSendToAssistant} disabled={isAssistantLoading || !currentAssistantInput.trim()} size="icon">{isAssistantLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}<span className="sr-only">Send to AI Assistant</span></Button>
-                    </div>
+                ))}
+                {assistantMessages.length === 0 && !isAssistantLoading && ( <div className="text-center text-muted-foreground py-6"><Bot className="h-10 w-10 mx-auto mb-2 text-primary/50" /><p>Ask Focus AI to help fill this section, or provide details.</p><p className="text-xs mt-1">e.g., "Patient name is Jane Doe, age 42."</p></div> )}
+                {isAssistantLoading && assistantMessages[assistantMessages.length -1]?.role === 'user' && ( <div className="flex items-start gap-2.5 p-3 rounded-lg max-w-[90%] mb-2 text-sm mr-auto bg-muted text-muted-foreground"><Bot className="h-5 w-5 text-primary flex-shrink-0 mt-0.5 animate-pulse" /><p className="italic">Focus AI is thinking...</p></div> )}
+            </ScrollArea>
+            <div className="p-4 border-t bg-muted/50 flex-shrink-0">
+                <div className="flex items-center gap-2 w-full">
+                <Input type="text" placeholder="Type your EMR details or ask AI..." value={currentAssistantInput} onChange={(e) => setCurrentAssistantInput(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && !isAssistantLoading && handleSendToAssistant()} className="flex-grow bg-background focus:ring-primary" disabled={isAssistantLoading} />
+                <Button onClick={handleSendToAssistant} disabled={isAssistantLoading || !currentAssistantInput.trim()} size="icon">{isAssistantLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}<span className="sr-only">Send to AI Assistant</span></Button>
                 </div>
             </div>
-        )}
+        </div>
         
         {/* Mobile Sheet */}
-        {isMobile && (
-            <Sheet open={isAssistantSheetOpen} onOpenChange={setIsAssistantSheetOpen}>
-                <SheetContent className="w-full sm:max-w-md flex flex-col p-0">
-                <SheetHeader className="p-4 border-b">
-                    <SheetTitle className="flex items-center gap-2"><Bot className="h-6 w-6 text-primary" />Focus AI Assistant</SheetTitle>
-                    <SheetDescription>Chat with AI to help fill the EMR for the current section: <span className="font-semibold text-primary">{TABS_CONFIG[currentTabIndex]?.label || "Details"}</span>.</SheetDescription>
-                </SheetHeader>
-                <ScrollArea className="flex-grow p-4 space-y-4" ref={assistantScrollAreaRef}>
-                    {assistantMessages.map((message) => (
-                    <div key={message.id} className={cn("flex items-start gap-2.5 p-3 rounded-lg max-w-[90%] mb-2 text-sm", message.role === 'user' ? 'ml-auto bg-primary text-primary-foreground' : message.role === 'assistant' ? 'mr-auto bg-muted text-muted-foreground' : 'mx-auto bg-amber-100 text-amber-800 border border-amber-300 text-xs italic w-full')}>
-                        {message.role === 'assistant' && <Bot className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />}
-                        <div className="flex-grow break-words prose prose-sm dark:prose-invert max-w-none"><ReactMarkdown components={{ p: ({node, ...props}) => <p className="mb-0.5 last:mb-0" {...props} /> }}>{message.content}</ReactMarkdown></div>
-                        {message.role === 'user' && <User className="h-5 w-5 text-primary-foreground flex-shrink-0 mt-0.5" />}
-                    </div>
-                    ))}
-                    {assistantMessages.length === 0 && !isAssistantLoading && ( <div className="text-center text-muted-foreground py-6"><Bot className="h-10 w-10 mx-auto mb-2 text-primary/50" /><p>Ask Focus AI to help fill this section, or provide details.</p><p className="text-xs mt-1">e.g., "Patient name is Jane Doe, age 42."</p></div> )}
-                    {isAssistantLoading && assistantMessages[assistantMessages.length -1]?.role === 'user' && ( <div className="flex items-start gap-2.5 p-3 rounded-lg max-w-[90%] mb-2 text-sm mr-auto bg-muted text-muted-foreground"><Bot className="h-5 w-5 text-primary flex-shrink-0 mt-0.5 animate-pulse" /><p className="italic">Focus AI is thinking...</p></div> )}
-                </ScrollArea>
-                <SheetFooter className="p-4 border-t bg-muted/50 flex-shrink-0">
-                    <div className="flex items-center gap-2 w-full">
-                    <Input type="text" placeholder="Type your EMR details or ask AI..." value={currentAssistantInput} onChange={(e) => setCurrentAssistantInput(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && !isAssistantLoading && handleSendToAssistant()} className="flex-grow bg-background focus:ring-primary" disabled={isAssistantLoading} />
-                    <Button onClick={handleSendToAssistant} disabled={isAssistantLoading || !currentAssistantInput.trim()} size="icon">{isAssistantLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}<span className="sr-only">Send to AI Assistant</span></Button>
-                    </div>
-                </SheetFooter>
-                </SheetContent>
-            </Sheet>
-        )}
+        <Sheet open={isAssistantSheetOpen && isMobile} onOpenChange={setIsAssistantSheetOpen}>
+            <SheetContent className="w-full sm:max-w-md flex flex-col p-0">
+            <SheetHeader className="p-4 border-b">
+                <SheetTitle className="flex items-center gap-2"><Bot className="h-6 w-6 text-primary" />Focus AI Assistant</SheetTitle>
+                <SheetDescription>Chat with AI to help fill the EMR for the current section: <span className="font-semibold text-primary">{TABS_CONFIG[currentTabIndex]?.label || "Details"}</span>.</SheetDescription>
+            </SheetHeader>
+            <ScrollArea className="flex-grow p-4 space-y-4" ref={assistantScrollAreaRef}>
+                {assistantMessages.map((message) => (
+                <div key={message.id} className={cn("flex items-start gap-2.5 p-3 rounded-lg max-w-[90%] mb-2 text-sm", message.role === 'user' ? 'ml-auto bg-primary text-primary-foreground' : message.role === 'assistant' ? 'mr-auto bg-muted text-muted-foreground' : 'mx-auto bg-amber-100 text-amber-800 border border-amber-300 text-xs italic w-full')}>
+                    {message.role === 'assistant' && <Bot className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />}
+                    <div className="flex-grow break-words prose prose-sm dark:prose-invert max-w-none"><ReactMarkdown components={{ p: ({node, ...props}) => <p className="mb-0.5 last:mb-0" {...props} /> }}>{message.content}</ReactMarkdown></div>
+                    {message.role === 'user' && <User className="h-5 w-5 text-primary-foreground flex-shrink-0 mt-0.5" />}
+                </div>
+                ))}
+                {assistantMessages.length === 0 && !isAssistantLoading && ( <div className="text-center text-muted-foreground py-6"><Bot className="h-10 w-10 mx-auto mb-2 text-primary/50" /><p>Ask Focus AI to help fill this section, or provide details.</p><p className="text-xs mt-1">e.g., "Patient name is Jane Doe, age 42."</p></div> )}
+                {isAssistantLoading && assistantMessages[assistantMessages.length -1]?.role === 'user' && ( <div className="flex items-start gap-2.5 p-3 rounded-lg max-w-[90%] mb-2 text-sm mr-auto bg-muted text-muted-foreground"><Bot className="h-5 w-5 text-primary flex-shrink-0 mt-0.5 animate-pulse" /><p className="italic">Focus AI is thinking...</p></div> )}
+            </ScrollArea>
+            <SheetFooter className="p-4 border-t bg-muted/50 flex-shrink-0">
+                <div className="flex items-center gap-2 w-full">
+                <Input type="text" placeholder="Type your EMR details or ask AI..." value={currentAssistantInput} onChange={(e) => setCurrentAssistantInput(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && !isAssistantLoading && handleSendToAssistant()} className="flex-grow bg-background focus:ring-primary" disabled={isAssistantLoading} />
+                <Button onClick={handleSendToAssistant} disabled={isAssistantLoading || !currentAssistantInput.trim()} size="icon">{isAssistantLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}<span className="sr-only">Send to AI Assistant</span></Button>
+                </div>
+            </SheetFooter>
+            </SheetContent>
+        </Sheet>
       </div>
     </MainLayout>
   );
