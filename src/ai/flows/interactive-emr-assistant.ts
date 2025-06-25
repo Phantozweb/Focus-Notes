@@ -47,12 +47,14 @@ const KNOWN_EMR_FIELDS = [
   "nearUnaidedOD", "nearUnaidedOS", "nearPinholeOD", "nearPinholeOS", "nearOldGlassesOD", "nearOldGlassesOS",
   // Refraction - PGP
   "pgpSphOD", "pgpCylOD", "pgpAxisOD", "pgpSphOS", "pgpCylOS", "pgpAxisOS",
+  // Auto Refractor
+  "autoRefractionOD", "autoRefractionOS",
   // Refraction - Objective
   "objRefractionOD", "objRefractionOS", "objRefractionFindingsOD", "objRefractionFindingsOS",
   // Refraction - Subjective
   "subjRefractionOD", "subjRefractionOS", "subjRefractionChecksOD", "subjRefractionChecksOS",
   // Final Correction
-  "finalAcuityOD", "finalAcuityOS", "finalCorrectionPreference",
+  "finalAcuityOD", "finalAcuityOS", "finalCorrectionPreference", "lensType", "prismDioptersOD", "prismBaseOD", "prismDioptersOS", "prismBaseOS",
   // Ancillary Ocular Tests
   "keratometryVerticalOD", "keratometryHorizontalOD", "keratometryVerticalOS", "keratometryHorizontalOS", "keratometryComments",
   "coverTest", "eom", "npcSubj", "npcObj", "npaOD", "npaOS", "npaOU", "wfdtDistance", "wfdtNear", "stereopsis",

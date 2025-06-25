@@ -321,6 +321,7 @@ export default function CaseDetailPage() {
                         <TableHeader><TableRow><TableHead className="w-[180px]">Type</TableHead><TableHead>OD (Right Eye)</TableHead><TableHead>OS (Left Eye)</TableHead></TableRow></TableHeader>
                         <TableBody>
                           <TableRow><TableCell className="font-medium">Previous Glasses (PGP)</TableCell><TableCell className="whitespace-pre-wrap font-mono text-xs">{`Sph: ${currentCase.pgpSphOD||'N/A'} Cyl: ${currentCase.pgpCylOD||'N/A'} Axis: ${currentCase.pgpAxisOD||'N/A'}`}</TableCell><TableCell className="whitespace-pre-wrap font-mono text-xs">{`Sph: ${currentCase.pgpSphOS||'N/A'} Cyl: ${currentCase.pgpCylOS||'N/A'} Axis: ${currentCase.pgpAxisOS||'N/A'}`}</TableCell></TableRow>
+                          <TableRow><TableCell className="font-medium">Auto-Refraction</TableCell><TableCell className="whitespace-pre-wrap font-mono text-xs">{currentCase.autoRefractionOD || 'N/A'}</TableCell><TableCell className="whitespace-pre-wrap font-mono text-xs">{currentCase.autoRefractionOS || 'N/A'}</TableCell></TableRow>
                           <TableRow><TableCell className="font-medium">Objective (Retinoscopy)</TableCell><TableCell className="whitespace-pre-wrap font-mono text-xs">{currentCase.objRefractionOD || 'N/A'}</TableCell><TableCell className="whitespace-pre-wrap font-mono text-xs">{currentCase.objRefractionOS || 'N/A'}</TableCell></TableRow>
                           <TableRow><TableCell className="font-medium">Subjective</TableCell><TableCell className="whitespace-pre-wrap font-mono text-xs">{currentCase.subjRefractionOD || 'N/A'}</TableCell><TableCell className="whitespace-pre-wrap font-mono text-xs">{currentCase.subjRefractionOS || 'N/A'}</TableCell></TableRow>
                           <TableRow><TableCell className="font-medium">Final Acuity</TableCell><TableCell>{currentCase.finalAcuityOD || 'N/A'}</TableCell><TableCell>{currentCase.finalAcuityOS || 'N/A'}</TableCell></TableRow>
@@ -330,6 +331,8 @@ export default function CaseDetailPage() {
                     <ODOSDetailItem icon={HelpCircle} label="Objective Findings" valueOD={currentCase.objRefractionFindingsOD?.join(', ')} valueOS={currentCase.objRefractionFindingsOS?.join(', ')} />
                     <ODOSDetailItem icon={HelpCircle} label="Subjective Checks" valueOD={currentCase.subjRefractionChecksOD?.join(', ')} valueOS={currentCase.subjRefractionChecksOS?.join(', ')} />
                     <DetailItem icon={HelpCircle} label="Final Correction Preference" value={currentCase.finalCorrectionPreference} isFullWidth />
+                    <DetailItem icon={Glasses} label="Lens Type" value={currentCase.lensType} isFullWidth />
+                    <ODOSDetailItem icon={Glasses} label="Prism Correction" valueOD={currentCase.prismDioptersOD ? `${currentCase.prismDioptersOD}Δ ${currentCase.prismBaseOD || ''}`.trim() : 'N/A'} valueOS={currentCase.prismDioptersOS ? `${currentCase.prismDioptersOS}Δ ${currentCase.prismBaseOS || ''}`.trim() : 'N/A'} />
                   </div>
                 </section>
                 
