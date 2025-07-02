@@ -190,7 +190,7 @@ const fullOptometryCaseSchema = z.object({
 type FullOptometryCaseFormValues = z.infer<typeof fullOptometryCaseSchema>;
 
 const defaultFormValues: FullOptometryCaseFormValues = {
-  posting: 'General OPD', mrdNo: '', dateOfVisit: Date.now(), name: '',
+  posting: 'General OPD', mrdNo: '', dateOfVisit: Date.now(), name: '', age: undefined, sex: undefined,
   chiefComplaint: '', pastOcularHistory: '', currentMedications: '', pastMedicalHistory: '',
   recentInvestigations: '', familyHistory: '', allergies: '', birthHistory: '', 
   distanceUnaidedOD: '', distanceUnaidedOS: '', distancePinholeOD: '', distancePinholeOS: '',
@@ -200,14 +200,14 @@ const defaultFormValues: FullOptometryCaseFormValues = {
   autoRefractionOD: '', autoRefractionOS: '',
   objRefractionOD: '', objRefractionOS: '', objRefractionFindingsOD: [], objRefractionFindingsOS: [],
   subjRefractionOD: '', subjRefractionOS: '', subjRefractionChecksOD: [], subjRefractionChecksOS: [],
-  finalAcuityOD: '', finalAcuityOS: '',
+  finalAcuityOD: '', finalAcuityOS: '', finalCorrectionPreference: undefined,
   lensType: '', prismDioptersOD: '', prismBaseOD: '', prismDioptersOS: '', prismBaseOS: '',
   keratometryVerticalOD: '', keratometryHorizontalOD: '', keratometryVerticalOS: '', keratometryHorizontalOS: '',
   keratometryComments: '', coverTest: '', eom: '', npcSubj: '', npcObj: '', npaOD: '', npaOS: '',
   npaOU: '', wfdtDistance: '', wfdtNear: '', stereopsis: '', pupillaryEvaluation: '',
   externalExamination: '', lidsLashesOD: '', lidsLashesOS: '', conjunctivaScleraOD: '',
   conjunctivaScleraOS: '', corneaOD: '', corneaOS: '', anteriorChamberOD: '', anteriorChamberOS: '',
-  irisOD: '', irisOS: '', lensOD: '', lensOS: '', tonometryPressureOD: '', tonometryPressureOS: '',
+  irisOD: '', irisOS: '', lensOD: '', lensOS: '', tonometryPressureOD: '', tonometryPressureOS: '', tonometryMethod: undefined,
   tonometryTime: '', tbutOD: '', tbutOS: '', schirmerOD: '', schirmerOS: '', vitreousOD: '',
   vitreousOS: '', opticDiscOD: '', opticDiscOS: '', cupDiscRatioOD: '', cupDiscRatioOS: '',
   maculaOD: '', maculaOS: '', vesselsOD: '', vesselsOS: '', peripheryOD: '', peripheryOS: '',
@@ -632,7 +632,7 @@ export default function LogNewCasePage() {
               {isTextarea ? (
                 <Textarea placeholder={placeholder || `Enter ${label.toLowerCase()}...`} {...field} value={field.value as string || ''} rows={rows || 3} className="resize-y" />
               ) : (
-                <Input type={inputType || 'text'} placeholder={placeholder || `Enter ${label.toLowerCase()}...`} {...field} value={field.value as string || ''} />
+                <Input type={inputType || 'text'} placeholder={placeholder || `Enter ${label.toLowerCase()}...`} {...field} value={field.value as string | number || ''} />
               )}
             </FormControl>
             <FormMessage />
