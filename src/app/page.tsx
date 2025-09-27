@@ -121,7 +121,7 @@ export default function HomePage() {
     },
     {
       question: "What AI model is used for the analysis and assistant features?",
-      answer: "Focus CaseX leverages Google's state-of-the-art Gemini family of models. These powerful large language models (LLMs) have been carefully prompted and integrated into our system to understand the specific context of optometry. This allows our platform to provide fast, clinically relevant insights, generate concise case summaries, and power the interactive form-filling assistant, helping you learn and document more effectively."
+      answer: "Focus CaseX is powered by Focus AI, which leverages state-of-the-art large language models (LLMs) from Google. These models have been carefully prompted and integrated into our system to understand the specific context of optometry. This allows our platform to provide fast, clinically relevant insights, generate concise case summaries, and power the interactive form-filling assistant, helping you learn and document more effectively."
     },
     {
       question: "Do you offer customer support if I run into any issues?",
@@ -356,3 +356,5 @@ export default function HomePage() {
     </MainLayout>
   );
 }
+
+    
