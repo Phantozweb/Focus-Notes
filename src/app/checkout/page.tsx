@@ -87,17 +87,13 @@ function CheckoutContent() {
     setIsConfirming(true);
     console.log("User Details and Screenshot:", data); // You can send this to a webhook
     toast({
-        title: 'Confirmation Sent!',
-        description: 'We are verifying your payment. Your subscription will be activated shortly.',
+        title: 'Submission Received!',
+        description: 'Thank you. Our team will review your payment. You will receive a confirmation email once your subscription is activated.',
     });
-     // Simulate payment verification and then redirect
+     // Simulate processing and then redirect to homepage
     setTimeout(() => {
-        toast({
-            title: 'Payment Successful!',
-            description: 'Your subscription is now active. Welcome to Focus CaseX!',
-        });
-        router.push('/cases'); // Redirect to cases page on successful "payment"
-    }, 2500);
+        router.push('/');
+    }, 3000);
   };
 
   const handleCopyUpiId = () => {
@@ -232,3 +228,4 @@ export default function CheckoutPage() {
 }
 
     
+
