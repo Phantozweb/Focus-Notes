@@ -63,14 +63,7 @@ export default function HomePage() {
 
   const pricingTiers = [
     {
-      name: "Student",
-      price: "₹750",
-      features: ["Up to 100 cases", "Full AI Assistant access", "Case Insights Generation", "Community support"],
-      cta: "Start Free Trial",
-      variant: 'outline'
-    },
-    {
-      name: "Professional",
+      name: "Individual Plan",
       price: "₹2400",
       features: ["Unlimited cases", "Full AI Assistant access", "Advanced AI Analytics", "CSV Data Export", "Priority email support"],
       cta: "Get Started",
@@ -80,7 +73,7 @@ export default function HomePage() {
     {
       name: "Institution",
       price: "Contact Us",
-      features: ["Everything in Professional", "Multi-user accounts", "Centralized billing", "Dedicated support", "Custom integrations"],
+      features: ["Includes all Individual Plan features", "Ideal for universities & colleges", "Special pricing for bulk licenses", "Simplified billing for your organization"],
       cta: "Contact Sales",
       variant: 'outline'
     },
@@ -198,10 +191,10 @@ export default function HomePage() {
             <h2 className="text-3xl md:text-4xl font-bold text-primary">Simple, Transparent Pricing</h2>
             <p className="mt-4 text-lg text-muted-foreground">Choose the plan that's right for you.</p>
           </div>
-          <div className="grid lg:grid-cols-3 gap-8 items-stretch">
+          <div className="grid lg:grid-cols-2 gap-8 items-stretch max-w-4xl mx-auto">
             {pricingTiers.map((tier) => (
-              <Card key={tier.name} className={cn("flex flex-col shadow-lg rounded-2xl", tier.popular ? 'border-2 border-primary shadow-primary/20 -translate-y-4' : 'border')}>
-                {tier.popular && <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-semibold">Most Popular</div>}
+              <Card key={tier.name} className={cn("flex flex-col shadow-lg rounded-2xl", tier.popular ? 'border-2 border-primary shadow-primary/20' : 'border')}>
+                {tier.popular && <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-semibold">Recommended</div>}
                 <CardHeader className="text-center pt-8">
                   <CardTitle className="text-2xl font-bold">{tier.name}</CardTitle>
                   <CardDescription className="text-4xl font-bold text-foreground">
