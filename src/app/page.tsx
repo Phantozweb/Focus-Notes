@@ -2,10 +2,12 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { MainLayout } from '@/components/layout/main-layout';
-import { NotebookPen, FolderKanban, PlusCircle, ExternalLink } from 'lucide-react';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { CheckCircle, Eye, BrainCircuit, ShieldCheck, Zap, FolderKanban, PlusCircle, ArrowRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { cn } from '@/lib/utils';
 
 export default function HomePage() {
   const router = useRouter();
@@ -18,102 +20,227 @@ export default function HomePage() {
     router.push('/cases');
   };
 
+  const features = [
+    {
+      icon: <BrainCircuit className="h-10 w-10 text-primary" />,
+      title: "Interactive AI Assistant",
+      description: "Leverage the power of Focus AI to fill out EMR forms interactively. Save time and reduce manual data entry by simply talking to your assistant.",
+    },
+    {
+      icon: <FolderKanban className="h-10 w-10 text-primary" />,
+      title: "Comprehensive Case Management",
+      description: "Log, view, and manage all your optometry cases in one secure, centralized platform. Search and filter with ease.",
+    },
+    {
+      icon: <Zap className="h-10 w-10 text-primary" />,
+      title: "Instant Case Insights",
+      description: "Generate instant, AI-powered summaries and key insights for any case, helping you to quickly grasp the most critical clinical details.",
+    },
+    {
+      icon: <ShieldCheck className="h-10 w-10 text-primary" />,
+      title: "Secure & Private",
+      description: "All your case data is stored locally on your device, ensuring complete privacy and control over sensitive patient information.",
+    },
+  ];
+
+  const whyChooseUs = [
+    {
+      title: "Accelerate Your Learning",
+      description: "Deepen your understanding by reviewing AI-generated insights and engaging in a conversational chat about each case. Perfect for students and lifelong learners.",
+      icon: <CheckCircle className="h-6 w-6 text-green-500" />,
+    },
+    {
+      title: "Boost Your Efficiency",
+      description: "Our intuitive, AI-assisted EMR form significantly speeds up the case logging process, freeing up more of your valuable time.",
+      icon: <CheckCircle className="h-6 w-6 text-green-500" />,
+    },
+    {
+      title: "Data You Can Trust",
+      description: "With all data stored locally, you never have to worry about third-party data breaches or unauthorized access. Your work remains yours.",
+      icon: <CheckCircle className="h-6 w-6 text-green-500" />,
+    },
+  ];
+
+  const pricingTiers = [
+    {
+      name: "Student",
+      price: "$9",
+      features: ["Up to 100 cases", "Full AI Assistant access", "Case Insights Generation", "Community support"],
+      cta: "Start Free Trial",
+      variant: 'outline'
+    },
+    {
+      name: "Professional",
+      price: "$29",
+      features: ["Unlimited cases", "Full AI Assistant access", "Advanced AI Analytics", "CSV Data Export", "Priority email support"],
+      cta: "Get Started",
+      variant: 'default',
+      popular: true,
+    },
+    {
+      name: "Institution",
+      price: "Contact Us",
+      features: ["Everything in Professional", "Multi-user accounts", "Centralized billing", "Dedicated support", "Custom integrations"],
+      cta: "Contact Sales",
+      variant: 'outline'
+    },
+  ];
+
+  const faqs = [
+    {
+      question: "Is my patient data secure?",
+      answer: "Absolutely. Focus CaseX is designed with a 'privacy-first' approach. All case data you enter is stored exclusively in your browser's local storage. It never leaves your device, ensuring you have complete control and confidentiality."
+    },
+    {
+      question: "How does the AI assistant work?",
+      answer: "Our AI assistant uses advanced language models to understand your conversational input. When you're in the 'Log New Case' form, you can talk to the assistant, and it will intelligently extract information and populate the relevant EMR fields for you, confirming its actions as it goes."
+    },
+    {
+      question: "Can I use this on multiple devices?",
+      answer: "Because all data is stored locally on a single device's browser, your cases will not automatically sync between different computers or devices. This is part of our commitment to ensuring your data's privacy. You can, however, use our CSV export feature to move data manually."
+    },
+     {
+      question: "Who is this platform for?",
+      answer: "Focus CaseX is ideal for optometry students who want an interactive learning tool, practicing optometrists who need an efficient way to log and review interesting cases for personal development, and educational institutions looking for a modern teaching aid."
+    }
+  ];
 
   return (
     <MainLayout>
+       <style jsx global>{`
+        @keyframes fade-in-down { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fade-in-up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes subtle-float { 0% { transform: translateY(0px); } 50% { transform: translateY(-8px); } 100% { transform: translateY(0px); } }
+        .animate-fade-in-down { animation: fade-in-down 0.8s ease-out forwards; }
+        .animate-fade-in-up { animation: fade-in-up 0.8s ease-out forwards; }
+        .animate-subtle-float { animation: subtle-float 6s ease-in-out infinite; }
+      `}</style>
+
       {/* Hero Section */}
-      <section className="py-20 md:py-28 text-center bg-gradient-to-br from-primary/10 via-background to-background">
+      <section className="py-24 md:py-32 text-center bg-gradient-to-b from-background via-blue-50/50 to-background dark:from-blue-950/10 dark:via-blue-950/5">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-primary mb-6 animate-fade-in-down">
             Focus CaseX
           </h1>
-          <p className="text-xl sm:text-2xl md:text-3xl font-semibold text-primary/90 mb-8 max-w-3xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-            Experience the Future of Optometry Learning with AI-Powered Case Management.
+          <p className="text-xl md:text-2xl font-medium text-foreground/90 mb-8 max-w-3xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+            The AI-Powered EMR for Optometry Education & Case Analysis
           </p>
-          <p className="text-md sm:text-lg text-foreground/70 mb-10 max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
-            Log cases manually or with intelligent AI assistance, and dive deep into interactive case reviews. Our integrated Focus AI is here to assist you at every step.
+          <p className="text-md sm:text-lg text-muted-foreground mb-12 max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+            Streamline your case logging with our intelligent assistant, uncover deep insights with powerful analytics, and accelerate your clinical learning.
           </p>
-        </div>
-      </section>
-
-      {/* Action Cards Section */}
-      <section className="py-16 md:py-24 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
-            <Card className="shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col bg-card rounded-xl overflow-hidden transform hover:-translate-y-1 group">
-              <CardHeader className="bg-primary/5 p-6">
-                <div className="flex items-center gap-4">
-                  <NotebookPen className="h-10 w-10 text-primary transition-transform duration-300 group-hover:scale-110" />
-                  <div>
-                    <CardTitle className="text-2xl text-primary">Log New Case</CardTitle>
-                    <p className="text-sm text-muted-foreground">Interactive EMR with AI Assist</p>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="flex-grow p-6">
-                <p className="text-foreground/70 mb-6">
-                  Create detailed optometry case records using our comprehensive EMR interface. Choose between manual data entry or leverage Focus AI to interactively assist you in filling out case details, saving you time and ensuring accuracy.
-                </p>
-              </CardContent>
-              <CardFooter className="p-6 bg-transparent border-t">
-                <Button className="w-full shadow-md hover:shadow-lg" size="lg" onClick={handleNewCase}>
-                  <PlusCircle className="mr-2 h-5 w-5" /> New Case
-                </Button>
-              </CardFooter>
-            </Card>
-
-            <Card className="shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col bg-card rounded-xl overflow-hidden transform hover:-translate-y-1 group">
-              <CardHeader className="bg-primary/5 p-6">
-                <div className="flex items-center gap-4">
-                  <FolderKanban className="h-10 w-10 text-primary transition-transform duration-300 group-hover:scale-110" />
-                   <div>
-                    <CardTitle className="text-2xl text-primary">View & Analyze Cases</CardTitle>
-                    <p className="text-sm text-muted-foreground">Deep Dive with AI Chat</p>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="flex-grow p-6">
-                <p className="text-foreground/70 mb-6">
-                  Access your complete library of optometry cases. Review detailed information, get initial AI insights, and engage in interactive chat sessions with Focus AI for each case to deepen your understanding and learning.
-                </p>
-              </CardContent>
-              <CardFooter className="p-6 bg-transparent border-t">
-                <Button className="w-full shadow-md hover:shadow-lg" variant="outline" size="lg" onClick={handleViewCases}>
-                  <ExternalLink className="mr-2 h-5 w-5" /> View Cases
-                </Button>
-              </CardFooter>
-            </Card>
+          <div className="flex justify-center items-center gap-4 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
+            <Button size="lg" onClick={handleNewCase} className="shadow-lg hover:shadow-primary/30 transition-shadow">
+              <PlusCircle className="mr-2 h-5 w-5" /> Start Logging
+            </Button>
+            <Button size="lg" variant="outline" onClick={handleViewCases}>
+              View My Cases <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
           </div>
         </div>
       </section>
-       <style jsx global>{`
-        @keyframes fade-in-down {
-          from {
-            opacity: 0;
-            transform: translateY(-20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        @keyframes fade-in-up {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-fade-in-down {
-          animation: fade-in-down 0.6s ease-out forwards;
-        }
-        .animate-fade-in-up {
-          animation: fade-in-up 0.6s ease-out forwards;
-        }
-      `}</style>
+
+      {/* Features Section */}
+      <section id="features" className="py-20 md:py-28 bg-muted/40 dark:bg-card">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-primary">Powerful Features, Simplified</h2>
+            <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">Everything you need to master case logging and analysis, powered by AI.</p>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {features.map((feature, index) => (
+              <div key={index} className="text-center p-6 bg-background rounded-xl shadow-md hover:shadow-lg transition-shadow border border-transparent hover:border-primary/20">
+                <div className="flex justify-center items-center mb-4 h-16 w-16 rounded-full bg-primary/10 mx-auto">
+                   {feature.icon}
+                </div>
+                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
+                <p className="text-muted-foreground">{feature.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+       {/* Why Choose Us Section */}
+      <section id="why-choose-us" className="py-20 md:py-28">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+                <div className="animate-subtle-float">
+                  <img src="https://picsum.photos/seed/casex/600/500" alt="Optometrist analyzing data on a tablet" data-ai-hint="optometrist data analysis" className="rounded-2xl shadow-2xl" />
+                </div>
+                <div>
+                    <h2 className="text-3xl md:text-4xl font-bold text-primary mb-6">Elevate Your Clinical Workflow</h2>
+                    <p className="text-lg text-muted-foreground mb-8">Focus CaseX is more than just a tool—it's your dedicated partner for professional growth, designed by listening to the needs of students and clinicians.</p>
+                    <ul className="space-y-6">
+                        {whyChooseUs.map(item => (
+                            <li key={item.title} className="flex items-start gap-4">
+                                <div className="flex-shrink-0 mt-1">{item.icon}</div>
+                                <div>
+                                    <h4 className="font-semibold text-xl text-foreground">{item.title}</h4>
+                                    <p className="text-muted-foreground">{item.description}</p>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            </div>
+        </div>
+      </section>
+
+
+      {/* Pricing Section */}
+      <section id="pricing" className="py-20 md:py-28 bg-muted/40 dark:bg-card">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-primary">Simple, Transparent Pricing</h2>
+            <p className="mt-4 text-lg text-muted-foreground">Choose the plan that's right for you.</p>
+          </div>
+          <div className="grid lg:grid-cols-3 gap-8 items-stretch">
+            {pricingTiers.map((tier) => (
+              <Card key={tier.name} className={cn("flex flex-col shadow-lg rounded-2xl", tier.popular ? 'border-2 border-primary shadow-primary/20 -translate-y-4' : 'border')}>
+                {tier.popular && <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-semibold">Most Popular</div>}
+                <CardHeader className="text-center pt-8">
+                  <CardTitle className="text-2xl font-bold">{tier.name}</CardTitle>
+                  <CardDescription className="text-4xl font-bold text-foreground">
+                    {tier.price.startsWith('$') ? <><span className="text-3xl align-top mr-1">$</span>{tier.price.slice(1)} <span className="text-base font-normal text-muted-foreground">/ month</span></> : tier.price}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="flex-grow">
+                  <ul className="space-y-4 text-muted-foreground">
+                    {tier.features.map((feature) => (
+                      <li key={feature} className="flex items-center gap-3">
+                        <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+                <CardFooter className="p-6">
+                  <Button size="lg" variant={tier.variant} className="w-full">{tier.cta}</Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section id="faq" className="py-20 md:py-28">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-primary">Frequently Asked Questions</h2>
+          </div>
+          <Accordion type="single" collapsible className="w-full">
+            {faqs.map((faq, index) => (
+              <AccordionItem key={index} value={`item-${index}`}>
+                <AccordionTrigger className="text-lg text-left hover:no-underline">{faq.question}</AccordionTrigger>
+                <AccordionContent className="text-base text-muted-foreground">
+                  {faq.answer}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+      </section>
     </MainLayout>
   );
 }
