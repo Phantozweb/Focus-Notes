@@ -8,6 +8,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { CheckCircle, Eye, BrainCircuit, ShieldCheck, Zap, FolderKanban, PlusCircle, ArrowRight, LogIn } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 
 export default function HomePage() {
   const router = useRouter();
@@ -61,23 +62,50 @@ export default function HomePage() {
     },
   ];
 
-  const pricingTiers = [
+  const individualPricingTiers = [
     {
-      name: "Individual Plan",
+      name: "Monthly",
       price: "₹2400",
-      features: ["Unlimited cases", "Full AI Assistant access", "Advanced AI Analytics", "CSV Data Export", "Priority email support"],
-      cta: "Get Started",
+      price_sub: "/ month",
+      save: null,
+      cta: "Start Monthly",
+      variant: 'outline',
+    },
+    {
+      name: "3 Months",
+      price: "₹6480",
+      price_sub: "billed quarterly",
+      save: "Save 10%",
+      cta: "Choose 3 Months",
+      variant: 'outline',
+    },
+    {
+      name: "6 Months",
+      price: "₹12240",
+      price_sub: "billed semi-annually",
+      save: "Save 15%",
+      cta: "Choose 6 Months",
+      variant: 'outline',
+    },
+    {
+      name: "Yearly",
+      price: "₹21600",
+      price_sub: "billed annually",
+      save: "Save 25%",
+      cta: "Get Best Value",
       variant: 'default',
       popular: true,
-    },
-    {
-      name: "Institution",
-      price: "Contact Us",
-      features: ["Includes all Individual Plan features", "Ideal for universities & colleges", "Special pricing for bulk licenses", "Simplified billing for your organization"],
-      cta: "Contact Sales",
-      variant: 'outline'
-    },
+    }
   ];
+
+  const institutionTier = {
+    name: "Institution",
+    price: "Contact Us",
+    features: ["Includes all Individual Plan features", "Ideal for universities & colleges", "Special pricing for bulk licenses", "Simplified billing for your organization"],
+    cta: "Contact Sales",
+    variant: 'outline'
+  };
+
 
   const faqs = [
     {
@@ -161,7 +189,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
                 <div className="lg:order-last">
-                  <div className="animate-subtle-float p-8 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-950/20 rounded-2xl shadow-xl">
+                  <div className="p-8 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-950/20 rounded-2xl shadow-xl">
                      <h2 className="text-3xl md:text-4xl font-bold text-primary mb-6">Elevate Your Clinical Workflow</h2>
                     <p className="text-lg text-muted-foreground mb-8">Focus CaseX is more than just a tool—it's your dedicated partner for professional growth, designed by listening to the needs of students and clinicians.</p>
                   </div>
@@ -191,23 +219,49 @@ export default function HomePage() {
             <h2 className="text-3xl md:text-4xl font-bold text-primary">Simple, Transparent Pricing</h2>
             <p className="mt-4 text-lg text-muted-foreground">Choose the plan that's right for you.</p>
           </div>
-          <div className="grid lg:grid-cols-2 gap-8 items-stretch max-w-4xl mx-auto">
-            {pricingTiers.map((tier) => (
+          
+          <div className="text-center mb-12">
+            <h3 className="text-2xl font-semibold">Individual Plan</h3>
+            <p className="text-muted-foreground">For students and practicing optometrists.</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto mb-16">
+            {individualPricingTiers.map((tier) => (
               <Card key={tier.name} className={cn("flex flex-col shadow-lg rounded-2xl", tier.popular ? 'border-2 border-primary shadow-primary/20' : 'border')}>
-                {tier.popular && <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-semibold">Recommended</div>}
+                {tier.popular && <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-semibold">Best Value</div>}
+                 {tier.save && <Badge variant="secondary" className="absolute top-4 right-4 bg-accent/20 text-accent-foreground border-accent/30">{tier.save}</Badge>}
                 <CardHeader className="text-center pt-8">
                   <CardTitle className="text-2xl font-bold">{tier.name}</CardTitle>
                   <CardDescription className="text-4xl font-bold text-foreground">
-                     {tier.price.startsWith('₹') ? (
-                      <><span className="text-3xl align-top mr-1">₹</span>{tier.price.slice(1)} <span className="text-base font-normal text-muted-foreground">/ month</span></>
-                    ) : (
-                      tier.price
-                    )}
+                     {tier.price}
+                  </CardDescription>
+                  <p className="text-sm text-muted-foreground">{tier.price_sub}</p>
+                </CardHeader>
+                <CardContent className="flex-grow">
+                   <ul className="space-y-3 text-muted-foreground text-sm">
+                      <li className="flex items-center gap-3"><CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" /><span>Unlimited cases</span></li>
+                      <li className="flex items-center gap-3"><CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" /><span>Full AI Assistant access</span></li>
+                      <li className="flex items-center gap-3"><CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" /><span>Advanced AI Analytics</span></li>
+                   </ul>
+                </CardContent>
+                <CardFooter className="p-6">
+                  <Button size="lg" variant={tier.variant as "default" | "outline"} className="w-full">{tier.cta}</Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+
+          <div className="max-w-2xl mx-auto">
+             <Card key={institutionTier.name} className="flex flex-col shadow-lg rounded-2xl border">
+                <CardHeader className="text-center pt-8">
+                  <CardTitle className="text-2xl font-bold">{institutionTier.name}</CardTitle>
+                  <CardDescription className="text-4xl font-bold text-foreground">
+                     {institutionTier.price}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="flex-grow">
                   <ul className="space-y-4 text-muted-foreground">
-                    {tier.features.map((feature) => (
+                    {institutionTier.features.map((feature) => (
                       <li key={feature} className="flex items-center gap-3">
                         <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
                         <span>{feature}</span>
@@ -216,11 +270,11 @@ export default function HomePage() {
                   </ul>
                 </CardContent>
                 <CardFooter className="p-6">
-                  <Button size="lg" variant={tier.variant as "default" | "outline"} className="w-full">{tier.cta}</Button>
+                  <Button size="lg" variant={institutionTier.variant as "default" | "outline"} className="w-full">{institutionTier.cta}</Button>
                 </CardFooter>
               </Card>
-            ))}
           </div>
+
         </div>
       </section>
 
