@@ -14,9 +14,9 @@ import {
   SidebarMenuButton,
   SidebarInset,
 } from '@/components/ui/sidebar';
-import { Eye, LogOut, LayoutDashboard, ListChecks, Settings, User } from 'lucide-react';
+import { Eye, LogOut, LayoutDashboard, ListChecks, Settings, User, PanelLeft } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 export default function DashboardLayout({
   children,
@@ -25,13 +25,21 @@ export default function DashboardLayout({
 }) {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const currentView = searchParams.get('view');
+  
   const [isSidebarOpen, setSidebarOpen] = React.useState(true);
 
   const menuItems = [
-    { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { path: '/cases', label: 'All Cases', icon: ListChecks },
-    // Add more authenticated routes here
+    { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, view: null },
+    { path: '/dashboard?view=cases', label: 'All Cases', icon: ListChecks, view: 'cases' },
   ];
+
+  const getIsActive = (item: typeof menuItems[0]) => {
+    if (pathname !== '/dashboard') return false;
+    return item.view === currentView;
+  };
+
 
   return (
     <SidebarProvider open={isSidebarOpen} onOpenChange={setSidebarOpen}>
@@ -45,7 +53,6 @@ export default function DashboardLayout({
                   <span className="text-foreground">X</span>
                 </h1>
             </div>
-            {/* The trigger is now in the main header below */}
           </div>
         </SidebarHeader>
         <SidebarContent>
@@ -54,7 +61,7 @@ export default function DashboardLayout({
               <SidebarMenuItem key={item.path}>
                 <SidebarMenuButton
                   onClick={() => router.push(item.path)}
-                  isActive={pathname.startsWith(item.path) && (item.path !== '/dashboard' || pathname === '/dashboard')}
+                  isActive={getIsActive(item)}
                   tooltip={item.label}
                 >
                   <item.icon />
