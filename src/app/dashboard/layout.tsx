@@ -32,7 +32,7 @@ export default function DashboardLayout({
 
   const menuItems = [
     { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, view: null },
-    { path: '/dashboard?view=cases', label: 'All Cases', icon: ListChecks, view: 'cases' },
+    { path: '/dashboard?view=cases', label: 'Case Records', icon: ListChecks, view: 'cases' },
   ];
 
   const getIsActive = (item: typeof menuItems[0]) => {

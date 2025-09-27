@@ -196,7 +196,7 @@ function DashboardContent() {
                 <PlusCircle className="mr-2 h-5 w-5" /> Log a New Case
               </Button>
                <Button size="lg" variant="outline" onClick={() => router.push('/dashboard?view=cases')}>
-                <ListChecks className="mr-2 h-5 w-5" /> View All Cases
+                <ListChecks className="mr-2 h-5 w-5" /> View All Case Records
               </Button>
             </CardContent>
           </Card>
@@ -325,7 +325,7 @@ function AllCasesContent() {
       <div className="container flex-shrink-0 pt-8">
         <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4 w-full">
           <CardTitle className="text-3xl font-bold text-primary flex items-center order-first sm:order-none">
-            <ListChecks className="mr-3 h-8 w-8" /> All Optometry Cases
+            <ListChecks className="mr-3 h-8 w-8" /> Case Records
           </CardTitle>
           <div className="flex gap-2 self-end sm:self-center">
             <Button onClick={() => router.push('/cases/new')}>
@@ -412,4 +412,3 @@ export default function DashboardPage() {
         </Suspense>
     );
 }
-
