@@ -24,7 +24,7 @@ import ReactMarkdown from 'react-markdown';
 import { 
   Eye, Glasses, ShieldCheck, FileText, Brain, Lightbulb, AlertTriangle, Loader2, 
   User as UserIcon, Calendar, Briefcase, History, Microscope, ScanEye, Edit3, NotebookPen, UserCircle, Phone, Mail, MapPin, Pill, Info, Users, ArrowLeft,
-  Send, Bot, MessageSquare, Baby, HelpCircle, Activity, Clock
+  Send, Bot, MessageSquare, Baby, HelpCircle, Activity, Clock, ListChecks
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { analyzeOptometryCase } from '@/ai/flows/analyze-optometry-case';
@@ -337,7 +337,7 @@ export default function CaseDetailPage() {
                 </section>
                 
                 <section>
-                  <h3 className="text-lg font-semibold mb-3 text-primary flex items-center"><Activity className="mr-2 h-5 w-5" />Ancillary Ocular Tests</h3>
+                  <h3 className="text-lg font-semibold mb-3 text-primary flex items-center"><ListChecks className="mr-2 h-5 w-5" />Ancillary Ocular Tests</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 p-4 border rounded-lg bg-card/50">
                     <ODOSDetailItem icon={Eye} label="Keratometry - Vertical" valueOD={currentCase.keratometryVerticalOD} valueOS={currentCase.keratometryVerticalOS} />
                     <ODOSDetailItem icon={Eye} label="Keratometry - Horizontal" valueOD={currentCase.keratometryHorizontalOD} valueOS={currentCase.keratometryHorizontalOS} />

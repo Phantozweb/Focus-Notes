@@ -22,7 +22,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import {
-  User, Briefcase, History, Eye, Microscope, Edit3, Save, FileTextIcon, ScanEye, ChevronLeft, ChevronRight, NotebookPen, ArrowLeft, Bot, Send, X, Loader2, Baby, HelpCircle, ChevronDown, Activity, Calendar
+  User, Briefcase, History, Eye, Microscope, Edit3, Save, FileTextIcon, ScanEye, ChevronLeft, ChevronRight, NotebookPen, ArrowLeft, Bot, Send, X, Loader2, Baby, HelpCircle, ChevronDown, ListChecks, Calendar
 } from 'lucide-react';
 import {
   Select,
@@ -228,7 +228,7 @@ const TABS_CONFIG_BASE = [
   { value: "patientInfo", label: "Patient Info", icon: User },
   { value: "history", label: "History", icon: History },
   { value: "vaRefraction", label: "VA & Refraction", icon: Eye },
-  { value: "ancillaryTests", label: "Ancillary Tests", icon: Activity },
+  { value: "ancillaryTests", label: "Ancillary Tests", icon: ListChecks },
   { value: "anteriorSegment", label: "Anterior Segment", icon: Microscope },
   { value: "posteriorSegment", label: "Posterior Segment", icon: ScanEye },
   { value: "plan", label: "Diagnosis & Plan", icon: Edit3 },
