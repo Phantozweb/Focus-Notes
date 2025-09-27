@@ -1,3 +1,4 @@
+
 import type {Metadata} from 'next';
 import { Inter, Lexend } from 'next/font/google';
 import './globals.css';

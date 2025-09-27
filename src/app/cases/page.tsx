@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, ListChecks, PlusCircle, FileSearch, Trash2, CalendarDays, Download, AlertTriangle } from 'lucide-react';
 import type { StoredOptometryCase } from '@/types/case';
 import useLocalStorage from '@/hooks/use-local-storage';
@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
+import { Suspense } from 'react';
 
 interface CaseCardProps {
   caseData: StoredOptometryCase;
@@ -88,13 +89,19 @@ function StoredCaseCard({ caseData, onViewDetails, onDelete }: CaseCardProps) {
   );
 }
 
-
-export default function ViewCasesPage() {
+function ViewCasesContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const memoizedInitialCases = React.useMemo<StoredOptometryCase[]>(() => [], []);
   const [storedCases, setStoredCases] = useLocalStorage<StoredOptometryCase[]>('optometryCases', memoizedInitialCases);
-  const [searchTerm, setSearchTerm] = React.useState('');
+  
+  const urlSearchTerm = searchParams.get('search') || '';
+  const [searchTerm, setSearchTerm] = React.useState(urlSearchTerm);
+
+  React.useEffect(() => {
+    setSearchTerm(urlSearchTerm);
+  }, [urlSearchTerm]);
 
   const handleViewDetails = (caseId: string) => {
     router.push(`/cases/${caseId}`);
@@ -150,40 +157,43 @@ export default function ViewCasesPage() {
   };
 
   const filteredCases = React.useMemo(() => {
-    if (!searchTerm) return storedCases.sort((a, b) => b.timestamp - a.timestamp);
     const lowerSearchTerm = searchTerm.toLowerCase();
+    if (!lowerSearchTerm) return storedCases.sort((a, b) => b.timestamp - a.timestamp);
+    
     return storedCases.filter(c => 
       c.id.toLowerCase().includes(lowerSearchTerm) ||
-      c.name.toLowerCase().includes(lowerSearchTerm) ||
+      (c.name && c.name.toLowerCase().includes(lowerSearchTerm)) ||
       (c.mrdNo && c.mrdNo.toLowerCase().includes(lowerSearchTerm)) ||
-      c.chiefComplaint.toLowerCase().includes(lowerSearchTerm) ||
+      (c.chiefComplaint && c.chiefComplaint.toLowerCase().includes(lowerSearchTerm)) ||
       (c.diagnosis && c.diagnosis.toLowerCase().includes(lowerSearchTerm))
     ).sort((a, b) => b.timestamp - a.timestamp); 
   }, [storedCases, searchTerm]);
 
-  return (
-    <MainLayout>
-      <div className="px-4 sm:px-6 lg:px-8 flex flex-col flex-1">
-        <div className="pt-8">
-          <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4 max-w-7xl mx-auto w-full">
-            <Button variant="outline" onClick={() => router.back()} className="self-start sm:self-center">
-              <ArrowLeft className="mr-2 h-4 w-4" /> Back
-            </Button>
-            <CardTitle className="text-3xl font-bold text-primary flex items-center order-first sm:order-none">
-              <ListChecks className="mr-3 h-8 w-8" /> All Optometry Cases
-            </CardTitle>
-            <div className="flex gap-2 self-end sm:self-center">
-              <Button onClick={() => router.push('/cases/new')}>
-                <PlusCircle className="mr-2 h-4 w-4" /> Log New Case
-              </Button>
-              <Button onClick={handleExport} variant="outline" disabled={filteredCases.length === 0}>
-                <Download className="mr-2 h-4 w-4" /> Export Filtered
-              </Button>
-            </div>
-          </div>
+  const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    router.push(`/cases?search=${encodeURIComponent(searchTerm)}`);
+  };
 
-          <Card className="shadow-xl mb-6 max-w-7xl mx-auto w-full">
-            <CardContent className="pt-6">
+  return (
+    <div className="px-4 sm:px-6 lg:px-8 flex flex-col flex-1">
+      <div className="pt-8">
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4 max-w-7xl mx-auto w-full">
+          <CardTitle className="text-3xl font-bold text-primary flex items-center order-first sm:order-none">
+            <ListChecks className="mr-3 h-8 w-8" /> All Optometry Cases
+          </CardTitle>
+          <div className="flex gap-2 self-end sm:self-center">
+            <Button onClick={() => router.push('/cases/new')}>
+              <PlusCircle className="mr-2 h-4 w-4" /> Log New Case
+            </Button>
+            <Button onClick={handleExport} variant="outline" disabled={filteredCases.length === 0}>
+              <Download className="mr-2 h-4 w-4" /> Export Filtered
+            </Button>
+          </div>
+        </div>
+
+        <Card className="shadow-xl mb-6 max-w-7xl mx-auto w-full">
+          <CardContent className="pt-6">
+            <form onSubmit={handleSearchSubmit}>
               <Input
                   type="text"
                   placeholder="Search cases (MRD No, Name, Complaint, Diagnosis)..."
@@ -191,53 +201,62 @@ export default function ViewCasesPage() {
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full"
                 />
-            </CardContent>
-          </Card>
-        </div>
-
-        <ScrollArea className="flex-grow pb-8">
-          <div className="max-w-7xl mx-auto w-full">
-            {filteredCases.length === 0 ? (
-              <Card className="shadow-xl">
-                <CardContent className="pt-6">
-                  <div className="text-center py-10">
-                    <img 
-                      src="https://placehold.co/400x300.png" 
-                      alt="Illustration of empty case files" 
-                      data-ai-hint="empty state medical documents"
-                      className="mx-auto mb-6 rounded-lg opacity-80"
-                    />
-                    <h2 className="text-2xl font-semibold text-foreground mb-3">
-                      {searchTerm ? 'No Cases Match Your Search' : 'No Cases Logged Yet'}
-                    </h2>
-                    <p className="text-muted-foreground max-w-md mx-auto mb-6">
-                      {searchTerm 
-                        ? 'Try adjusting your search terms or clear the search to see all cases.' 
-                        : 'Start by logging your first optometry case. It will appear here once saved.'}
-                    </p>
-                    {!searchTerm && (
-                        <Button onClick={() => router.push('/cases/new')} size="lg">
-                            <PlusCircle className="mr-2 h-5 w-5" /> Log Your First Case
-                        </Button>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredCases.map((caseItem) => (
-                  <StoredCaseCard
-                    key={caseItem.id}
-                    caseData={caseItem}
-                    onViewDetails={handleViewDetails}
-                    onDelete={handleDeleteCase}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        </ScrollArea>
+            </form>
+          </CardContent>
+        </Card>
       </div>
-    </MainLayout>
+
+      <ScrollArea className="flex-grow pb-8">
+        <div className="max-w-7xl mx-auto w-full">
+          {filteredCases.length === 0 ? (
+            <Card className="shadow-xl">
+              <CardContent className="pt-6">
+                <div className="text-center py-10">
+                  <img 
+                    src="https://picsum.photos/seed/1/400/300"
+                    alt="Illustration of empty case files" 
+                    data-ai-hint="empty state medical documents"
+                    className="mx-auto mb-6 rounded-lg opacity-80"
+                  />
+                  <h2 className="text-2xl font-semibold text-foreground mb-3">
+                    {urlSearchTerm ? 'No Cases Match Your Search' : 'No Cases Logged Yet'}
+                  </h2>
+                  <p className="text-muted-foreground max-w-md mx-auto mb-6">
+                    {urlSearchTerm 
+                      ? 'Try adjusting your search terms or clear the search to see all cases.' 
+                      : 'Start by logging your first optometry case. It will appear here once saved.'}
+                  </p>
+                  {!urlSearchTerm && (
+                      <Button onClick={() => router.push('/cases/new')} size="lg">
+                          <PlusCircle className="mr-2 h-5 w-5" /> Log Your First Case
+                      </Button>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredCases.map((caseItem) => (
+                <StoredCaseCard
+                  key={caseItem.id}
+                  caseData={caseItem}
+                  onViewDetails={handleViewDetails}
+                  onDelete={handleDeleteCase}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </ScrollArea>
+    </div>
   );
+}
+
+export default function ViewCasesPage() {
+    return (
+        // The MainLayout is provided by the dashboard layout
+        <Suspense fallback={<div>Loading...</div>}>
+            <ViewCasesContent />
+        </Suspense>
+    );
 }
