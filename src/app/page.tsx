@@ -10,10 +10,15 @@ import { CheckCircle, Eye, BrainCircuit, ShieldCheck, Zap, FolderKanban, PlusCir
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
 
 export default function HomePage() {
   const router = useRouter();
   const [selectedPlan, setSelectedPlan] = React.useState('Yearly');
+  const carouselPlugin = React.useRef(
+    Autoplay({ delay: 3000, stopOnInteraction: true })
+  );
 
   const handleNewCase = () => {
     router.push('/cases/new');
@@ -165,17 +170,34 @@ export default function HomePage() {
             <h2 className="text-3xl md:text-4xl font-bold text-primary">Powerful Features, Simplified</h2>
             <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">Everything you need to master case logging and analysis, powered by AI.</p>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, index) => (
-              <div key={index} className="text-center p-6 bg-background rounded-xl shadow-md hover:shadow-lg transition-shadow border border-transparent hover:border-primary/20">
-                <div className="flex justify-center items-center mb-4 h-16 w-16 rounded-full bg-primary/10 mx-auto">
-                   {feature.icon}
-                </div>
-                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                <p className="text-muted-foreground">{feature.description}</p>
-              </div>
-            ))}
-          </div>
+          <Carousel
+            plugins={[carouselPlugin.current]}
+            className="w-full max-w-xs sm:max-w-xl md:max-w-3xl lg:max-w-5xl mx-auto"
+            onMouseEnter={carouselPlugin.current.stop}
+            onMouseLeave={carouselPlugin.current.reset}
+            opts={{
+              loop: true,
+              align: "start"
+            }}
+          >
+            <CarouselContent className="-ml-4">
+              {features.map((feature, index) => (
+                <CarouselItem key={index} className="pl-4 md:basis-1/2 lg:basis-1/3">
+                  <div className="p-1 h-full">
+                    <div className="h-full text-center p-8 bg-background rounded-xl shadow-md hover:shadow-lg transition-shadow border border-transparent hover:border-primary/20 flex flex-col items-center justify-start">
+                      <div className="flex justify-center items-center mb-5 h-16 w-16 rounded-full bg-primary/10 mx-auto">
+                        {feature.icon}
+                      </div>
+                      <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
+                      <p className="text-muted-foreground flex-grow">{feature.description}</p>
+                    </div>
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="hidden md:flex" />
+            <CarouselNext className="hidden md:flex" />
+          </Carousel>
         </div>
       </section>
 
@@ -254,7 +276,7 @@ export default function HomePage() {
                         </div>
                         <div className="text-right">
                           <p className="font-bold text-lg text-foreground">{tier.price}</p>
-                          {tier.save && <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200 dark:bg-green-900/50 dark:text-green-300 dark:border-green-700 text-xs">{tier.save}</Badge>}
+                          {tier.save && <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200 dark:bg-green-900/50 dark:text-green-300 dark:border-green-700 text-xs font-bold">{tier.save}</Badge>}
                           {tier.popular && <Badge className="mt-1" variant="default">Best Value</Badge>}
                         </div>
                       </div>
@@ -314,5 +336,3 @@ export default function HomePage() {
     </MainLayout>
   );
 }
-
-    
