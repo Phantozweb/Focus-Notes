@@ -172,24 +172,25 @@ export default function HomePage() {
           </div>
           <Carousel
             plugins={[carouselPlugin.current]}
-            className="w-full max-w-xs sm:max-w-xl md:max-w-3xl lg:max-w-5xl mx-auto"
+            className="w-full max-w-4xl mx-auto"
             onMouseEnter={carouselPlugin.current.stop}
             onMouseLeave={carouselPlugin.current.reset}
             opts={{
               loop: true,
-              align: "start"
             }}
           >
             <CarouselContent className="-ml-4">
               {features.map((feature, index) => (
-                <CarouselItem key={index} className="pl-4 md:basis-1/2 lg:basis-1/3">
+                <CarouselItem key={index} className="pl-4">
                   <div className="p-1 h-full">
-                    <div className="h-full text-center p-8 bg-background rounded-xl shadow-md hover:shadow-lg transition-shadow border border-transparent hover:border-primary/20 flex flex-col items-center justify-start">
-                      <div className="flex justify-center items-center mb-5 h-16 w-16 rounded-full bg-primary/10 mx-auto">
+                    <div className="h-full p-8 bg-background rounded-xl shadow-md hover:shadow-lg transition-shadow border border-transparent hover:border-primary/20 flex flex-col md:flex-row items-center gap-6 md:gap-8 text-center md:text-left">
+                      <div className="flex-shrink-0 flex justify-center items-center h-20 w-20 rounded-full bg-primary/10">
                         {feature.icon}
                       </div>
-                      <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
-                      <p className="text-muted-foreground flex-grow">{feature.description}</p>
+                      <div>
+                        <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
+                        <p className="text-muted-foreground">{feature.description}</p>
+                      </div>
                     </div>
                   </div>
                 </CarouselItem>
