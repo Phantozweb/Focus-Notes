@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { MainLayout } from '@/components/layout/main-layout';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { CheckCircle, Eye, BrainCircuit, ShieldCheck, Zap, FolderKanban, PlusCircle, ArrowRight, LogIn, XCircle, Check } from 'lucide-react';
+import { CheckCircle, Eye, BrainCircuit, ShieldCheck, Zap, FolderKanban, PlusCircle, ArrowRight, LogIn, XCircle, Check, MessageSquare, Share2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -41,8 +41,18 @@ export default function HomePage() {
     {
       icon: <ShieldCheck className="h-10 w-10 text-primary" />,
       title: "Secure & Private by Design",
-      description: "All your case data is stored locally on your device, ensuring complete privacy and control over sensitive patient information. No cloud, no worries.",
+      description: "All your case data is stored locally on your device, ensuring complete privacy and control over sensitive patient information.",
     },
+    {
+      icon: <MessageSquare className="h-10 w-10 text-primary" />,
+      title: "Conversational AI Chat",
+      description: "Dive deeper into any case by having a conversation with Focus AI. Ask questions, get clarifications, and enhance your understanding.",
+    },
+    {
+      icon: <Share2 className="h-10 w-10 text-primary" />,
+      title: "Export and Share",
+      description: "Easily export your case data to CSV format for reporting, sharing with mentors, or for your personal academic portfolio.",
+    }
   ];
 
   const individualPricingTiers = [
@@ -174,10 +184,10 @@ export default function HomePage() {
           >
             <CarouselContent className="-ml-4">
               {features.map((feature, index) => (
-                <CarouselItem key={index} className="pl-4">
+                <CarouselItem key={index} className="pl-4 md:basis-1/2 lg:basis-1/3">
                   <div className="p-1 h-full">
-                    <div className="h-full p-8 bg-background rounded-xl shadow-md hover:shadow-lg transition-shadow border border-transparent hover:border-primary/20 flex flex-col md:flex-row items-center gap-6 md:gap-8 text-center md:text-left">
-                      <div className="flex-shrink-0 flex justify-center items-center h-20 w-20 rounded-full bg-primary/10">
+                    <div className="h-full p-8 bg-background rounded-xl shadow-md hover:shadow-lg transition-shadow border border-transparent hover:border-primary/20 flex flex-col text-center">
+                      <div className="flex-shrink-0 flex justify-center items-center h-20 w-20 rounded-full bg-primary/10 mx-auto mb-4">
                         {feature.icon}
                       </div>
                       <div>
