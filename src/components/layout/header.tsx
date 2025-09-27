@@ -16,8 +16,8 @@ export function Header({}: HeaderProps) {
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push('/')}>
           <Eye className="h-7 w-7 text-primary" />
-          <h1 className="text-2xl font-bold">
-            <span className="text-primary">Focus Case</span><span className="text-foreground">X</span>
+          <h1 className="text-2xl font-bold font-logo">
+            <span className="text-primary">Focus Case</span><span className="text-foreground relative">X<span className="absolute left-0 top-0 h-full w-full bg-primary/80 rounded-full blur-xl animate-blue-blink -z-10"></span></span>
           </h1>
         </div>
         <Button size="sm" variant="outline" onClick={() => router.push('#')}>

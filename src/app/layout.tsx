@@ -1,12 +1,17 @@
 import type {Metadata} from 'next';
-import { Inter } from 'next/font/google';
+import { Inter, Lexend } from 'next/font/google';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { Providers } from './providers';
 
 const inter = Inter({
   subsets: ['latin'],
-  variable: '--font-geist-sans',
+  variable: '--font-sans',
+});
+
+const lexend = Lexend({
+  subsets: ['latin'],
+  variable: '--font-logo',
 });
 
 export const metadata: Metadata = {
@@ -22,7 +27,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} antialiased`}>
+      <body className={`${inter.variable} ${lexend.variable} font-sans antialiased`}>
         <Providers>
           {children}
           <Toaster />

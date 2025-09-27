@@ -10,6 +10,10 @@ export default {
   ],
   theme: {
   	extend: {
+      fontFamily: {
+        sans: ["var(--font-sans)"],
+        logo: ["var(--font-logo)"],
+      },
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
@@ -87,12 +91,17 @@ export default {
         'shine-pass': {
           '0%': { transform: 'translateX(-100%) skewX(-12deg)' },
           '100%': { transform: 'translateX(250%) skewX(-12deg)' }, 
-        }
+        },
+        'blue-blink': {
+          '0%, 100%': { opacity: '0.2', transform: 'scale(0.8)' },
+          '50%': { opacity: '1', transform: 'scale(1.2)' },
+        },
   		},
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
   			'accordion-up': 'accordion-up 0.2s ease-out',
         'shine-pass': 'shine-pass 2s ease-in-out infinite',
+        'blue-blink': 'blue-blink 3s ease-in-out infinite',
   		}
   	}
   },
@@ -101,4 +110,3 @@ export default {
 
 
     
-

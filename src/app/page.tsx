@@ -109,12 +109,12 @@ export default function HomePage() {
       answer: "Focus CaseX is the ideal clinical companion for optometry students seeking an interactive tool to accelerate their learning and for practicing optometrists who need an efficient method to log, review, and analyze interesting cases for continuing education and personal development. It also serves as a modern, effective teaching aid for optometry schools and colleges."
     },
     {
-      question: "What happens to my data if I cancel my subscription?",
+      question: "What happens to my data if my subscription expires?",
       answer: "Your data remains yours, always. Because all case information is stored locally on your device's browser storage, you will retain full access to it even if your subscription expires. You would only lose access to the AI-powered analysis and interactive assistant features, which require an active subscription to function. You can export all your data to CSV at any time, ensuring you always have a permanent record."
     },
     {
       question: "What AI model is used for the analysis and assistant features?",
-      answer: "Focus CaseX is powered by Focus AI, which leverages state-of-the-art large language models (LLMs) from Google. These models have been carefully prompted and integrated into our system to understand the specific context of optometry. This allows our platform to provide fast, clinically relevant insights, generate concise case summaries, and power the interactive form-filling assistant, helping you learn and document more effectively."
+      answer: "Focus CaseX is powered by Focus AI, which leverages state-of-the-art large language models (LLMs). These models have been carefully prompted and integrated into our system to understand the specific context of optometry. This allows our platform to provide fast, clinically relevant insights, generate concise case summaries, and power the interactive form-filling assistant, helping you learn and document more effectively."
     },
     {
       question: "Do you offer customer support if I run into any issues?",
@@ -126,7 +126,7 @@ export default function HomePage() {
     <MainLayout>
        <style jsx global>{`
         @keyframes fade-in-down { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fade-in-up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fade-in-up { from { opacity: 0; transform: translateY(20px); } to- { opacity: 1; transform: translateY(0); } }
         @keyframes subtle-float { 0% { transform: translateY(0px); } 50% { transform: translateY(-8px); } 100% { transform: translateY(0px); } }
         .animate-fade-in-down { animation: fade-in-down 0.8s ease-out forwards; }
         .animate-fade-in-up { animation: fade-in-up 0.8s ease-out forwards; }
@@ -136,8 +136,8 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="py-24 md:py-32 text-center bg-gradient-to-b from-background via-blue-50/50 to-background dark:from-blue-950/10 dark:via-blue-950/5">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 animate-fade-in-down">
-            <span className="text-primary">Focus Case</span><span className="text-foreground">X</span>
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 animate-fade-in-down font-logo">
+            <span className="text-primary">Focus Case</span><span className="text-foreground relative">X<span className="absolute left-0 top-0 h-full w-full bg-primary/80 rounded-full blur-xl animate-blue-blink -z-10"></span></span>
           </h1>
           <p className="text-xl md:text-2xl font-medium text-foreground/90 mb-8 max-w-3xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
             The AI-Powered Platform for Optometry Education & Case Analysis
