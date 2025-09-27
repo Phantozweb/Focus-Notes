@@ -79,7 +79,7 @@ export default function DashboardPage() {
   return (
     <main className="container py-8 px-4 sm:px-6 lg:px-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground">Welcome to your Dashboard</h1>
+        <h1 className="text-3xl font-bold text-foreground">Welcome, User!</h1>
         <p className="text-muted-foreground">Here's a quick overview of your case activity.</p>
       </div>
       
@@ -164,3 +164,5 @@ export default function DashboardPage() {
     </main>
   );
 }
+
+    
