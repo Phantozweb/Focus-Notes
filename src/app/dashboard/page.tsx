@@ -323,11 +323,11 @@ function AllCasesContent() {
   return (
     <div className="flex h-full flex-1 flex-col">
       <div className="container flex-shrink-0 pt-8">
-        <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4 w-full">
-          <CardTitle className="text-3xl font-bold text-primary flex items-center order-first sm:order-none">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 w-full">
+          <CardTitle className="text-3xl font-bold text-primary flex items-center">
             <ListChecks className="mr-3 h-8 w-8" /> Case Records
           </CardTitle>
-          <div className="flex gap-2 self-end sm:self-center">
+          <div className="flex gap-2 self-start sm:self-center">
             <Button onClick={() => router.push('/cases/new')}>
               <PlusCircle className="mr-2 h-4 w-4" /> Log New Case
             </Button>
@@ -412,3 +412,5 @@ export default function DashboardPage() {
         </Suspense>
     );
 }
+
+    
