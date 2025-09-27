@@ -25,6 +25,7 @@ export default function DashboardLayout({
 }) {
   const router = useRouter();
   const pathname = usePathname();
+  const [isSidebarOpen, setSidebarOpen] = React.useState(true);
 
   const menuItems = [
     { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -33,7 +34,7 @@ export default function DashboardLayout({
   ];
 
   return (
-    <SidebarProvider>
+    <SidebarProvider open={isSidebarOpen} onOpenChange={setSidebarOpen}>
       <Sidebar>
         <SidebarHeader>
           <div className="flex items-center gap-2 p-2">
