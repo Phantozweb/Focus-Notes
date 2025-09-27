@@ -137,7 +137,7 @@ export default function HomePage() {
       <section className="py-24 md:py-32 text-center bg-gradient-to-b from-background via-blue-50/50 to-background dark:from-blue-950/10 dark:via-blue-950/5">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 animate-fade-in-down font-logo">
-            <span className="text-primary">Focus Case</span><span className="text-foreground relative">X<span className="absolute left-0 top-0 h-full w-full bg-primary/80 rounded-full blur-xl animate-blue-blink -z-10"></span></span>
+            <span className="text-primary">Focus Case</span><span className="text-foreground relative">X<span className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-primary animate-blue-blink"></span></span>
           </h1>
           <p className="text-xl md:text-2xl font-medium text-foreground/90 mb-8 max-w-3xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
             The AI-Powered Platform for Optometry Education & Case Analysis
