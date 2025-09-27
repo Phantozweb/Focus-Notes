@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -153,11 +154,8 @@ export default function HomePage() {
             Streamline your case logging with our intelligent assistant, uncover deep insights with powerful analytics, and accelerate your clinical learning.
           </p>
           <div className="flex flex-wrap justify-center items-center gap-4 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
-            <Button size="lg" onClick={handleNewCase} className="shadow-lg hover:shadow-primary/30 transition-shadow">
-              <PlusCircle className="mr-2 h-5 w-5" /> Start Logging
-            </Button>
-            <Button size="lg" variant="outline" onClick={handleViewCases}>
-              View My Cases <ArrowRight className="ml-2 h-5 w-5" />
+            <Button size="lg" onClick={() => router.push('#pricing')} className="shadow-lg hover:shadow-primary/30 transition-shadow">
+               Get Started
             </Button>
           </div>
         </div>
@@ -328,7 +326,7 @@ export default function HomePage() {
                 </ul>
               </CardContent>
               <CardFooter className="p-6 mt-auto">
-                <Button size="lg" variant={institutionTier.variant as "default" | "outline"} className="w-full">{institutionTier.cta}</Button>
+                <Button size="lg" variant={institutionTier.variant as "default" | "outline"} className="w-full" onClick={() => router.push('/contact')}>{institutionTier.cta}</Button>
               </CardFooter>
             </Card>
           </div>
@@ -356,5 +354,3 @@ export default function HomePage() {
     </MainLayout>
   );
 }
-
-    
