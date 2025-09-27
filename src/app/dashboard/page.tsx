@@ -321,9 +321,9 @@ function AllCasesContent() {
   };
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8 flex flex-col flex-1 h-full">
-      <div className="pt-8">
-        <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4 max-w-7xl mx-auto w-full">
+    <div className="flex h-full flex-1 flex-col">
+      <div className="container flex-shrink-0 pt-8">
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4 w-full">
           <CardTitle className="text-3xl font-bold text-primary flex items-center order-first sm:order-none">
             <ListChecks className="mr-3 h-8 w-8" /> All Optometry Cases
           </CardTitle>
@@ -337,7 +337,7 @@ function AllCasesContent() {
           </div>
         </div>
 
-        <Card className="shadow-xl mb-6 max-w-7xl mx-auto w-full">
+        <Card className="shadow-xl mb-6 w-full">
           <CardContent className="pt-6">
             <form onSubmit={handleSearchSubmit}>
               <Input
@@ -353,7 +353,7 @@ function AllCasesContent() {
       </div>
 
       <ScrollArea className="flex-grow pb-8">
-        <div className="max-w-7xl mx-auto w-full">
+        <div className="container w-full">
           {filteredCases.length === 0 ? (
             <Card className="shadow-xl">
               <CardContent className="pt-6">
@@ -376,7 +376,7 @@ function AllCasesContent() {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredCases.map((caseItem) => (
                 <StoredCaseCard
                   key={caseItem.id}
@@ -412,3 +412,4 @@ export default function DashboardPage() {
         </Suspense>
     );
 }
+
