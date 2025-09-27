@@ -6,11 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { MainLayout } from '@/components/layout/main-layout';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { CheckCircle, Eye, BrainCircuit, ShieldCheck, Zap, FolderKanban, PlusCircle, ArrowRight, LogIn } from 'lucide-react';
+import { CheckCircle, Eye, BrainCircuit, ShieldCheck, Zap, FolderKanban, PlusCircle, ArrowRight, LogIn, XCircle, Check } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import Autoplay from "embla-carousel-autoplay";
 
 export default function HomePage() {
@@ -32,7 +33,7 @@ export default function HomePage() {
     {
       icon: <BrainCircuit className="h-10 w-10 text-primary" />,
       title: "Interactive AI Assistant",
-      description: "Leverage the power of Focus AI to fill out forms interactively. Save time and reduce manual data entry by simply talking to your assistant.",
+      description: "Leverage our powerful AI to fill out forms interactively. Save time and reduce manual data entry by simply talking to your assistant.",
     },
     {
       icon: <FolderKanban className="h-10 w-10 text-primary" />,
@@ -46,26 +47,8 @@ export default function HomePage() {
     },
     {
       icon: <ShieldCheck className="h-10 w-10 text-primary" />,
-      title: "Secure & Private",
-      description: "All your case data is stored locally on your device, ensuring complete privacy and control over sensitive patient information.",
-    },
-  ];
-
-  const whyChooseUs = [
-    {
-      title: "Accelerate Your Learning",
-      description: "Deepen your understanding by reviewing AI-generated insights and engaging in a conversational chat about each case. Perfect for students and lifelong learners.",
-      icon: <CheckCircle className="h-6 w-6 text-green-500" />,
-    },
-    {
-      title: "Boost Your Efficiency",
-      description: "Our intuitive, AI-assisted case logging form significantly speeds up the documentation process, freeing up more of your valuable time.",
-      icon: <CheckCircle className="h-6 w-6 text-green-500" />,
-    },
-    {
-      title: "Data You Can Trust",
-      description: "With all data stored locally, you never have to worry about third-party data breaches or unauthorized access. Your work remains yours.",
-      icon: <CheckCircle className="h-6 w-6 text-green-500" />,
+      title: "Secure & Private by Design",
+      description: "All your case data is stored locally on your device, ensuring complete privacy and control over sensitive patient information. No cloud, no worries.",
     },
   ];
 
@@ -75,7 +58,6 @@ export default function HomePage() {
       price: "₹300",
       price_sub: "/ month",
       save: null,
-      cta: "Start Monthly",
     },
     {
       name: "3 Months",
@@ -106,6 +88,15 @@ export default function HomePage() {
     variant: 'outline'
   };
 
+  const comparisonData = [
+    { feature: "AI Assistance", focusCaseX: true, traditional: false, generic: false },
+    { feature: "Optometry-Specific Workflow", focusCaseX: true, traditional: true, generic: false },
+    { feature: "Pricing", focusCaseX: "Affordable Subscription", traditional: "Very Expensive", generic: "Free/Cheap" },
+    { feature: "Offline Access & Privacy", focusCaseX: true, traditional: false, generic: true },
+    { feature: "Ease of Use", focusCaseX: "Very High", traditional: "Complex", generic: "Simple but limited" },
+    { feature: "Mobile Accessibility", focusCaseX: true, traditional: false, generic: true },
+    { feature: "Learning & Insights", focusCaseX: true, traditional: false, generic: false },
+  ];
 
   const faqs = [
     {
@@ -199,36 +190,53 @@ export default function HomePage() {
             <CarouselPrevious className="hidden md:flex z-10" />
             <CarouselNext className="hidden md:flex z-10" />
           </Carousel>
+           <p className="text-center text-muted-foreground text-sm mt-6 md:hidden">Swipe for more features</p>
         </div>
       </section>
 
-       {/* Why Choose Us Section */}
+       {/* Why Choose Us & Comparison Section */}
       <section id="why-choose-us" className="py-20 md:py-28">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid lg:grid-cols-2 gap-12 items-center">
-                <div className="lg:order-last">
-                  <div className="p-8 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-950/20 rounded-2xl shadow-xl">
-                     <h2 className="text-3xl md:text-4xl font-bold text-primary mb-6">Elevate Your Clinical Workflow</h2>
-                    <p className="text-lg text-muted-foreground mb-8">Focus CaseX is more than just a tool—it's your dedicated partner for professional growth, designed by listening to the needs of students and clinicians.</p>
-                  </div>
-                </div>
-                <div className="lg:order-first">
-                    <ul className="space-y-6">
-                        {whyChooseUs.map(item => (
-                            <li key={item.title} className="flex items-start gap-4">
-                                <div className="flex-shrink-0 mt-1">{item.icon}</div>
-                                <div>
-                                    <h4 className="font-semibold text-xl text-foreground">{item.title}</h4>
-                                    <p className="text-muted-foreground">{item.description}</p>
-                                </div>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold text-primary">The Smart Choice for Modern Optometry</h2>
+              <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">See how Focus CaseX stacks up against traditional tools.</p>
             </div>
+            <Card className="shadow-2xl rounded-2xl overflow-hidden">
+                <Table>
+                    <TableHeader>
+                        <TableRow className="bg-muted/50">
+                            <TableHead className="w-[200px] text-base font-semibold text-foreground">Feature</TableHead>
+                            <TableHead className="text-center text-base font-semibold text-primary">Focus CaseX</TableHead>
+                            <TableHead className="text-center text-base font-semibold text-foreground">Traditional Software</TableHead>
+                            <TableHead className="text-center text-base font-semibold text-foreground">Generic Note Apps</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {comparisonData.map((item) => (
+                        <TableRow key={item.feature}>
+                            <TableCell className="font-medium text-foreground">{item.feature}</TableCell>
+                            <TableCell className="text-center">
+                                {typeof item.focusCaseX === 'boolean' ? (
+                                    item.focusCaseX ? <CheckCircle className="h-6 w-6 text-green-500 mx-auto" /> : <XCircle className="h-6 w-6 text-destructive mx-auto" />
+                                ) : <span className="font-semibold text-primary">{item.focusCaseX}</span>}
+                            </TableCell>
+                            <TableCell className="text-center">
+                                {typeof item.traditional === 'boolean' ? (
+                                    item.traditional ? <CheckCircle className="h-6 w-6 text-green-500 mx-auto" /> : <XCircle className="h-6 w-6 text-destructive mx-auto" />
+                                ) : <span className="text-muted-foreground">{item.traditional}</span>}
+                            </TableCell>
+                            <TableCell className="text-center">
+                                {typeof item.generic === 'boolean' ? (
+                                    item.generic ? <CheckCircle className="h-6 w-6 text-green-500 mx-auto" /> : <XCircle className="h-6 w-6 text-destructive mx-auto" />
+                                ) : <span className="text-muted-foreground">{item.generic}</span>}
+                            </TableCell>
+                        </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </Card>
         </div>
       </section>
-
 
       {/* Pricing Section */}
       <section id="pricing" className="py-20 md:py-28 bg-muted/40 dark:bg-card">
@@ -248,11 +256,13 @@ export default function HomePage() {
               <CardContent className="space-y-6">
                 <div>
                   <h4 className="font-semibold mb-3">All individual plans include:</h4>
-                  <ul className="space-y-3 text-muted-foreground text-sm grid grid-cols-2 gap-x-6 gap-y-3">
+                  <ul className="space-y-3 text-muted-foreground text-sm grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
                     <li className="flex items-center gap-3"><CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" /><span>Unlimited cases</span></li>
                     <li className="flex items-center gap-3"><CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" /><span>Full AI Assistant access</span></li>
                     <li className="flex items-center gap-3"><CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" /><span>Advanced AI Analytics</span></li>
                     <li className="flex items-center gap-3"><CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" /><span>Secure local storage</span></li>
+                    <li className="flex items-center gap-3"><CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" /><span>CSV Data Export</span></li>
+                    <li className="flex items-center gap-3"><CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" /><span>Priority Support</span></li>
                   </ul>
                 </div>
 
@@ -277,7 +287,7 @@ export default function HomePage() {
                         </div>
                         <div className="text-right">
                           <p className="font-bold text-lg text-foreground">{tier.price}</p>
-                          {tier.save && <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200 dark:bg-green-900/50 dark:text-green-300 dark:border-green-700 text-xs font-bold">{tier.save}</Badge>}
+                          {tier.save && <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200 dark:bg-green-900/50 dark:text-green-300 dark:border-green-700 font-bold">{tier.save}</Badge>}
                           {tier.popular && <Badge className="mt-1" variant="default">Best Value</Badge>}
                         </div>
                       </div>

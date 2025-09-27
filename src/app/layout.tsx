@@ -10,8 +10,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'Focus CaseX',
-  description: 'Your professional platform for optometry case management and learning.',
+  title: 'Focus CaseX | AI-Powered Optometry Case Platform',
+  description: 'The leading AI-powered platform for optometry students and professionals. Streamline case logging, get instant analysis, and accelerate clinical education with our secure, offline-first software.',
+  keywords: ['optometry software', 'optometry case management', 'AI optometry', 'clinical education tool', 'optometry student tool', 'case analysis', 'patient case log'],
 };
 
 export default function RootLayout({
