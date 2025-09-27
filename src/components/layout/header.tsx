@@ -21,7 +21,7 @@ export function Header({}: HeaderProps) {
           </h1>
         </div>
         <nav className="flex items-center gap-4">
-            <Button size="sm" variant="outline" onClick={() => router.push('#')}>
+            <Button size="sm" variant="outline" onClick={() => router.push('/dashboard')}>
               <LogIn className="mr-2 h-4 w-4" />
               Login
             </Button>
