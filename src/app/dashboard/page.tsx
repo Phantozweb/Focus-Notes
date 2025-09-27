@@ -358,13 +358,8 @@ function AllCasesContent() {
             <Card className="shadow-xl">
               <CardContent className="pt-6">
                 <div className="text-center py-10">
-                  <img 
-                    src="https://picsum.photos/seed/1/400/300"
-                    alt="Illustration of empty case files" 
-                    data-ai-hint="empty state medical documents"
-                    className="mx-auto mb-6 rounded-lg opacity-80"
-                  />
-                  <h2 className="text-2xl font-semibold text-foreground mb-3">
+                  <FileText className="mx-auto h-12 w-12 text-muted-foreground/50" />
+                  <h2 className="text-2xl font-semibold text-foreground mb-3 mt-4">
                     {urlSearchTerm ? 'No Cases Match Your Search' : 'No Cases Logged Yet'}
                   </h2>
                   <p className="text-muted-foreground max-w-md mx-auto mb-6">
