@@ -22,14 +22,6 @@ export default function HomePage() {
     Autoplay({ delay: 3000, stopOnInteraction: true })
   );
 
-  const handleNewCase = () => {
-    router.push('/cases/new');
-  };
-
-  const handleViewCases = () => {
-    router.push('/cases');
-  };
-
   const features = [
     {
       icon: <BrainCircuit className="h-10 w-10 text-primary" />,
@@ -144,8 +136,8 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="py-24 md:py-32 text-center bg-gradient-to-b from-background via-blue-50/50 to-background dark:from-blue-950/10 dark:via-blue-950/5">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-primary mb-6 animate-fade-in-down">
-            Focus CaseX
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 animate-fade-in-down">
+            <span className="text-primary">Focus Case</span><span className="text-foreground">X</span>
           </h1>
           <p className="text-xl md:text-2xl font-medium text-foreground/90 mb-8 max-w-3xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
             The AI-Powered Platform for Optometry Education & Case Analysis
