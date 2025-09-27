@@ -196,8 +196,8 @@ export default function HomePage() {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious className="hidden md:flex" />
-            <CarouselNext className="hidden md:flex" />
+            <CarouselPrevious className="hidden md:flex z-10" />
+            <CarouselNext className="hidden md:flex z-10" />
           </Carousel>
         </div>
       </section>
