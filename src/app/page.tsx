@@ -303,7 +303,7 @@ export default function HomePage() {
                 </div>
               </CardContent>
               <CardFooter>
-                 <Button size="lg" className="w-full">Get Started</Button>
+                 <Button size="lg" className="w-full" onClick={() => router.push(`/checkout?plan=${selectedPlan}`)}>Get Started</Button>
               </CardFooter>
             </Card>
 
