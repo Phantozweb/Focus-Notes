@@ -134,7 +134,7 @@ export default function HomePage() {
       `}</style>
 
       {/* Hero Section */}
-      <section className="py-24 md:py-32 text-center bg-gradient-to-b from-background via-blue-50/50 to-muted/40 dark:from-blue-950/10 dark:via-blue-950/5 dark:to-card">
+      <section className="py-24 md:py-32 text-center bg-gradient-to-br from-blue-50 via-background to-blue-100/50 dark:from-blue-950/20 dark:via-card dark:to-blue-950/10 animate-gradient-animation">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 animate-fade-in-down font-logo">
             <span className="text-primary">Focus Case</span><span className="text-foreground relative">X<span className="absolute -right-1 top-0 h-2.5 w-2.5 rounded-full bg-primary animate-blue-blink"></span></span>
@@ -146,8 +146,11 @@ export default function HomePage() {
             Streamline your case logging with our intelligent assistant, uncover deep insights with powerful analytics, and accelerate your clinical learning.
           </p>
           <div className="flex flex-wrap justify-center items-center gap-4 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
-            <Button size="lg" onClick={() => router.push('#pricing')} className="shadow-lg hover:shadow-primary/30 transition-shadow">
-               Get Started
+            <Button size="lg" onClick={() => router.push('/cases/new')} className="shadow-lg hover:shadow-primary/30 transition-shadow">
+               <PlusCircle /> Get Started
+            </Button>
+            <Button size="lg" variant="outline" onClick={() => router.push('#features')} className="shadow-lg hover:shadow-lg transition-shadow bg-background/50">
+               <ArrowRight /> Learn More
             </Button>
           </div>
         </div>
