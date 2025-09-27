@@ -9,15 +9,36 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { Send, User, Building, Mail, Phone, MessageSquare } from 'lucide-react';
+import { Send, User, Building, Mail, Phone, MessageSquare, GraduationCap, BookOpen } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const contactFormSchema = z.object({
   name: z.string().min(2, { message: 'Please enter a valid name.' }),
   institution: z.string().min(2, { message: 'Please enter your institution name.' }),
   email: z.string().email({ message: 'Please enter a valid email address.' }),
   phone: z.string().min(10, { message: 'Please enter a valid 10-digit phone number.' }),
+  role: z.enum(['Student', 'Practitioner', 'Faculty'], { required_error: 'Please select your role.' }),
+  course: z.string().optional(),
+  year: z.string().optional(),
   message: z.string().min(10, { message: 'Please enter a message of at least 10 characters.' }),
+}).refine(data => {
+    if (data.role === 'Student' && !data.course) {
+        return false;
+    }
+    return true;
+}, {
+    message: 'Please select your course.',
+    path: ['course'],
+}).refine(data => {
+    if (data.role === 'Student' && !data.year) {
+        return false;
+    }
+    return true;
+}, {
+    message: 'Please select your year.',
+    path: ['year'],
 });
+
 
 type ContactFormValues = z.infer<typeof contactFormSchema>;
 
@@ -33,6 +54,8 @@ export function ContactUsForm() {
       message: '',
     },
   });
+
+  const watchedRole = form.watch('role');
 
   const onSubmit = (data: ContactFormValues) => {
     console.log(data);
@@ -99,6 +122,84 @@ export function ContactUsForm() {
             </FormItem>
           )}
         />
+
+        <FormField
+          control={form.control}
+          name="role"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="flex items-center gap-2"><GraduationCap className="h-4 w-4" />Your Role</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select your current role" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="Student">Student</SelectItem>
+                    <SelectItem value="Practitioner">Practitioner</SelectItem>
+                    <SelectItem value="Faculty">Faculty / Educator</SelectItem>
+                  </SelectContent>
+                </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {watchedRole === 'Student' && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+             <FormField
+              control={form.control}
+              name="course"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-2"><BookOpen className="h-4 w-4" />Course</FormLabel>
+                   <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select your course" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="BSc Optometry">BSc Optometry</SelectItem>
+                        <SelectItem value="MSc Optometry">MSc Optometry</SelectItem>
+                        <SelectItem value="PhD Optometry">PhD</SelectItem>
+                        <SelectItem value="Diploma">Diploma in Optometry</SelectItem>
+                        <SelectItem value="Other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+             <FormField
+              control={form.control}
+              name="year"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-2"><BookOpen className="h-4 w-4" />Year of Study</FormLabel>
+                   <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select your year" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="1st Year">1st Year</SelectItem>
+                        <SelectItem value="2nd Year">2nd Year</SelectItem>
+                        <SelectItem value="3rd Year">3rd Year</SelectItem>
+                        <SelectItem value="4th Year">4th Year</SelectItem>
+                        <SelectItem value="Intern">Intern</SelectItem>
+                        <SelectItem value="Fellow">Fellow</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        )}
+
         <FormField
           control={form.control}
           name="message"
