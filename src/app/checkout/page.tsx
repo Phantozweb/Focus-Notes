@@ -54,6 +54,7 @@ function CheckoutContent() {
   const [detailsSubmitted, setDetailsSubmitted] = React.useState(false);
 
   const UPI_ID = 'iamsirenjeev@oksbi';
+  const PAYEE_NAME = 'Focus CaseX';
 
   const planDetails: { [key: string]: { price: string, description: string, amount: number } } = {
     'Monthly': { price: '₹300', description: 'Billed monthly', amount: 300 },
@@ -67,6 +68,10 @@ function CheckoutContent() {
     description: 'No plan selected. Please go back and choose a plan.',
     amount: 0,
   };
+
+  const upiUrl = `upi://pay?pa=${UPI_ID}&pn=${encodeURIComponent(PAYEE_NAME)}&am=${selectedPlanDetails.amount}&cu=INR`;
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiUrl)}`;
+
 
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutFormSchema),
@@ -163,12 +168,13 @@ function CheckoutContent() {
                     </div>
                     <div className="flex justify-center">
                         <Image
-                            src="https://placehold.co/200x200.png"
+                            src={qrCodeUrl}
                             width={200}
                             height={200}
-                            alt="UPI QR Code"
+                            alt={`QR code for payment of ${selectedPlanDetails.price} to ${PAYEE_NAME}`}
                             data-ai-hint="upi qr code"
                             className="rounded-lg shadow-md"
+                            unoptimized // Important for external dynamic images
                         />
                     </div>
                   </div>
