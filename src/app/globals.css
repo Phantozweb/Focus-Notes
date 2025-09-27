@@ -44,15 +44,13 @@ body {
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
 
-    /* Sidebar specific variables if needed, otherwise they inherit */
-    --sidebar-background: 210 30% 12%; /* Darker blue for sidebar in potential dark mode or distinct theme */
-    --sidebar-foreground: 205 70% 90%;
-    --sidebar-primary: 205 88% 60%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 195 90% 55%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 210 30% 20%;
-    --sidebar-ring: 195 90% 55%;
+    /* Light Sidebar Variables */
+    --sidebar-background: 210 30% 98%; /* Very light gray, almost white */
+    --sidebar-foreground: 220 15% 35%; /* Darker text for readability */
+    --sidebar-border: 205 30% 88%;     /* Same as main border */
+    --sidebar-accent: 205 70% 92%;      /* Light blue for active/hover */
+    --sidebar-accent-foreground: 205 80% 30%; /* Darker blue text on accent */
+    --sidebar-ring: 205 88% 50%;        /* Primary color for focus */
   }
 
   .dark {
@@ -95,11 +93,9 @@ body {
     /* Dark Sidebar specific variables */
     --sidebar-background: 210 30% 14%;
     --sidebar-foreground: 205 70% 88%;
-    --sidebar-primary: 205 88% 65%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 195 90% 60%;
-    --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-border: 210 30% 22%;
+    --sidebar-accent: 210 30% 20%;
+    --sidebar-accent-foreground: 205 70% 92%;
     --sidebar-ring: 195 90% 60%;
   }
 }
