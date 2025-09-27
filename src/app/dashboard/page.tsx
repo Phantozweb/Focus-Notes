@@ -327,14 +327,6 @@ function AllCasesContent() {
           <CardTitle className="text-3xl font-bold text-primary flex items-center">
             <ListChecks className="mr-3 h-8 w-8" /> Case Records
           </CardTitle>
-          <div className="flex gap-2 self-start sm:self-center">
-            <Button onClick={() => router.push('/cases/new')}>
-              <PlusCircle className="mr-2 h-4 w-4" /> Log New Case
-            </Button>
-            <Button onClick={handleExport} variant="outline" disabled={filteredCases.length === 0}>
-              <Download className="mr-2 h-4 w-4" /> Export Filtered
-            </Button>
-          </div>
         </div>
 
         <Card className="shadow-xl mb-6 w-full">
@@ -350,6 +342,15 @@ function AllCasesContent() {
             </form>
           </CardContent>
         </Card>
+        
+        <div className="flex gap-2 mb-6">
+            <Button onClick={() => router.push('/cases/new')}>
+              <PlusCircle className="mr-2 h-4 w-4" /> Log New Case
+            </Button>
+            <Button onClick={handleExport} variant="outline" disabled={filteredCases.length === 0}>
+              <Download className="mr-2 h-4 w-4" /> Export Filtered
+            </Button>
+        </div>
       </div>
 
       <ScrollArea className="flex-grow pb-8">
