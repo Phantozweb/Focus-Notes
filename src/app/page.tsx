@@ -220,62 +220,78 @@ export default function HomePage() {
             <p className="mt-4 text-lg text-muted-foreground">Choose the plan that's right for you.</p>
           </div>
           
-          <div className="text-center mb-8">
-            <h3 className="text-2xl font-semibold">Individual Plan</h3>
-            <p className="text-muted-foreground">For students and practicing optometrists.</p>
-          </div>
-          <div className="max-w-2xl mx-auto mb-12 p-6 bg-background/50 rounded-xl border">
-            <ul className="space-y-3 text-muted-foreground text-sm grid grid-cols-2 gap-x-6 gap-y-3">
-              <li className="flex items-center gap-3"><CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" /><span>Unlimited cases</span></li>
-              <li className="flex items-center gap-3"><CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" /><span>Full AI Assistant access</span></li>
-              <li className="flex items-center gap-3"><CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" /><span>Advanced AI Analytics</span></li>
-              <li className="flex items-center gap-3"><CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" /><span>Secure local storage</span></li>
-            </ul>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto mb-16">
-            {individualPricingTiers.map((tier) => (
-              <Card key={tier.name} className={cn("flex flex-col shadow-lg rounded-2xl", tier.popular ? 'border-2 border-primary shadow-primary/20' : 'border')}>
-                {tier.popular && <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-semibold">Best Value</div>}
-                 {tier.save && <Badge variant="secondary" className="absolute top-4 right-4 bg-accent/20 text-accent-foreground border-accent/30">{tier.save}</Badge>}
-                <CardHeader className="text-center pt-8 flex-grow">
-                  <CardTitle className="text-2xl font-bold">{tier.name}</CardTitle>
-                  <CardDescription className="text-4xl font-bold text-foreground pt-2">
-                     {tier.price}
-                  </CardDescription>
-                  <p className="text-sm text-muted-foreground">{tier.price_sub}</p>
-                </CardHeader>
-                <CardFooter className="p-6">
-                  <Button size="lg" variant={tier.variant as "default" | "outline"} className="w-full">{tier.cta}</Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-
-          <div className="max-w-2xl mx-auto">
-             <Card key={institutionTier.name} className="flex flex-col shadow-lg rounded-2xl border">
-                <CardHeader className="text-center pt-8">
-                  <CardTitle className="text-2xl font-bold">{institutionTier.name}</CardTitle>
-                  <CardDescription className="text-4xl font-bold text-foreground">
-                     {institutionTier.price}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="flex-grow">
-                  <ul className="space-y-4 text-muted-foreground">
-                    {institutionTier.features.map((feature) => (
-                      <li key={feature} className="flex items-center gap-3">
-                        <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
-                        <span>{feature}</span>
-                      </li>
-                    ))}
+          <div className="grid lg:grid-cols-5 gap-8 items-start">
+            {/* Individual Plan */}
+            <Card className="lg:col-span-3 shadow-xl rounded-2xl border-2 border-primary">
+              <CardHeader className="pb-4">
+                  <CardTitle className="text-2xl font-bold">Individual Plan</CardTitle>
+                  <CardDescription>For students and practicing optometrists.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div>
+                  <h4 className="font-semibold mb-3">All individual plans include:</h4>
+                  <ul className="space-y-3 text-muted-foreground text-sm grid grid-cols-2 gap-x-6 gap-y-3">
+                    <li className="flex items-center gap-3"><CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" /><span>Unlimited cases</span></li>
+                    <li className="flex items-center gap-3"><CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" /><span>Full AI Assistant access</span></li>
+                    <li className="flex items-center gap-3"><CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" /><span>Advanced AI Analytics</span></li>
+                    <li className="flex items-center gap-3"><CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" /><span>Secure local storage</span></li>
                   </ul>
-                </CardContent>
-                <CardFooter className="p-6">
-                  <Button size="lg" variant={institutionTier.variant as "default" | "outline"} className="w-full">{institutionTier.cta}</Button>
-                </CardFooter>
-              </Card>
-          </div>
+                </div>
 
+                <div className="space-y-3">
+                   {individualPricingTiers.map((tier) => (
+                    <button key={tier.name} className={cn(
+                      "w-full text-left p-4 rounded-lg border transition-all hover:border-primary",
+                      tier.popular ? 'border-primary bg-primary/5' : 'border-border'
+                    )}>
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-4">
+                          <div className={cn("h-5 w-5 rounded-full border-2 flex items-center justify-center", tier.popular ? 'border-primary' : 'border-muted-foreground')}>
+                             {tier.popular && <div className="h-2.5 w-2.5 rounded-full bg-primary"></div>}
+                          </div>
+                          <div>
+                            <p className="font-semibold text-foreground">{tier.name}</p>
+                            <p className="text-xs text-muted-foreground">{tier.price_sub}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-lg text-foreground">{tier.price}</p>
+                          {tier.save && <Badge variant="secondary" className="bg-accent/20 text-accent-foreground border-accent/30 text-xs">{tier.save}</Badge>}
+                          {tier.popular && <Badge className="mt-1">Best Value</Badge>}
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </CardContent>
+              <CardFooter>
+                 <Button size="lg" className="w-full">Get Started</Button>
+              </CardFooter>
+            </Card>
+
+            {/* Institution Plan */}
+            <Card className="lg:col-span-2 shadow-lg rounded-2xl border h-full flex flex-col">
+              <CardHeader>
+                <CardTitle className="text-2xl font-bold">{institutionTier.name}</CardTitle>
+                <CardDescription className="text-4xl font-bold text-foreground">
+                   {institutionTier.price}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex-grow">
+                <ul className="space-y-4 text-muted-foreground">
+                  {institutionTier.features.map((feature) => (
+                    <li key={feature} className="flex items-center gap-3">
+                      <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+              <CardFooter className="p-6 mt-auto">
+                <Button size="lg" variant={institutionTier.variant as "default" | "outline"} className="w-full">{institutionTier.cta}</Button>
+              </CardFooter>
+            </Card>
+          </div>
         </div>
       </section>
 
