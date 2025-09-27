@@ -114,6 +114,18 @@ export default function HomePage() {
      {
       question: "Who is this optometry software for?",
       answer: "Focus CaseX is the ideal clinical companion for optometry students seeking an interactive tool to accelerate their learning and for practicing optometrists who need an efficient method to log, review, and analyze interesting cases for continuing education and personal development. It also serves as a modern, effective teaching aid for optometry schools and colleges."
+    },
+    {
+      question: "What happens to my data if I cancel my subscription?",
+      answer: "Your data remains yours, always. Because all case information is stored locally on your device's browser storage, you will retain full access to it even if your subscription expires. You would only lose access to the AI-powered analysis and interactive assistant features, which require an active subscription to function. You can export all your data to CSV at any time, ensuring you always have a permanent record."
+    },
+    {
+      question: "What AI model is used for the analysis and assistant features?",
+      answer: "Focus CaseX leverages Google's state-of-the-art Gemini family of models. These powerful large language models (LLMs) have been carefully prompted and integrated into our system to understand the specific context of optometry. This allows our platform to provide fast, clinically relevant insights, generate concise case summaries, and power the interactive form-filling assistant, helping you learn and document more effectively."
+    },
+    {
+      question: "Do you offer customer support if I run into any issues?",
+      answer: "Yes, all our paid subscription plans include access to our priority email support. Our dedicated team is available to help you with any questions about features, troubleshoot technical issues, or listen to your suggestions for improving the platform. We are committed to ensuring you have a smooth and productive experience with Focus CaseX."
     }
   ];
 
