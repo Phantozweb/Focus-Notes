@@ -1,6 +1,7 @@
 
 'use client';
 
+import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { MainLayout } from '@/components/layout/main-layout';
@@ -12,6 +13,7 @@ import { Badge } from '@/components/ui/badge';
 
 export default function HomePage() {
   const router = useRouter();
+  const [selectedPlan, setSelectedPlan] = React.useState('Yearly');
 
   const handleNewCase = () => {
     router.push('/cases/new');
@@ -69,31 +71,24 @@ export default function HomePage() {
       price_sub: "/ month",
       save: null,
       cta: "Start Monthly",
-      variant: 'outline',
     },
     {
       name: "3 Months",
       price: "₹750",
       price_sub: "billed quarterly",
       save: "Save 16%",
-      cta: "Choose 3 Months",
-      variant: 'outline',
     },
     {
       name: "6 Months",
       price: "₹1200",
       price_sub: "billed semi-annually",
       save: "Save 33%",
-      cta: "Choose 6 Months",
-      variant: 'outline',
     },
     {
       name: "Yearly",
       price: "₹2400",
       price_sub: "billed annually",
       save: "Save 33%",
-      cta: "Get Best Value",
-      variant: 'default',
       popular: true,
     }
   ];
@@ -240,14 +235,17 @@ export default function HomePage() {
 
                 <div className="space-y-3">
                    {individualPricingTiers.map((tier) => (
-                    <button key={tier.name} className={cn(
-                      "w-full text-left p-4 rounded-lg border transition-all hover:border-primary",
-                      tier.popular ? 'border-primary bg-primary/5' : 'border-border'
-                    )}>
+                    <button 
+                      key={tier.name} 
+                      onClick={() => setSelectedPlan(tier.name)}
+                      className={cn(
+                        "w-full text-left p-4 rounded-lg border transition-all hover:border-primary",
+                        selectedPlan === tier.name ? 'border-primary bg-primary/5 ring-2 ring-primary' : 'border-border'
+                      )}>
                       <div className="flex justify-between items-center">
                         <div className="flex items-center gap-4">
-                          <div className={cn("h-5 w-5 rounded-full border-2 flex items-center justify-center", tier.popular ? 'border-primary' : 'border-muted-foreground')}>
-                             {tier.popular && <div className="h-2.5 w-2.5 rounded-full bg-primary"></div>}
+                           <div className={cn("h-5 w-5 rounded-full border-2 flex items-center justify-center", selectedPlan === tier.name ? 'border-primary' : 'border-muted-foreground')}>
+                             {selectedPlan === tier.name && <div className="h-2.5 w-2.5 rounded-full bg-primary"></div>}
                           </div>
                           <div>
                             <p className="font-semibold text-foreground">{tier.name}</p>
@@ -256,8 +254,8 @@ export default function HomePage() {
                         </div>
                         <div className="text-right">
                           <p className="font-bold text-lg text-foreground">{tier.price}</p>
-                          {tier.save && <Badge variant="secondary" className="bg-accent/20 text-accent-foreground border-accent/30 text-xs">{tier.save}</Badge>}
-                          {tier.popular && <Badge className="mt-1">Best Value</Badge>}
+                          {tier.save && <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200 dark:bg-green-900/50 dark:text-green-300 dark:border-green-700 text-xs">{tier.save}</Badge>}
+                          {tier.popular && <Badge className="mt-1" variant="default">Best Value</Badge>}
                         </div>
                       </div>
                     </button>
@@ -316,3 +314,5 @@ export default function HomePage() {
     </MainLayout>
   );
 }
+
+    
