@@ -37,12 +37,15 @@ export default function DashboardLayout({
     <SidebarProvider open={isSidebarOpen} onOpenChange={setSidebarOpen}>
       <Sidebar>
         <SidebarHeader>
-          <div className="flex items-center gap-2 p-2">
-            <Eye className="h-7 w-7 text-primary" />
-            <h1 className="text-2xl font-bold font-logo group-data-[collapsible=icon]:hidden">
-              <span className="text-primary">Focus Case</span>
-              <span className="text-foreground">X</span>
-            </h1>
+          <div className="flex items-center justify-between p-2">
+            <div className="flex items-center gap-2">
+                <Eye className="h-7 w-7 text-primary" />
+                <h1 className="text-2xl font-bold font-logo group-data-[collapsible=icon]:hidden">
+                  <span className="text-primary">Focus Case</span>
+                  <span className="text-foreground">X</span>
+                </h1>
+            </div>
+            <SidebarTrigger className="hidden md:flex" />
           </div>
         </SidebarHeader>
         <SidebarContent>
