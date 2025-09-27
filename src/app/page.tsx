@@ -134,7 +134,7 @@ export default function HomePage() {
       `}</style>
 
       {/* Hero Section */}
-      <section className="py-24 md:py-32 text-center bg-gradient-to-b from-background via-blue-50/50 to-background dark:from-blue-950/10 dark:via-blue-950/5">
+      <section className="py-24 md:py-32 text-center bg-gradient-to-b from-background via-blue-50/50 to-muted/40 dark:from-blue-950/10 dark:via-blue-950/5 dark:to-card">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 animate-fade-in-down font-logo">
             <span className="text-primary">Focus Case</span><span className="text-foreground relative">X<span className="absolute -right-1 top-0 h-2.5 w-2.5 rounded-full bg-primary animate-blue-blink"></span></span>
