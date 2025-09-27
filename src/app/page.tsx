@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { MainLayout } from '@/components/layout/main-layout';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { CheckCircle, Eye, BrainCircuit, ShieldCheck, Zap, FolderKanban, PlusCircle, ArrowRight } from 'lucide-react';
+import { CheckCircle, Eye, BrainCircuit, ShieldCheck, Zap, FolderKanban, PlusCircle, ArrowRight, LogIn } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
@@ -24,7 +24,7 @@ export default function HomePage() {
     {
       icon: <BrainCircuit className="h-10 w-10 text-primary" />,
       title: "Interactive AI Assistant",
-      description: "Leverage the power of Focus AI to fill out EMR forms interactively. Save time and reduce manual data entry by simply talking to your assistant.",
+      description: "Leverage the power of Focus AI to fill out forms interactively. Save time and reduce manual data entry by simply talking to your assistant.",
     },
     {
       icon: <FolderKanban className="h-10 w-10 text-primary" />,
@@ -51,7 +51,7 @@ export default function HomePage() {
     },
     {
       title: "Boost Your Efficiency",
-      description: "Our intuitive, AI-assisted EMR form significantly speeds up the case logging process, freeing up more of your valuable time.",
+      description: "Our intuitive, AI-assisted case logging form significantly speeds up the documentation process, freeing up more of your valuable time.",
       icon: <CheckCircle className="h-6 w-6 text-green-500" />,
     },
     {
@@ -64,14 +64,14 @@ export default function HomePage() {
   const pricingTiers = [
     {
       name: "Student",
-      price: "$9",
+      price: "₹750",
       features: ["Up to 100 cases", "Full AI Assistant access", "Case Insights Generation", "Community support"],
       cta: "Start Free Trial",
       variant: 'outline'
     },
     {
       name: "Professional",
-      price: "$29",
+      price: "₹2400",
       features: ["Unlimited cases", "Full AI Assistant access", "Advanced AI Analytics", "CSV Data Export", "Priority email support"],
       cta: "Get Started",
       variant: 'default',
@@ -93,7 +93,7 @@ export default function HomePage() {
     },
     {
       question: "How does the AI assistant work?",
-      answer: "Our AI assistant uses advanced language models to understand your conversational input. When you're in the 'Log New Case' form, you can talk to the assistant, and it will intelligently extract information and populate the relevant EMR fields for you, confirming its actions as it goes."
+      answer: "Our AI assistant uses advanced language models to understand your conversational input. When you're on the 'Log New Case' form, you can talk to the assistant, and it will intelligently extract information and populate the relevant fields for you, confirming its actions as it goes."
     },
     {
       question: "Can I use this on multiple devices?",
@@ -123,17 +123,20 @@ export default function HomePage() {
             Focus CaseX
           </h1>
           <p className="text-xl md:text-2xl font-medium text-foreground/90 mb-8 max-w-3xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-            The AI-Powered EMR for Optometry Education & Case Analysis
+            The AI-Powered Platform for Optometry Education & Case Analysis
           </p>
           <p className="text-md sm:text-lg text-muted-foreground mb-12 max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
             Streamline your case logging with our intelligent assistant, uncover deep insights with powerful analytics, and accelerate your clinical learning.
           </p>
-          <div className="flex justify-center items-center gap-4 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
+          <div className="flex flex-wrap justify-center items-center gap-4 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
             <Button size="lg" onClick={handleNewCase} className="shadow-lg hover:shadow-primary/30 transition-shadow">
               <PlusCircle className="mr-2 h-5 w-5" /> Start Logging
             </Button>
             <Button size="lg" variant="outline" onClick={handleViewCases}>
               View My Cases <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+             <Button size="lg" variant="secondary">
+              <LogIn className="mr-2 h-5 w-5" /> Login
             </Button>
           </div>
         </div>
@@ -164,12 +167,13 @@ export default function HomePage() {
       <section id="why-choose-us" className="py-20 md:py-28">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
-                <div className="animate-subtle-float">
-                  <img src="https://picsum.photos/seed/casex/600/500" alt="Optometrist analyzing data on a tablet" data-ai-hint="optometrist data analysis" className="rounded-2xl shadow-2xl" />
-                </div>
-                <div>
-                    <h2 className="text-3xl md:text-4xl font-bold text-primary mb-6">Elevate Your Clinical Workflow</h2>
+                <div className="lg:order-last">
+                  <div className="animate-subtle-float p-8 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-950/20 rounded-2xl shadow-xl">
+                     <h2 className="text-3xl md:text-4xl font-bold text-primary mb-6">Elevate Your Clinical Workflow</h2>
                     <p className="text-lg text-muted-foreground mb-8">Focus CaseX is more than just a tool—it's your dedicated partner for professional growth, designed by listening to the needs of students and clinicians.</p>
+                  </div>
+                </div>
+                <div className="lg:order-first">
                     <ul className="space-y-6">
                         {whyChooseUs.map(item => (
                             <li key={item.title} className="flex items-start gap-4">
@@ -201,7 +205,11 @@ export default function HomePage() {
                 <CardHeader className="text-center pt-8">
                   <CardTitle className="text-2xl font-bold">{tier.name}</CardTitle>
                   <CardDescription className="text-4xl font-bold text-foreground">
-                    {tier.price.startsWith('$') ? <><span className="text-3xl align-top mr-1">$</span>{tier.price.slice(1)} <span className="text-base font-normal text-muted-foreground">/ month</span></> : tier.price}
+                     {tier.price.startsWith('₹') ? (
+                      <><span className="text-3xl align-top mr-1">₹</span>{tier.price.slice(1)} <span className="text-base font-normal text-muted-foreground">/ month</span></>
+                    ) : (
+                      tier.price
+                    )}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="flex-grow">
@@ -215,7 +223,7 @@ export default function HomePage() {
                   </ul>
                 </CardContent>
                 <CardFooter className="p-6">
-                  <Button size="lg" variant={tier.variant} className="w-full">{tier.cta}</Button>
+                  <Button size="lg" variant={tier.variant as "default" | "outline"} className="w-full">{tier.cta}</Button>
                 </CardFooter>
               </Card>
             ))}

@@ -19,7 +19,7 @@ export function MainLayout({ children }: MainLayoutProps) {
             © {new Date().getFullYear()} Focus CaseX. All rights reserved.
           </p>
           <p className="text-sm text-muted-foreground text-center md:text-right">
-            Powered by <span className="font-semibold text-primary">Focus</span>
+            Powered by <span className="font-semibold text-primary">Focus-IN</span>
           </p>
         </div>
       </footer>
