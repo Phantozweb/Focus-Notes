@@ -100,20 +100,20 @@ export default function HomePage() {
 
   const faqs = [
     {
-      question: "Is my patient data secure?",
-      answer: "Absolutely. Focus CaseX is designed with a 'privacy-first' approach. All case data you enter is stored exclusively in your browser's local storage. It never leaves your device, ensuring you have complete control and confidentiality."
+      question: "Is my patient data secure and HIPAA compliant?",
+      answer: "Absolutely. Focus CaseX is an offline-first platform designed with a 'privacy-first' architecture. All case data you enter is stored exclusively in your browser's local storage on your device. It never leaves your computer or gets transmitted to the cloud, ensuring you have 100% control and confidentiality. This local-only storage model inherently aligns with HIPAA principles by minimizing data exposure risks."
     },
     {
-      question: "How does the AI assistant work?",
-      answer: "Our AI assistant uses advanced language models to understand your conversational input. When you're on the 'Log New Case' form, you can talk to the assistant, and it will intelligently extract information and populate the relevant fields for you, confirming its actions as it goes."
+      question: "How does the AI assistant improve my workflow as an optometry student?",
+      answer: "Our AI assistant revolutionizes case logging. Instead of manually typing everything, you can use conversational language. For example, say 'The patient is a 45-year-old male with a chief complaint of blurry vision at distance' and the AI will populate the 'Age', 'Sex', and 'Chief Complaint' fields for you. This AI-powered data entry not only saves significant time but also helps reinforce your clinical vocabulary and reporting structure."
     },
     {
-      question: "Can I use this on multiple devices?",
-      answer: "Because all data is stored locally on a single device's browser, your cases will not automatically sync between different computers or devices. This is part of our commitment to ensuring your data's privacy. You can, however, use our CSV export feature to move data manually."
+      question: "Can I use this on multiple devices, like my laptop and clinic computer?",
+      answer: "Since all data is stored locally within a single device's browser for maximum privacy, your cases will not automatically sync between different devices. This is a deliberate design choice to guarantee data security. However, you can use our built-in CSV export feature to easily transfer your case logs from one device to another, giving you both security and flexibility."
     },
      {
-      question: "Who is this platform for?",
-      answer: "Focus CaseX is ideal for optometry students who want an interactive learning tool, practicing optometrists who need an efficient way to log and review interesting cases for personal development, and educational institutions looking for a modern teaching aid."
+      question: "Who is this optometry software for?",
+      answer: "Focus CaseX is the ideal clinical companion for optometry students seeking an interactive tool to accelerate their learning and for practicing optometrists who need an efficient method to log, review, and analyze interesting cases for continuing education and personal development. It also serves as a modern, effective teaching aid for optometry schools and colleges."
     }
   ];
 
@@ -146,9 +146,6 @@ export default function HomePage() {
             </Button>
             <Button size="lg" variant="outline" onClick={handleViewCases}>
               View My Cases <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-             <Button size="lg" variant="secondary">
-              <LogIn className="mr-2 h-5 w-5" /> Login
             </Button>
           </div>
         </div>

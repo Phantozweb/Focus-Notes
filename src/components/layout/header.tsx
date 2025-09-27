@@ -1,9 +1,16 @@
-import { Eye } from 'lucide-react'; // Changed from Focus to Eye
+
+'use client';
+
+import { Eye, LogIn } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
 
 interface HeaderProps {
 }
 
 export function Header({}: HeaderProps) {
+  const router = useRouter();
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
@@ -11,6 +18,10 @@ export function Header({}: HeaderProps) {
           <Eye className="h-7 w-7 text-primary" /> {/* Changed icon */}
           <h1 className="text-2xl font-bold text-foreground">Focus CaseX</h1> {/* Changed name */}
         </div>
+        <Button size="sm" variant="outline" onClick={() => router.push('#')}>
+          <LogIn className="mr-2 h-4 w-4" />
+          Login
+        </Button>
       </div>
     </header>
   );
