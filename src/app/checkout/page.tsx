@@ -6,10 +6,23 @@ import { MainLayout } from '@/components/layout/main-layout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { ArrowLeft, CheckCircle, QrCode, Copy } from 'lucide-react';
+import { ArrowLeft, CheckCircle, QrCode, Copy, User, Mail, Phone, Send } from 'lucide-react';
 import { Suspense } from 'react';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+
+const checkoutFormSchema = z.object({
+  name: z.string().min(2, { message: 'Please enter a valid name.' }),
+  email: z.string().email({ message: 'Please enter a valid email address.' }),
+  phone: z.string().min(10, { message: 'Please enter a valid 10-digit phone number.' }),
+});
+
+type CheckoutFormValues = z.infer<typeof checkoutFormSchema>;
 
 function CheckoutContent() {
   const router = useRouter();
@@ -17,6 +30,8 @@ function CheckoutContent() {
   const searchParams = useSearchParams();
   const plan = searchParams.get('plan');
   const [isConfirming, setIsConfirming] = React.useState(false);
+  const [detailsSubmitted, setDetailsSubmitted] = React.useState(false);
+
   const UPI_ID = 'iamsirenjeev@oksbi';
 
   const planDetails: { [key: string]: { price: string, description: string, amount: number } } = {
@@ -31,6 +46,18 @@ function CheckoutContent() {
     description: 'No plan selected. Please go back and choose a plan.',
     amount: 0,
   };
+
+  const form = useForm<CheckoutFormValues>({
+    resolver: zodResolver(checkoutFormSchema),
+    defaultValues: { name: '', email: '', phone: '' },
+  });
+
+  const onDetailsSubmit = (data: CheckoutFormValues) => {
+    console.log("User Details:", data); // You can send this to a webhook
+    toast({ title: "Details Confirmed!", description: "Please proceed with the payment." });
+    setDetailsSubmitted(true);
+  };
+
 
   const handleCopyUpiId = () => {
     navigator.clipboard.writeText(UPI_ID);
@@ -64,25 +91,37 @@ function CheckoutContent() {
           </Button>
           <Card className="shadow-2xl rounded-2xl">
             <CardHeader className="text-center pb-4">
-              <CardTitle className="text-3xl font-bold text-primary">Complete Your Payment</CardTitle>
+              <CardTitle className="text-3xl font-bold text-primary">Complete Your Purchase</CardTitle>
               <CardDescription className="text-lg pt-2">
                 You're subscribing to the <span className="font-semibold text-foreground">{plan || 'N/A'}</span> plan.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {plan ? (
-                <>
-                  <div className="flex justify-between items-center p-4 border rounded-lg bg-muted/50">
-                    <div className="flex items-center gap-3">
-                        <CheckCircle className="h-6 w-6 text-primary" />
-                        <div>
-                            <p className="font-semibold">{plan} Plan</p>
-                            <p className="text-sm text-muted-foreground">{selectedPlanDetails.description}</p>
-                        </div>
+              <div className="flex justify-between items-center p-4 border rounded-lg bg-muted/50">
+                <div className="flex items-center gap-3">
+                    <CheckCircle className="h-6 w-6 text-primary" />
+                    <div>
+                        <p className="font-semibold">{plan} Plan</p>
+                        <p className="text-sm text-muted-foreground">{selectedPlanDetails.description}</p>
                     </div>
-                    <p className="text-xl font-bold">{selectedPlanDetails.price}</p>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center pt-4">
+                </div>
+                <p className="text-xl font-bold">{selectedPlanDetails.price}</p>
+              </div>
+
+              {!detailsSubmitted ? (
+                 <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onDetailsSubmit)} className="space-y-6 border-t pt-6">
+                     <p className="text-center font-semibold text-foreground">Step 1: Enter Your Details</p>
+                    <FormField control={form.control} name="name" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-2"><User className="h-4 w-4" />Full Name</FormLabel><FormControl><Input placeholder="John Doe" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="email" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-2"><Mail className="h-4 w-4" />Email Address</FormLabel><FormControl><Input type="email" placeholder="you@example.com" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="phone" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-2"><Phone className="h-4 w-4" />Phone Number</FormLabel><FormControl><Input type="tel" placeholder="+91 98765 43210" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                    <Button type="submit" className="w-full" size="lg"><Send className="mr-2 h-4 w-4" />Proceed to Payment</Button>
+                  </form>
+                </Form>
+              ) : (
+                <div className="border-t pt-6 space-y-6">
+                  <p className="text-center font-semibold text-foreground">Step 2: Make Payment</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
                     <div className="space-y-4 text-center md:text-left">
                         <h3 className="font-semibold text-lg">Pay using UPI</h3>
                         <p className="text-muted-foreground text-sm">Scan the QR code with your favorite UPI app or copy the UPI ID below.</p>
@@ -103,21 +142,21 @@ function CheckoutContent() {
                         />
                     </div>
                   </div>
-                </>
-              ) : (
-                <p className="text-center text-destructive">No plan selected. Please go back to the pricing page and choose a plan to continue.</p>
+                </div>
               )}
             </CardContent>
-            <CardFooter>
-              <Button 
-                className="w-full" 
-                size="lg"
-                disabled={!plan || isConfirming}
-                onClick={handleConfirmation}
-              >
-                {isConfirming ? 'Confirming Payment...' : "I've Paid, Complete Purchase"}
-              </Button>
-            </CardFooter>
+            {detailsSubmitted && (
+              <CardFooter>
+                <Button 
+                  className="w-full" 
+                  size="lg"
+                  disabled={!plan || isConfirming}
+                  onClick={handleConfirmation}
+                >
+                  {isConfirming ? 'Confirming Payment...' : "I've Paid, Complete Purchase"}
+                </Button>
+              </CardFooter>
+            )}
           </Card>
         </div>
       </div>
@@ -134,4 +173,3 @@ export default function CheckoutPage() {
         </MainLayout>
     );
 }
-
