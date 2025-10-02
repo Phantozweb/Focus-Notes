@@ -5,7 +5,6 @@ import * as React from 'react';
 import {
   SidebarProvider,
   Sidebar,
-  SidebarHeader,
   SidebarContent,
   SidebarFooter,
   SidebarTrigger,
@@ -40,22 +39,9 @@ export default function DashboardLayout({
     return item.view === currentView;
   };
 
-
   return (
     <SidebarProvider open={isSidebarOpen} onOpenChange={setSidebarOpen}>
       <Sidebar>
-        <SidebarHeader>
-          <div className="flex items-center justify-between p-2">
-            <div className="flex items-center gap-2">
-                <Eye className="h-7 w-7 text-primary" />
-                <h1 className="text-2xl font-bold font-logo group-data-[collapsible=icon]:hidden">
-                  <span className="text-primary">Focus Case</span>
-                  <span className="text-foreground">X</span>
-                </h1>
-            </div>
-             <SidebarTrigger className="text-primary group-data-[collapsible=icon]:hidden" />
-          </div>
-        </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
             {menuItems.map((item) => (
@@ -90,10 +76,16 @@ export default function DashboardLayout({
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
-        <header className="flex h-14 items-center gap-4 border-b bg-background/95 px-6 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <SidebarTrigger className="text-primary md:hidden" />
-            <div className="flex-1">
-                {/* Can add breadcrumbs or page titles here */}
+        <header className="flex h-14 items-center gap-4 border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <div className="flex items-center gap-2 mr-auto">
+              <SidebarTrigger className="text-primary" />
+              <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push('/')}>
+                <Eye className="h-7 w-7 text-primary" />
+                <h1 className="text-2xl font-bold font-logo hidden sm:block">
+                  <span className="text-primary">Focus Case</span>
+                  <span className="text-foreground">X</span>
+                </h1>
+              </div>
             </div>
             <Avatar>
                 <AvatarFallback>U</AvatarFallback>
