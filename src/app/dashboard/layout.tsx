@@ -14,7 +14,7 @@ import {
   SidebarMenuButton,
   SidebarInset,
 } from '@/components/ui/sidebar';
-import { Eye, LogOut, LayoutDashboard, ListChecks, Settings, User, PanelLeft } from 'lucide-react';
+import { Eye, LogOut, LayoutDashboard, ListChecks, Settings, User } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
