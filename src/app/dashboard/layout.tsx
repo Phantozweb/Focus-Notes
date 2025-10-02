@@ -34,7 +34,11 @@ export default function DashboardLayout({
   ];
 
   const getIsActive = (item: typeof menuItems[0]) => {
-    if (pathname !== '/dashboard') return false;
+    // Dashboard is active if path is /dashboard and no view is set
+    if (item.path === '/dashboard' && !item.view) {
+        return pathname === '/dashboard' && !currentView;
+    }
+    // Other items are active if their view matches the current view search param
     return item.view === currentView;
   };
 
