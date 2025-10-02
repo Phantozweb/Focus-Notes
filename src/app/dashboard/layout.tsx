@@ -58,7 +58,7 @@ export default function DashboardLayout({
                 </Avatar>
             </header>
             <div className="flex flex-1 overflow-hidden">
-                <Sidebar>
+                <Sidebar collapsible="icon">
                     <SidebarContent>
                     <div className="flex items-center justify-end p-2">
                       <SidebarTrigger className="text-primary" />
