@@ -144,10 +144,10 @@ export default function HomePage() {
             <span className="text-primary">Focus Case</span><span className="text-foreground relative">X<span className="absolute -right-1 top-0 h-2.5 w-2.5 rounded-full bg-primary animate-blue-blink"></span></span>
           </h1>
           <p className="text-xl md:text-2xl font-medium text-foreground/90 mb-8 max-w-3xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-            The AI-Powered Platform for Optometry Education & Case Analysis
+            Your Intelligent Optometry EMR for Clinic & Classroom
           </p>
           <p className="text-md sm:text-lg text-muted-foreground mb-12 max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-            Streamline your case logging with our intelligent assistant, uncover deep insights with powerful analytics, and accelerate your clinical learning.
+            Effortlessly log cases with our AI assistant, manage patient records with ease, and accelerate your clinical workflow.
           </p>
           <div className="flex flex-wrap justify-center items-center gap-4 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
             <Button size="lg" onClick={() => router.push('/cases/new')} className="shadow-lg hover:shadow-primary/30 transition-shadow">
@@ -353,5 +353,3 @@ export default function HomePage() {
     </MainLayout>
   );
 }
-
-    
