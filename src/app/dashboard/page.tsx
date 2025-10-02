@@ -407,8 +407,6 @@ const PageContent = () => {
     return <DashboardContent />;
 };
 
-
-// Dynamically import PageContent to ensure it's client-side only
 const DynamicPageContent = dynamic(() => Promise.resolve(PageContent), {
   ssr: false,
   loading: () => (
@@ -418,7 +416,6 @@ const DynamicPageContent = dynamic(() => Promise.resolve(PageContent), {
     </div>
   ),
 });
-
 
 export default function DashboardPage() {
     return (
@@ -432,3 +429,5 @@ export default function DashboardPage() {
         </Suspense>
     );
 }
+
+    
