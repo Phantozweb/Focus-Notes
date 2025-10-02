@@ -58,25 +58,19 @@ export default function HomePage() {
   const individualPricingTiers = [
     {
       name: "Monthly",
-      price: "₹300",
+      price: "₹1500",
       price_sub: "/ month",
       save: null,
     },
     {
-      name: "3 Months",
-      price: "₹750",
-      price_sub: "billed quarterly",
+      name: "6 Months",
+      price: "₹7500",
+      price_sub: "billed semi-annually",
       save: "Save 16%",
     },
     {
-      name: "6 Months",
-      price: "₹1200",
-      price_sub: "billed semi-annually",
-      save: "Save 33%",
-    },
-    {
       name: "Yearly",
-      price: "₹2400",
+      price: "₹12000",
       price_sub: "billed annually",
       save: "Save 33%",
       popular: true,

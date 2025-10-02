@@ -61,10 +61,9 @@ function CheckoutContent() {
   const PAYEE_NAME = 'Focus CaseX';
 
   const planDetails: { [key: string]: { price: string, description: string, amount: number } } = {
-    'Monthly': { price: '₹300', description: 'Billed monthly', amount: 300 },
-    '3 Months': { price: '₹750', description: 'Billed quarterly', amount: 750 },
-    '6 Months': { price: '₹1200', description: 'Billed semi-annually', amount: 1200 },
-    'Yearly': { price: '₹2400', description: 'Billed annually', amount: 2400 },
+    'Monthly': { price: '₹1500', description: 'Billed monthly', amount: 1500 },
+    '6 Months': { price: '₹7500', description: 'Billed semi-annually', amount: 7500 },
+    'Yearly': { price: '₹12000', description: 'Billed annually', amount: 12000 },
   };
 
   const selectedPlanDetails = plan && planDetails[plan] ? planDetails[plan] : {
@@ -226,6 +225,3 @@ export default function CheckoutPage() {
         </MainLayout>
     );
 }
-
-    
-
