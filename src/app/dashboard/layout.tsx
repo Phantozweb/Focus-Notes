@@ -53,6 +53,7 @@ export default function DashboardLayout({
                   <span className="text-foreground">X</span>
                 </h1>
             </div>
+             <SidebarTrigger className="text-primary group-data-[collapsible=icon]:hidden" />
           </div>
         </SidebarHeader>
         <SidebarContent>
@@ -90,7 +91,7 @@ export default function DashboardLayout({
       </Sidebar>
       <SidebarInset>
         <header className="flex h-14 items-center gap-4 border-b bg-background/95 px-6 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <SidebarTrigger className="text-primary" />
+            <SidebarTrigger className="text-primary md:hidden" />
             <div className="flex-1">
                 {/* Can add breadcrumbs or page titles here */}
             </div>

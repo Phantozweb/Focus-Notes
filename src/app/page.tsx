@@ -150,7 +150,7 @@ export default function HomePage() {
             Effortlessly log cases with our AI assistant, manage patient records with ease, and accelerate your clinical workflow.
           </p>
           <div className="flex flex-wrap justify-center items-center gap-4 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
-            <Button size="lg" onClick={() => router.push('/cases/new')} className="shadow-lg hover:shadow-primary/30 transition-shadow">
+            <Button size="lg" onClick={() => router.push('#pricing')} className="shadow-lg hover:shadow-primary/30 transition-shadow">
                <PlusCircle /> Get Started
             </Button>
             <Button size="lg" variant="outline" onClick={() => router.push('#features')} className="shadow-lg hover:shadow-lg transition-shadow bg-background/50">
