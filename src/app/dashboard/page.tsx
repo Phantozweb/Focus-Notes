@@ -27,6 +27,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import dynamic from 'next/dynamic';
+import { Loader2 } from 'lucide-react';
 
 // Dashboard-specific components
 const StatCard = ({ title, value, icon: Icon }: { title: string; value: string | number; icon: React.ElementType }) => (
@@ -394,8 +396,7 @@ function AllCasesContent() {
   );
 }
 
-
-function PageContent() {
+const PageContent = () => {
     const searchParams = useSearchParams();
     const view = searchParams.get('view');
 
@@ -404,14 +405,30 @@ function PageContent() {
     }
 
     return <DashboardContent />;
-}
+};
+
+
+// Dynamically import PageContent to ensure it's client-side only
+const DynamicPageContent = dynamic(() => Promise.resolve(PageContent), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full w-full items-center justify-center gap-2">
+      <Loader2 className="h-6 w-6 animate-spin" />
+      <p>Loading Dashboard...</p>
+    </div>
+  ),
+});
+
 
 export default function DashboardPage() {
     return (
-        <Suspense fallback={<div className="flex h-full w-full items-center justify-center"><p>Loading...</p></div>}>
-            <PageContent />
+        <Suspense fallback={
+            <div className="flex h-full w-full items-center justify-center gap-2">
+                <Loader2 className="h-6 w-6 animate-spin" />
+                <p>Loading...</p>
+            </div>
+        }>
+            <DynamicPageContent />
         </Suspense>
     );
 }
-
-    
