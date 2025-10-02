@@ -64,15 +64,15 @@ export default function HomePage() {
     },
     {
       name: "6 Months",
-      price: "₹7500",
+      price: "₹6000",
       price_sub: "billed semi-annually",
-      save: "Save 16%",
+      save: "Save 33%",
     },
     {
       name: "Yearly",
-      price: "₹12000",
+      price: "₹9000",
       price_sub: "billed annually",
-      save: "Save 33%",
+      save: "Save 50%",
       popular: true,
     }
   ];
@@ -353,3 +353,5 @@ export default function HomePage() {
     </MainLayout>
   );
 }
+
+    

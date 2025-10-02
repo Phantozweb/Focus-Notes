@@ -62,8 +62,8 @@ function CheckoutContent() {
 
   const planDetails: { [key: string]: { price: string, description: string, amount: number } } = {
     'Monthly': { price: '₹1500', description: 'Billed monthly', amount: 1500 },
-    '6 Months': { price: '₹7500', description: 'Billed semi-annually', amount: 7500 },
-    'Yearly': { price: '₹12000', description: 'Billed annually', amount: 12000 },
+    '6 Months': { price: '₹6000', description: 'Billed semi-annually', amount: 6000 },
+    'Yearly': { price: '₹9000', description: 'Billed annually', amount: 9000 },
   };
 
   const selectedPlanDetails = plan && planDetails[plan] ? planDetails[plan] : {
@@ -225,3 +225,5 @@ export default function CheckoutPage() {
         </MainLayout>
     );
 }
+
+    
