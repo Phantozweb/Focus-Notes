@@ -34,11 +34,9 @@ export default function DashboardLayout({
   ];
 
   const getIsActive = (item: typeof menuItems[0]) => {
-    // Dashboard is active if path is /dashboard and no view is set
     if (item.path === '/dashboard' && !item.view) {
         return pathname === '/dashboard' && !currentView;
     }
-    // Other items are active if their view matches the current view search param
     return item.view === currentView;
   };
 
@@ -47,7 +45,6 @@ export default function DashboardLayout({
         <div className="flex h-screen w-full flex-col">
             <header className="flex h-14 items-center gap-4 border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-30">
                 <div className="flex items-center gap-2 mr-auto">
-                    <SidebarTrigger className="text-primary" />
                     <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push('/')}>
                         <Eye className="h-7 w-7 text-primary" />
                         <h1 className="text-2xl font-bold font-logo hidden sm:block">
@@ -63,6 +60,9 @@ export default function DashboardLayout({
             <div className="flex flex-1 overflow-hidden">
                 <Sidebar>
                     <SidebarContent>
+                    <div className="flex items-center justify-end p-2">
+                      <SidebarTrigger className="text-primary" />
+                    </div>
                     <SidebarMenu>
                         {menuItems.map((item) => (
                         <SidebarMenuItem key={item.path}>
