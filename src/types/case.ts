@@ -153,7 +153,7 @@ export interface FullOptometryCaseData {
 export interface StoredOptometryCase extends FullOptometryCaseData {
   id: string;
   timestamp: number;
-  templateId?: string; // To identify which template was used
+  templateId: string; // To identify which template was used
   analysis?: AnalyzeOptometryCaseOutput; 
   analysisError?: string; 
 }

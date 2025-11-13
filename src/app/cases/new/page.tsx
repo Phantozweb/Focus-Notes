@@ -1,5 +1,4 @@
 
-
 'use client';
 import * as React from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -23,7 +22,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import {
-  User, Briefcase, History, Eye, Microscope, Edit3, Save, FileTextIcon, ScanEye, ChevronLeft, ChevronRight, NotebookPen, ArrowLeft, Bot, Send, X, Loader2, Baby, HelpCircle, ChevronDown, ListChecks, Calendar
+  User, Briefcase, History, Eye, Microscope, Edit3, Save, FileTextIcon, ScanEye, ChevronLeft, ChevronRight, NotebookPen, ArrowLeft, Bot, Send, X, Loader2, Baby, HelpCircle, ChevronDown, ListChecks, Calendar, Compass
 } from 'lucide-react';
 import {
   Select,
@@ -447,8 +446,8 @@ function NewCaseForm() {
   const [currentTabIndex, setCurrentTabIndex] = React.useState(0);
   const searchParams = useSearchParams();
 
-  const [formFieldsData, setFormFieldsData] = React.useState(fixedFieldsData);
-  const [templateId, setTemplateId] = React.useState('default');
+  const [formFieldsData, setFormFieldsData] = React.useState<any | null>(null);
+  const [templateId, setTemplateId] = React.useState<string | null>(null);
   
   const TABS_CONFIG = React.useMemo(() => TABS_CONFIG_BASE.map(tab => ({ ...tab, ref: React.createRef<HTMLDivElement>() })), []);
   const isScrollingProgrammatically = React.useRef(false);
@@ -480,9 +479,12 @@ function NewCaseForm() {
     if (template === 'orthoptics') {
         setFormFieldsData(orthopticsTemplateData as any);
         setTemplateId('orthoptics');
-    } else {
+    } else if (template === 'default') {
         setFormFieldsData(fixedFieldsData);
         setTemplateId('default');
+    } else {
+        setFormFieldsData(null);
+        setTemplateId(null);
     }
   }, [searchParams]);
 
@@ -577,6 +579,7 @@ function NewCaseForm() {
   };
   
   useEffect(() => {
+    if (!formFieldsData) return;
     const observerOptions = { root: null, rootMargin: '0px 0px -70% 0px', threshold: 0.1 };
     const currentObservers: IntersectionObserver[] = [];
 
@@ -605,7 +608,7 @@ function NewCaseForm() {
     return () => {
       currentObservers.forEach(observer => observer.disconnect());
     };
-  }, [TABS_CONFIG]);
+  }, [TABS_CONFIG, formFieldsData]);
 
 
   useEffect(() => {
@@ -632,7 +635,7 @@ function NewCaseForm() {
       ...data,
       id: Date.now().toString(), 
       timestamp: Date.now(),
-      templateId,
+      templateId: templateId || 'default',
     };
     setStoredCases([...storedCases, newCase]);
     toast({
@@ -687,7 +690,7 @@ function NewCaseForm() {
                     <TwoColumnField label={label}>
                         <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl><SelectTrigger><SelectValue placeholder={placeholder} /></SelectTrigger></FormControl>
-                            <SelectContent>{options.map((opt: string) => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}</SelectContent>
+                            <SelectContent>{(options || []).map((opt: string) => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}</SelectContent>
                         </Select>
                         <FormMessage />
                     </TwoColumnField>
@@ -715,7 +718,7 @@ function NewCaseForm() {
                     <TwoColumnField label={label}>
                         <FormControl>
                             <RadioGroup onValueChange={field.onChange} value={field.value} className="flex items-center space-x-4">
-                                {items.map((item: string) => (
+                                {(items || []).map((item: string) => (
                                     <FormItem key={item} className="flex items-center space-x-2">
                                         <FormControl><RadioGroupItem value={item} /></FormControl>
                                         <FormLabel className="font-normal">{item}</FormLabel>
@@ -875,7 +878,7 @@ function NewCaseForm() {
 
     const sectionContext = TABS_CONFIG[currentTabIndex]?.label || "General";
     const formSnapshot = form.getValues();
-    const historyForAI: AssistantGenkitChatMessage[] = assistantMessages.filter(msg => msg.role === 'user' || msg.role === 'assistant').map(msg => ({ role: msg.role === 'user' ? 'user' : 'model', parts: [{ text: msg.content }] }));
+    const historyForAI: AssistantGenkitChatMessage[] = assistantMessages.filter(msg => msg.role === 'user' || msg.role === 'assistant').map(msg => ({ role: msg.role === 'user' ? 'model' : 'model', parts: [{ text: msg.content }] }));
     
     const aiInput: InteractiveEmrAssistantInput = { sectionContext, userMessage: currentInputForAI, formSnapshot, chatHistory: historyForAI };
 
@@ -919,11 +922,31 @@ function NewCaseForm() {
   };
 
   useEffect(() => {
-    if (isAssistantSheetOpen && assistantMessages.length === 0) { 
+    if (isAssistantSheetOpen && assistantMessages.length === 0 && formFieldsData) { 
         const firstQuestion: AssistantChatMessage = { id: Date.now().toString(), role: 'assistant', content: `Hello! I'm Focus AI, your EMR assistant. We are in the "${TABS_CONFIG[currentTabIndex].label}" section. What information can I help you log first?` };
         setAssistantMessages([firstQuestion]);
     }
-  }, [currentTabIndex, isAssistantSheetOpen, TABS_CONFIG, assistantMessages.length]);
+  }, [currentTabIndex, isAssistantSheetOpen, TABS_CONFIG, assistantMessages.length, formFieldsData]);
+
+  if (!formFieldsData) {
+    return (
+      <MainLayout>
+        <div className="flex-1 flex items-center justify-center">
+            <Card className="max-w-md w-full text-center p-8 shadow-xl">
+                <CardHeader>
+                    <CardTitle className="flex items-center justify-center gap-2 text-2xl text-primary"><Compass className="h-8 w-8" /> Select a Template</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-muted-foreground">To start logging a new case, please go to the dashboard and select a template.</p>
+                    <Button className="mt-6" onClick={() => router.push('/dashboard?view=templates')}>
+                        Go to Templates
+                    </Button>
+                </CardContent>
+            </Card>
+        </div>
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout>
@@ -985,7 +1008,7 @@ function NewCaseForm() {
                     {Object.entries(formFieldsData).map(([sectionId, sectionData], sectionIndex) => (
                       <div key={sectionId} ref={TABS_CONFIG.find(t => t.value === sectionId)?.ref as React.RefObject<HTMLDivElement>} className="space-y-6 py-2">
                         <SectionTitle title={sectionData.title} icon={TABS_CONFIG.find(t => t.value === sectionId)?.icon || HelpCircle} />
-                        {sectionData.fields.map((field, fieldIndex) => (
+                        {sectionData.fields.map((field: any, fieldIndex: number) => (
                           <React.Fragment key={field.name || `${sectionId}-group-${fieldIndex}`}>
                               {renderFormField(field)}
                           </React.Fragment>
@@ -1034,7 +1057,7 @@ function NewCaseForm() {
             <SheetContent className="w-full sm:max-w-md flex flex-col p-0">
             <SheetHeader className="p-4 border-b">
                 <SheetTitle className="flex items-center gap-2"><Bot className="h-6 w-6 text-primary" />Focus AI Assistant</SheetTitle>
-                <SheetDescription>Chat with AI to help fill the EMR for the current section: <span className="font-semibold text-primary">{TABS_CONFIG[currentTabIndex]?.label || "Details"}</span>.</SheetDescription>
+                <SheetDescription>Chat with AI to help fill the EMR for the current section: <span className="font-semibold text-primary">{formFieldsData && TABS_CONFIG.find(t => t.value === Object.keys(formFieldsData)[currentTabIndex])?.label || "Details"}</span>.</SheetDescription>
             </SheetHeader>
             <ScrollArea className="flex-grow p-4 space-y-4" ref={assistantScrollAreaRef}>
                 {assistantMessages.map((message) => (
@@ -1062,11 +1085,8 @@ function NewCaseForm() {
 
 export default function LogNewCasePage() {
   return (
-    <Suspense fallback={<div>Loading form...</div>}>
+    <Suspense fallback={<MainLayout><div className="flex-1 flex items-center justify-center"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div></MainLayout>}>
       <NewCaseForm />
     </Suspense>
   );
 }
-
-
-    
