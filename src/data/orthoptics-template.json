@@ -69,7 +69,7 @@
             { "name": "randomDotStereo", "label": "Random Dot Stereo", "type": "input", "placeholder": "e.g., 200 seconds of arc" },
             { "name": "fusionPresent", "label": "Fusion Present (Distance/Near)?", "type": "radio", "items": ["Yes", "No"] },
             { "name": "suppression", "label": "Suppression Present?", "type": "textarea", "rows": 1, "placeholder": "e.g., Mild OS suppression at near (Worth 4 Dot test)." },
-            { "name": "correspondence", "label": "Correspondence", "type": "select", "options": ["", "NRC", "ARC", "Suppression", "Unmeasurable"] },
+            { "name": "correspondence", "label": "Correspondence", "type": "select", "options": ["NRC", "ARC", "Suppression", "Unmeasurable"] },
             { "name": "orthopticInvestigations", "label": "Relevant Investigations", "type": "textarea", "rows": 2, "placeholder": "e.g., VF, Retinal Imaging if indicated." },
             { "name": "visualPerceptualSkills", "label": "Visual Perceptual Skills Assessment", "type": "textarea", "rows": 3, "placeholder": "e.g., Reversals noted, visual memory deficits." }
         ]
@@ -90,5 +90,3 @@
         ]
     }
 }
-
-    
