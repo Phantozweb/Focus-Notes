@@ -1,0 +1,64 @@
+
+{
+    "patientInfo": {
+      "title": "Patient & Visit Information",
+      "icon": "User",
+      "fields": [
+        { "name": "mrdNo", "label": "MRD No", "type": "input", "placeholder": "Enter Medical Record Number" },
+        { "name": "dateOfVisit", "label": "Date of Visit", "type": "datepicker" },
+        { "name": "name", "label": "Name", "type": "input", "placeholder": "e.g., John Doe" },
+        { "name": "age", "label": "Age", "type": "input", "inputType": "number", "placeholder": "e.g., 25" },
+        { "name": "sex", "label": "Sex", "type": "radio", "items": ["Male", "Female", "Other"] }
+      ]
+    },
+    "history": {
+      "title": "Patient History",
+      "icon": "History",
+      "fields": [
+        { "name": "chiefComplaint", "label": "Chief Complaints", "type": "textarea", "rows": 4, "placeholder": "e.g., eyestrain with reading, intermittent double vision" },
+        { "name": "pastOcularHistory", "label": "Past Ocular History", "type": "textarea", "rows": 3, "placeholder": "e.g., History of amblyopia, previous prism in glasses" }
+      ]
+    },
+    "vaRefraction": {
+      "title": "VA & Refraction",
+      "icon": "Eye",
+      "fields": [
+        { "type": "va-group" },
+        { "type": "pgp-group" },
+        { "name": "subjRefractionOD", "nameOS": "subjRefractionOS", "label": "Subjective Refraction", "type": "double-field" },
+        { "name": "finalAcuityOD", "nameOS": "finalAcuityOS", "label": "Final Acuity w/ New Rx", "type": "double-field" }
+      ]
+    },
+    "ancillaryTests": {
+        "title": "Ancillary Ocular & Binocular Vision Tests",
+        "icon": "ListChecks",
+        "fields": [
+            { "name": "coverTest", "label": "Cover Test (Distance & Near)", "type": "input", "placeholder": "e.g., D: 2EP, N: 4XP'" },
+            { "name": "eom", "label": "EOM (Extraocular Motility)", "type": "input", "placeholder": "e.g., SAFE (Smooth, Accurate, Full, Extensive)" },
+            { "type": "npc-group", "label": "NPC (cm)" },
+            { "type": "npa-group", "label": "NPA (D)"},
+            { "type": "wfdt-group", "label": "WFDT (Worth 4-Dot Test)" },
+            { "name": "stereopsis", "label": "Stereopsis", "type": "input", "placeholder": "e.g., 40 sec of arc @ 40cm (Titmus)" },
+            { "name": "vergenceRanges", "label": "Vergence Ranges (BI/BO)", "type": "textarea", "rows": 3, "placeholder": "e.g., Distance BI: x/7/4, BO: 9/19/10. Near BI: 13/21/13, BO: 17/21/11." },
+            { "name": "ac_a_ratio", "label": "AC/A Ratio", "type": "input", "placeholder": "e.g., 4/1 (gradient)" },
+            { "name": "relativeAccommodation", "label": "Relative Accommodation (NRA/PRA)", "type": "input", "placeholder": "e.g., NRA: +2.25, PRA: -2.50" }
+        ]
+    },
+    "anteriorSegment": {
+        "title": "Anterior Segment",
+        "icon": "Microscope",
+        "fields": [
+            { "name": "pupillaryEvaluation", "label": "Pupillary Evaluation", "type": "textarea", "rows": 2, "placeholder": "e.g., PERRLA, no APD" },
+            { "name": "externalExamination", "label": "External Examination", "type": "textarea", "rows": 2, "placeholder": "e.g., No head tilt or turn observed." }
+        ]
+    },
+    "plan": {
+        "title": "Diagnosis & Plan",
+        "icon": "Edit3",
+        "fields": [
+            { "name": "diagnosis", "label": "Diagnosis", "type": "textarea", "rows": 4, "placeholder": "e.g., 1. Convergence Insufficiency 2. Accommodative Insufficiency" },
+            { "name": "interventionPlanned", "label": "Intervention Planned", "type": "textarea", "rows": 5, "placeholder": "e.g., 1. Prescribe Vision Therapy, 8 sessions. 2. Prescribe reading glasses with +0.75 add OU." },
+            { "name": "learning", "label": "Learning / Reflection", "type": "textarea", "rows": 4 }
+        ]
+    }
+}
