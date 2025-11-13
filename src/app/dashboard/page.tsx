@@ -145,6 +145,7 @@ function TemplatesContent() {
   
   const communityTemplates = [
     { id: 'default', name: "General Case", description: "Comprehensive template for routine exams." },
+    { id: 'follow-up', name: "Follow-up Visit", description: "For tracking progress and managing ongoing conditions." },
     { id: 'orthoptics', name: "Orthoptics Assessment", description: "Focused workup for strabismus and amblyopia." },
     { id: 'contact-lens', name: "Contact Lens Fitting", description: "For new fittings and follow-ups." },
     { id: 'dry-eye', name: "Dry Eye Workup", description: "Detailed assessment for ocular surface disease." },
@@ -461,7 +462,7 @@ function AllCasesContent() {
                   <p className="text-muted-foreground max-w-md mx-auto mb-6">
                     {urlSearchTerm 
                       ? 'Try adjusting your search terms or clear the search to see all cases.' 
-                      : 'Start by logging your first optometry case. It will appear here once saved.'}
+                      : 'Start by logging your first optometry case. It will appear here once you have saved it.'}
                   </p>
                   {!urlSearchTerm && (
                       <Button onClick={() => router.push('/cases/new?template=default')} size="lg">

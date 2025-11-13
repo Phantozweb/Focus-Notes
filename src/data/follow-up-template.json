@@ -1,0 +1,82 @@
+
+{
+    "patientInfo": {
+        "title": "Patient Info",
+        "icon": "User",
+        "fields": [
+            { "name": "patientId", "label": "Patient ID (Optional)", "type": "input", "placeholder": "e.g., P00123" },
+            { "name": "name", "label": "Name", "type": "input", "placeholder": "e.g., John Doe" },
+            { "name": "dateOfVisit", "label": "Date of Visit", "type": "datepicker" },
+            { "name": "previousVisitDate", "label": "Previous Visit Date", "type": "datepicker" },
+            { "name": "referencingPreviousCaseId", "label": "Referencing Previous Case ID (Optional)", "type": "input", "placeholder": "e.g., C-12345" }
+        ]
+    },
+    "statusUpdate": {
+        "title": "Status Update",
+        "icon": "Activity",
+        "fields": [
+            { "name": "chiefComplaint", "label": "Chief Complaint / Status Since Last Visit", "type": "textarea", "rows": 3, "placeholder": "e.g., Patient reports symptoms of dry eye are much improved." },
+            { "name": "complianceStatus", "label": "Compliance with Treatment", "type": "textarea", "rows": 2, "placeholder": "e.g., Patient compliant with eye drops." },
+            { "name": "newSymptoms", "label": "Any New Ocular Symptoms?", "type": "textarea", "rows": 2, "placeholder": "e.g., Denies new flashes/floaters." },
+            { "name": "conditionStatus", "label": "Condition Status (Overall)", "type": "select", "options": ["Improved", "Stable", "Worsened", "Resolved", "New Problem"], "placeholder": "Select Status" },
+            { "name": "treatmentSideEffects", "label": "Any Adverse Effects from Current Treatment?", "type": "radio", "items": ["Yes", "No"] },
+            { "name": "treatmentSideEffects_details", "label": "Adverse Effects Details", "type": "textarea", "rows": 2, "placeholder": "Describe adverse effects." }
+        ]
+    },
+    "historyUpdate": {
+        "title": "History Update",
+        "icon": "History",
+        "fields": [
+            { "name": "changesInMedicalHistory", "label": "Changes in POH/PMH/Medications?", "type": "textarea", "rows": 3, "placeholder": "e.g., No new medical diagnoses." },
+            { "name": "changesInSocialHistory", "label": "Changes in Social History?", "type": "textarea", "rows": 2, "placeholder": "e.g., Started a new job." }
+        ]
+    },
+    "examination": {
+        "title": "Examination (Focused)",
+        "icon": "Eye",
+        "fields": [
+            { "name": "vaUncorrectedOD", "nameOS": "vaUncorrectedOS", "label": "UCVA", "type": "double-field" },
+            { "name": "vaBestCorrectedOD", "nameOS": "vaBestCorrectedOS", "label": "BCVA (with current Rx/PH)", "type": "double-field" },
+            { "name": "pupilsFollowup", "label": "Pupils", "type": "select", "options": ["PERRLA", "APD OD", "APD OS", "Other"], "placeholder": "Select Pupil Status" },
+            { "name": "pupilsFollowup_details", "label": "Pupil Details", "type": "textarea", "rows": 1, "placeholder": "Describe pupils if 'Other' or for additional details." },
+            { "name": "eomsFollowup", "label": "Extraocular Motility (EOMs)", "type": "select", "options": ["Full and Smooth", "Restricted", "Other"], "placeholder": "Select EOM Status" },
+            { "name": "eomsFollowup_details", "label": "EOMs Details", "type": "textarea", "rows": 1, "placeholder": "Describe EOMs if 'Other' or for additional details." },
+            { "name": "iopOD", "nameOS": "iopOS", "label": "IOP (mmHg)", "type": "double-field" },
+            { "name": "iopMethodFollowup", "label": "IOP Method", "type": "select", "options": ["NCT", "Goldmann", "Icare", "Tono-Pen"], "placeholder": "Select Method" },
+            { "name": "iopTarget", "label": "Target IOP (mmHg)", "type": "input", "inputType": "number" },
+            { "name": "slitLampFollowup", "label": "Slit Lamp Exam (Relevant Findings)", "type": "textarea", "rows": 3, "placeholder": "e.g., Conjunctiva: Less injection OU." },
+            { "name": "posteriorSegmentFollowup", "label": "Posterior Segment Exam (Relevant Findings)", "type": "textarea", "rows": 3, "placeholder": "e.g., Optic Disc: CD ratio stable." }
+        ]
+    },
+    "investigations": {
+        "title": "Investigations",
+        "icon": "ListChecks",
+        "fields": [
+            { "name": "octFollowup", "label": "OCT Findings (if repeated)", "type": "textarea", "rows": 2, "placeholder": "e.g., RNFL OCT OU: Stable." },
+            { "name": "octRnflChange", "label": "OCT RNFL/GCC Thickness Change", "type": "select", "options": ["Stable", "Thinning", "Thickening", "N/A"], "placeholder": "Select Change" },
+            { "name": "visualFieldFollowup", "label": "Visual Field Findings (if repeated)", "type": "textarea", "rows": 2, "placeholder": "e.g., Humphrey 24-2: No significant change." },
+            { "name": "visualFieldMdChange", "label": "Visual Field MD/PSD Change", "type": "input", "placeholder": "e.g., MD -0.5 dB stable." },
+            { "name": "macularEdemaStatus", "label": "Macular Edema Status", "type": "select", "options": ["Resolved", "Improving", "Stable", "Worsening", "New", "N/A"], "placeholder": "Select Status" },
+            { "name": "otherInvestigationsFollowup", "label": "Other Investigations", "type": "textarea", "rows": 2 }
+        ]
+    },
+    "plan": {
+        "title": "Assessment & Plan",
+        "icon": "Edit3",
+        "fields": [
+            { "name": "assessmentDiagnoses", "label": "Assessment / Diagnoses (Current Status)", "type": "textarea", "rows": 5, "placeholder": "1. POAG OU: IOPs stable, fields stable." },
+            { "name": "plan", "label": "Plan / Adjustments", "type": "textarea", "rows": 5, "placeholder": "1. Continue current glaucoma management." },
+            { "name": "patientEducationProvided", "label": "Patient Education Provided/Reinforced", "type": "textarea", "rows": 2 },
+            { "name": "prognosis", "label": "Prognosis", "type": "textarea", "rows": 2, "placeholder": "e.g., Stable with good compliance." },
+            { "name": "followUpInstructions", "label": "Follow Up Instructions", "type": "textarea", "rows": 3, "placeholder": "e.g., RTC 6 months." }
+        ]
+    },
+    "notes": {
+        "title": "Notes & Reflection",
+        "icon": "NotebookPen",
+        "fields": [
+            { "name": "internalNotes", "label": "Internal Notes (Not for Patient)", "type": "textarea", "rows": 3 },
+            { "name": "notesReflection", "label": "Personal Reflection/Learning Points", "type": "textarea", "rows": 4 }
+        ]
+    }
+}
