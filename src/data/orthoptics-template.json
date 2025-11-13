@@ -19,8 +19,8 @@
             { "name": "chiefComplaint", "label": "Chief Complaint", "type": "textarea", "rows": 2, "placeholder": "e.g., Double vision at near, worse in the evening. / Right eye turns in sometimes." },
             { "name": "hpi", "label": "History of Present Illness (HPI)", "type": "textarea", "rows": 4, "placeholder": "Onset, duration, severity, modifying factors, specific situations." },
             { "name": "diplopiaDetails", "label": "Diplopia Details (if applicable)", "type": "textarea", "rows": 2, "placeholder": "e.g., Intermittent diplopia for 3 months, worse at near, horizontal separation." },
-            { "name": "diplopiaType", "label": "Diplopia Type", "type": "select", "options": ["", "Horizontal", "Vertical", "Oblique"] },
-            { "name": "diplopiaFrequency", "label": "Diplopia Frequency", "type": "select", "options": ["", "Constant", "Intermittent", "Only on Gaze"] },
+            { "name": "diplopiaType", "label": "Diplopia Type", "type": "select", "options": ["Horizontal", "Vertical", "Oblique"], "placeholder": "Select Diplopia Type" },
+            { "name": "diplopiaFrequency", "label": "Diplopia Frequency", "type": "select", "options": ["Constant", "Intermittent", "Only on Gaze"], "placeholder": "Select Frequency" },
             { "name": "headaches_details", "label": "Headaches/Eye Strain?", "type": "textarea", "rows": 2, "placeholder": "Describe frequency, severity, triggers." },
             { "name": "readingComputerDemands", "label": "Reading/Computer Demands", "type": "textarea", "rows": 2, "placeholder": "e.g., Student, 4-6 hours reading/day." },
             { "name": "pastOcularHistory", "label": "Past Ocular History (POH)", "type": "textarea", "rows": 2 },
@@ -33,8 +33,8 @@
         "fields": [
             { "name": "vaBestCorrectedOD", "nameOS": "vaBestCorrectedOS", "label": "BCVA", "type": "double-field" },
             { "name": "vaNearOD", "nameOS": "vaNearOS", "label": "Near VA", "type": "double-field" },
-            { "name": "ocularDominance", "label": "Ocular Dominance", "type": "select", "options": ["", "OD", "OS", "Alternating"] },
-            { "name": "headPosture", "label": "Head Posture/Turn", "type": "select", "options": ["None", "Right Head Turn", "Left Head Turn", "Chin Up", "Chin Down", "Other"] },
+            { "name": "ocularDominance", "label": "Ocular Dominance", "type": "select", "options": ["OD", "OS", "Alternating"], "placeholder": "Select Dominance" },
+            { "name": "headPosture", "label": "Head Posture/Turn", "type": "select", "options": ["None", "Right Head Turn", "Left Head Turn", "Chin Up", "Chin Down", "Other"], "placeholder": "Select Head Posture" },
             { "name": "fixationOD", "nameOS": "fixationOS", "label": "Fixation", "type": "double-field", "placeholder": "e.g., Central, Steady, Maintained" },
             { "name": "saccades", "label": "Saccades", "type": "textarea", "rows": 1, "placeholder": "e.g., Accurate and smooth OU. Hypometric saccades OS." },
             { "name": "pursuits", "label": "Pursuits", "type": "textarea", "rows": 1, "placeholder": "e.g., Smooth and full OU. Jerky pursuits OD." },
@@ -69,7 +69,7 @@
             { "name": "randomDotStereo", "label": "Random Dot Stereo", "type": "input", "placeholder": "e.g., 200 seconds of arc" },
             { "name": "fusionPresent", "label": "Fusion Present (Distance/Near)?", "type": "radio", "items": ["Yes", "No"] },
             { "name": "suppression", "label": "Suppression Present?", "type": "textarea", "rows": 1, "placeholder": "e.g., Mild OS suppression at near (Worth 4 Dot test)." },
-            { "name": "correspondence", "label": "Correspondence", "type": "select", "options": ["NRC", "ARC", "Suppression", "Unmeasurable"] },
+            { "name": "correspondence", "label": "Correspondence", "type": "select", "options": ["NRC", "ARC", "Suppression", "Unmeasurable"], "placeholder": "Select Correspondence" },
             { "name": "orthopticInvestigations", "label": "Relevant Investigations", "type": "textarea", "rows": 2, "placeholder": "e.g., VF, Retinal Imaging if indicated." },
             { "name": "visualPerceptualSkills", "label": "Visual Perceptual Skills Assessment", "type": "textarea", "rows": 3, "placeholder": "e.g., Reversals noted, visual memory deficits." }
         ]
@@ -80,7 +80,7 @@
         "fields": [
             { "name": "assessmentDiagnoses", "label": "Assessment / Diagnoses", "type": "textarea", "rows": 5, "placeholder": "1. Accommodative Insufficiency OU\n2. Convergence Insufficiency OU\n3. Intermittent Exotropia" },
             { "name": "plan", "label": "Plan", "type": "textarea", "rows": 5, "placeholder": "1. Prescribe prism (e.g., 2^ BI OU for near work).\n2. Initiate vision therapy program focusing on vergence and accommodative facility.\n3. Vision Therapy Exercises: Pencil push-ups, Brock string, +/- flipper therapy.\n4. Patient education on symptoms and exercises.\n5. RTC 4 weeks for VT progress check." },
-            { "name": "vtProgressStatus", "label": "VT Progress Status", "type": "select", "options": ["", "Progressing Well", "Slow Progress", "Plateau", "Regressed", "N/A (new patient)"] },
+            { "name": "vtProgressStatus", "label": "VT Progress Status", "type": "select", "options": ["Progressing Well", "Slow Progress", "Plateau", "Regressed", "N/A (new patient)"], "placeholder": "Select Status" },
             { "name": "vtCompliance_reason", "label": "Home Therapy Compliance?", "type": "textarea", "rows": 1, "placeholder": "Reason for non-compliance." },
             { "name": "referralNeuroOphth", "label": "Referral to Neuro/Pediatric Ophth?", "type": "radio", "items": ["Yes", "No"] },
             { "name": "prognosis", "label": "Prognosis", "type": "textarea", "rows": 2, "placeholder": "e.g., Good with consistent therapy." },
