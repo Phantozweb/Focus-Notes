@@ -57,6 +57,7 @@ import { format } from 'date-fns';
 import fixedFieldsData from '@/data/Fixedfield.json';
 import orthopticsTemplateData from '@/data/orthoptics-template.json';
 import contactLensTemplateData from '@/data/contact-lens-template.json';
+import pediatricTemplateData from '@/data/pediatric-template.json';
 
 // Zod schema based on the new detailed specification
 const fullOptometryCaseSchema = z.object({
@@ -483,6 +484,9 @@ function NewCaseForm() {
     } else if (template === 'contact-lens') {
         setFormFieldsData(contactLensTemplateData as any);
         setTemplateId('contact-lens');
+    } else if (template === 'pediatric') {
+        setFormFieldsData(pediatricTemplateData as any);
+        setTemplateId('pediatric');
     } else if (template === 'default') {
         setFormFieldsData(fixedFieldsData);
         setTemplateId('default');

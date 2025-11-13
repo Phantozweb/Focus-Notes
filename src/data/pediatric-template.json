@@ -1,0 +1,62 @@
+
+{
+    "patientInfo": {
+      "title": "Patient Info",
+      "icon": "User",
+      "fields": [
+        { "name": "mrdNo", "label": "Patient ID (Optional)", "type": "input", "placeholder": "e.g., P00123" },
+        { "name": "name", "label": "Name", "type": "input", "placeholder": "e.g., Leo Smith" },
+        { "name": "dateOfVisit", "label": "Date of Visit", "type": "datepicker" },
+        { "name": "age", "label": "Age", "type": "input", "inputType": "number" },
+        { "name": "guardianName", "label": "Guardian Name", "type": "input", "placeholder": "e.g., Maria Smith" },
+        { "name": "guardianContact", "label": "Guardian Contact", "type": "input", "placeholder": "e.g., (555) 987-6543" },
+        { "name": "developmentalMilestonesStatus", "label": "Developmental Milestones", "type": "textarea", "rows": 2, "placeholder": "e.g., Normal for age, or delayed walking/speech." },
+        { "name": "schoolPerformance", "label": "School Performance", "type": "textarea", "rows": 2, "placeholder": "e.g., Kindergarten, difficulty with reading." },
+        { "name": "historyOfEyeCare", "label": "History of Eye Care", "type": "textarea", "rows": 2, "placeholder": "e.g., Wore glasses for 1 year, had patching for 6 months OD." }
+      ]
+    },
+    "history": {
+      "title": "History",
+      "icon": "History",
+      "fields": [
+        { "name": "chiefComplaint", "label": "Chief Complaint", "type": "textarea", "rows": 2, "placeholder": "e.g., Child squints frequently." },
+        { "name": "hpi", "label": "History of Present Illness (HPI)", "type": "textarea", "rows": 4, "placeholder": "Onset, duration, severity of symptoms, observed visual behaviors." },
+        { "name": "pastOcularHistory", "label": "Past Ocular History (POH)", "type": "textarea", "rows": 2 },
+        { "name": "pastMedicalHistory", "label": "Past Medical History (PMH)", "type": "textarea", "rows": 2 },
+        { "name": "allergies", "label": "Allergies", "type": "textarea", "rows": 1 },
+        { "name": "currentMedications", "label": "Current Medications", "type": "textarea", "rows": 2 },
+        { "name": "familyHistory", "label": "Family History (Ocular & Medical)", "type": "textarea", "rows": 2, "placeholder": "e.g., Mother has high myopia, Father has strabismus." }
+      ]
+    },
+    "vaRefraction": {
+        "title": "Examination (Pediatric Focused)",
+        "icon": "Eye",
+        "fields": [
+            { "name": "ageAppropriateVA", "label": "Age-Appropriate VA Chart Used", "type": "select", "options": ["OKN", "Teller", "LEA Symbols", "HOTV", "Snellen", "Other"], "placeholder": "Select VA Chart" },
+            { "name": "vaOD", "nameOS": "vaOS", "label": "Visual Acuity", "type": "double-field" },
+            { "name": "hirschbergTest", "label": "Hirschberg Test", "type": "input" },
+            { "name": "brucknerTest", "label": "Bruckner Test", "type": "input" },
+            { "name": "eom", "label": "EOMs", "type": "textarea", "rows": 1 },
+            { "name": "pupillaryEvaluation", "label": "Pupils", "type": "input", "placeholder": "e.g., PERRLA" }
+        ]
+    },
+    "anteriorSegment": {
+        "title": "Anterior & Posterior Segment",
+        "icon": "Microscope",
+        "fields": [
+            { "name": "anteriorSegmentExam_pediatric", "label": "Anterior Segment Exam", "type": "textarea", "rows": 3, "placeholder": "Note any abnormalities." },
+            { "name": "posteriorSegmentExam_pediatric", "label": "Posterior Segment Exam (Dilated)", "type": "textarea", "rows": 3, "placeholder": "Note any abnormalities." }
+        ]
+    },
+    "plan": {
+        "title": "Assessment & Plan",
+        "icon": "Edit3",
+        "fields": [
+            { "name": "assessmentDiagnoses", "label": "Assessment / Diagnoses", "type": "textarea", "rows": 4, "placeholder": "1. Myopia\n2. Astigmatism" },
+            { "name": "plan", "label": "Plan", "type": "textarea", "rows": 5, "placeholder": "1. Prescribe glasses.\n2. Patient/Parent education.\n3. RTC 1 year." },
+            { "name": "patientEducationProvided", "label": "Patient/Parent Education Provided", "type": "textarea", "rows": 3 },
+            { "name": "prognosis", "label": "Prognosis", "type": "textarea", "rows": 2 },
+            { "name": "followUpInstructions", "label": "Follow Up Instructions", "type": "textarea", "rows": 2 }
+        ]
+    }
+}
