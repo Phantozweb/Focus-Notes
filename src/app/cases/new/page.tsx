@@ -56,6 +56,7 @@ import ReactMarkdown from 'react-markdown';
 import { format } from 'date-fns';
 import fixedFieldsData from '@/data/Fixedfield.json';
 import orthopticsTemplateData from '@/data/orthoptics-template.json';
+import contactLensTemplateData from '@/data/contact-lens-template.json';
 
 // Zod schema based on the new detailed specification
 const fullOptometryCaseSchema = z.object({
@@ -410,7 +411,7 @@ const PrismSingleEyeFormField = ({ form, diopterName, baseName, eyeLabel }: { fo
                 name={baseName}
                 render={({ field }) => (
                     <FormItem className="w-[100px] shrink-0">
-                        <Select onValueChange={field.onChange} value={field.value as string}>
+                        <Select onValueChange={field.onChange} value={field.value as string} >
                             <FormControl>
                                 <SelectTrigger><SelectValue placeholder="Base" /></SelectTrigger>
                             </FormControl>
@@ -479,6 +480,9 @@ function NewCaseForm() {
     if (template === 'orthoptics') {
         setFormFieldsData(orthopticsTemplateData as any);
         setTemplateId('orthoptics');
+    } else if (template === 'contact-lens') {
+        setFormFieldsData(contactLensTemplateData as any);
+        setTemplateId('contact-lens');
     } else if (template === 'default') {
         setFormFieldsData(fixedFieldsData);
         setTemplateId('default');

@@ -168,47 +168,45 @@ function TemplatesContent() {
             </CardDescription>
           </div>
         </div>
-        <div className="flex-1 relative">
-            <div className="absolute inset-0">
-                <ScrollArea className="h-full">
-                    <div className="p-4 sm:p-6 lg:p-8 pt-0 grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <Card className="shadow-xl">
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">My Templates</CardTitle>
-                                <CardDescription>Your saved case templates.</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="text-center py-10 px-4 border-2 border-dashed rounded-lg">
-                                <FileText className="mx-auto h-12 w-12 text-muted-foreground/50" />
-                                <h3 className="mt-4 text-lg font-semibold text-foreground">Custom Templates Coming Soon</h3>
-                                <p className="mt-1 text-sm text-muted-foreground">
-                                    Soon, you'll be able to create and save your own templates here.
-                                </p>
-                                </div>
-                            </CardContent>
-                        </Card>
+        <div className="flex-1 min-h-0">
+            <ScrollArea className="h-full">
+                <div className="p-4 sm:p-6 lg:p-8 pt-0 grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <Card className="shadow-xl">
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">My Templates</CardTitle>
+                            <CardDescription>Your saved case templates.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-center py-10 px-4 border-2 border-dashed rounded-lg">
+                            <FileText className="mx-auto h-12 w-12 text-muted-foreground/50" />
+                            <h3 className="mt-4 text-lg font-semibold text-foreground">Custom Templates Coming Soon</h3>
+                            <p className="mt-1 text-sm text-muted-foreground">
+                                Soon, you'll be able to create and save your own templates here.
+                            </p>
+                            </div>
+                        </CardContent>
+                    </Card>
 
-                        <Card className="shadow-xl">
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2"><Globe className="h-5 w-5" />Community Templates</CardTitle>
-                                <CardDescription>Select a template to start a new case.</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="space-y-2">
-                                {communityTemplates.map((template) => (
-                                    <CommunityTemplateItem 
-                                    key={template.id} 
-                                    name={template.name} 
-                                    description={template.description}
-                                    onClick={() => handleTemplateClick(template.id)}
-                                    />
-                                ))}
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </div>
-                </ScrollArea>
-            </div>
+                    <Card className="shadow-xl">
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2"><Globe className="h-5 w-5" />Community Templates</CardTitle>
+                            <CardDescription>Select a template to start a new case.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-2">
+                            {communityTemplates.map((template) => (
+                                <CommunityTemplateItem 
+                                key={template.id} 
+                                name={template.name} 
+                                description={template.description}
+                                onClick={() => handleTemplateClick(template.id)}
+                                />
+                            ))}
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            </ScrollArea>
         </div>
     </div>
   );
