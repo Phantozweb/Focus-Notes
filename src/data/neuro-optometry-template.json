@@ -1,0 +1,63 @@
+
+{
+    "patientInfo": {
+        "title": "Patient Info",
+        "icon": "User",
+        "fields": [
+            { "name": "patientId", "label": "Patient ID (Optional)", "type": "input", "placeholder": "e.g., P00123" },
+            { "name": "name", "label": "Name", "type": "input", "placeholder": "e.g., Sarah Johnson" },
+            { "name": "dateOfVisit", "label": "Date of Visit", "type": "datepicker" },
+            { "name": "dateOfInjuryOnset", "label": "Date of Injury/Onset", "type": "datepicker" },
+            { "name": "typeOfInjuryCondition", "label": "Type of Injury/Condition", "type": "select", "options": ["Traumatic Brain Injury (TBI)", "Stroke", "Concussion", "Multiple Sclerosis (MS)", "Other Neurological Condition", "Other"], "placeholder": "Select Injury or Condition" },
+            { "name": "injuryDetails", "label": "Injury/Condition Details", "type": "textarea", "rows": 2, "placeholder": "Describe injury or neurological condition details." }
+        ]
+    },
+    "history": {
+        "title": "History & Functional Goals",
+        "icon": "History",
+        "fields": [
+            { "name": "chiefComplaint", "label": "Chief Complaint", "type": "textarea", "rows": 2, "placeholder": "e.g., Bumping into objects, difficulty reading." },
+            { "name": "hpi", "label": "History of Present Illness (HPI)", "type": "textarea", "rows": 4, "placeholder": "Onset, duration, severity of symptoms, triggers." },
+            { "name": "functionalGoals", "label": "Functional Goals for Rehab", "type": "textarea", "rows": 3, "placeholder": "e.g., Improve reading stamina for work. Reduce bumping into objects." },
+            { "name": "previousNeuroRehab_details", "label": "Previous Neuro-Rehab Details", "type": "textarea", "rows": 2, "placeholder": "Details of previous therapy (e.g., type, duration, outcome)." }
+        ]
+    },
+    "examination": {
+        "title": "Examination (Neuro-Optometry Focused)",
+        "icon": "Eye",
+        "fields": [
+            { "name": "vaBestCorrectedHabitualOD", "nameOS": "vaBestCorrectedHabitualOS", "label": "BCVA (Habitual)", "type": "double-field" },
+            { "name": "pupilsNeuro", "label": "Pupils", "type": "select", "options": ["PERRLA", "APD OD", "APD OS", "Irregular Shape", "Fixed/Dilated", "Other"], "placeholder": "Select Pupil Status" },
+            { "name": "eomsNeuro", "label": "Extraocular Motility (EOMs)", "type": "textarea", "rows": 3, "placeholder": "Saccades, Pursuits, Gaze limitations." },
+            { "name": "visualFieldLoss_details", "label": "Visual Field Loss Details", "type": "textarea", "rows": 2, "placeholder": "e.g., Right homonymous hemianopsia." },
+            { "name": "diplopiaCharting", "label": "Diplopia Charting / Fields of Gaze", "type": "textarea", "rows": 2, "placeholder": "e.g., Horizontal diplopia in right gaze." },
+            { "name": "oculomotorDysfunction_details", "label": "Oculomotor Dysfunction Details", "type": "textarea", "rows": 2, "placeholder": "e.g., Ocular motor apraxia." },
+            { "name": "perceptualDeficits_details", "label": "Perceptual Visual Deficits", "type": "textarea", "rows": 3, "placeholder": "e.g., Visual midline shift to the left. Spatial neglect." },
+            { "name": "balanceIssues_details", "label": "Vestibular/Balance Issues", "type": "textarea", "rows": 2, "placeholder": "Describe balance challenges worsened by visual stimuli." },
+            { "name": "refractionNeuro", "label": "Refraction (with compensatory elements)", "type": "textarea", "rows": 2, "placeholder": "e.g., OD: -1.00DS. OS: -1.00DS. Add 2^ Base Out OU." }
+        ]
+    },
+    "rehabilitation": {
+        "title": "Rehabilitation & Aids",
+        "icon": "ListChecks",
+        "fields": [
+            { "name": "prescribedPrism", "label": "Prescribed Prism", "type": "textarea", "rows": 2, "placeholder": "e.g., 2^ BI OU (segmental) for reading." },
+            { "name": "prescribedFilters", "label": "Prescribed Filters/Tints", "type": "textarea", "rows": 2, "placeholder": "e.g., FL-41 tint for photophobia." },
+            { "name": "visionTherapyGoals", "label": "Vision Therapy Goals", "type": "textarea", "rows": 3, "placeholder": "e.g., Improve saccadic accuracy for reading." },
+            { "name": "homeExercisesPrescribed", "label": "Home Exercises Prescribed", "type": "textarea", "rows": 3, "placeholder": "e.g., Lighthouse tracing, Hart chart saccades." },
+            { "name": "referralOT_details", "label": "Referral to Occupational Therapy (OT)", "type": "textarea", "rows": 2, "placeholder": "Specify OT and areas for ADL training." },
+            { "name": "referralPT_details", "label": "Referral to Physical Therapy (PT)", "type": "textarea", "rows": 2, "placeholder": "Specify PT and areas for balance/vestibular rehab." },
+            { "name": "referralSpeech_details", "label": "Referral to Speech Therapy", "type": "textarea", "rows": 2, "placeholder": "Specify areas for cognitive/communication rehab." }
+        ]
+    },
+    "plan": {
+        "title": "Assessment & Plan",
+        "icon": "Edit3",
+        "fields": [
+            { "name": "assessmentDiagnoses", "label": "Assessment / Diagnoses", "type": "textarea", "rows": 5, "placeholder": "1. Post-concussion syndrome with convergence insufficiency.\n2. Functional impairment in reading." },
+            { "name": "plan", "label": "Plan", "type": "textarea", "rows": 5, "placeholder": "1. Prescribe therapeutic prism.\n2. Initiate weekly in-office vision therapy.\n3. Refer to OT/PT.\n4. RTC 4 weeks." },
+            { "name": "prognosis", "label": "Prognosis", "type": "textarea", "rows": 2, "placeholder": "e.g., Guarded, but good potential for functional improvement." },
+            { "name": "followUpInstructions", "label": "Follow Up Instructions", "type": "textarea", "rows": 3, "placeholder": "e.g., Attend all therapy sessions. Practice home exercises." }
+        ]
+    }
+}

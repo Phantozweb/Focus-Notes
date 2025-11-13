@@ -1,4 +1,5 @@
 
+
 'use client';
 import * as React from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -58,6 +59,7 @@ import fixedFieldsData from '@/data/Fixedfield.json';
 import orthopticsTemplateData from '@/data/orthoptics-template.json';
 import contactLensTemplateData from '@/data/contact-lens-template.json';
 import pediatricTemplateData from '@/data/pediatric-template.json';
+import neuroOptometryTemplateData from '@/data/neuro-optometry-template.json';
 
 // Zod schema based on the new detailed specification
 const fullOptometryCaseSchema = z.object({
@@ -192,11 +194,37 @@ const fullOptometryCaseSchema = z.object({
   diagnosis: z.string().min(1, "Diagnosis is required"),
   interventionPlanned: z.string().min(1, "Intervention Plan is required"),
   learning: z.string().min(1, "Learning/Reflection is required"),
-});
+
+  // Neuro-Optometry Specific
+  dateOfInjuryOnset: z.number().optional(),
+  typeOfInjuryCondition: z.string().optional(),
+  injuryDetails: z.string().optional(),
+  functionalGoals: z.string().optional(),
+  previousNeuroRehab_details: z.string().optional(),
+  vaBestCorrectedHabitualOD: z.string().optional(),
+  vaBestCorrectedHabitualOS: z.string().optional(),
+  pupilsNeuro: z.string().optional(),
+  eomsNeuro: z.string().optional(),
+  visualFieldLoss_details: z.string().optional(),
+  diplopiaCharting: z.string().optional(),
+  oculomotorDysfunction_details: z.string().optional(),
+  perceptualDeficits_details: z.string().optional(),
+  balanceIssues_details: z.string().optional(),
+  refractionNeuro: z.string().optional(),
+  prescribedPrism: z.string().optional(),
+  prescribedFilters: z.string().optional(),
+  visionTherapyGoals: z.string().optional(),
+  homeExercisesPrescribed: z.string().optional(),
+  referralOT_details: z.string().optional(),
+  referralPT_details: z.string().optional(),
+  referralSpeech_details: z.string().optional(),
+  assessmentDiagnoses: z.string().optional(),
+  prognosis: z.string().optional(),
+}).passthrough();
 
 type FullOptometryCaseFormValues = z.infer<typeof fullOptometryCaseSchema>;
 
-const defaultFormValues: FullOptometryCaseFormValues = {
+const defaultFormValues: Partial<FullOptometryCaseFormValues> = {
   posting: 'General OPD', mrdNo: '', dateOfVisit: Date.now(), name: '', age: undefined, sex: undefined,
   chiefComplaint: '', pastOcularHistory: '', currentMedications: '', pastMedicalHistory: '',
   recentInvestigations: '', familyHistory: '', allergies: '', birthHistory: '', 
@@ -240,6 +268,9 @@ const TABS_CONFIG_BASE = [
   { value: "anteriorSegment", label: "Anterior Segment", icon: Microscope },
   { value: "posteriorSegment", label: "Posterior Segment", icon: ScanEye },
   { value: "plan", label: "Diagnosis & Plan", icon: Edit3 },
+  // Neuro specific tabs
+  { value: "examination", label: "Neuro Exam", icon: Eye },
+  { value: "rehabilitation", label: "Rehab", icon: ListChecks },
 ];
 
 const TwoColumnField = ({ label, children }: { label: string; children: React.ReactNode }) => (
@@ -487,6 +518,9 @@ function NewCaseForm() {
     } else if (template === 'pediatric') {
         setFormFieldsData(pediatricTemplateData as any);
         setTemplateId('pediatric');
+    } else if (template === 'neuro-optometry') {
+        setFormFieldsData(neuroOptometryTemplateData as any);
+        setTemplateId('neuro-optometry');
     } else if (template === 'default') {
         setFormFieldsData(fixedFieldsData);
         setTemplateId('default');
@@ -990,16 +1024,20 @@ function NewCaseForm() {
                             <Button variant="outline" size="icon" onClick={() => handleTabChange(Math.min(TABS_CONFIG.length - 1, currentTabIndex + 1), true)} disabled={currentTabIndex === TABS_CONFIG.length - 1} aria-label="Next Section"><ChevronRight className="h-5 w-5" /></Button>
                         </div>
                     ) : (
-                       <Tabs value={TABS_CONFIG[currentTabIndex]?.value} onValueChange={(newTabValue) => { const newIndex = TABS_CONFIG.findIndex(tab => tab.value === newTabValue); if (newIndex !== -1) { handleTabChange(newIndex, false); } }} className="w-full">
+                       <Tabs value={TABS_CONFIG.find(t => Object.keys(formFieldsData).includes(t.value))?.[currentTabIndex]?.value} onValueChange={(newTabValue) => { const newIndex = TABS_CONFIG.findIndex(tab => tab.value === newTabValue); if (newIndex !== -1) { handleTabChange(newIndex, false); } }} className="w-full">
                             <div className="flex items-center space-x-1 w-full">
                                 <Button variant="outline" size="icon" className="h-9 w-9 shrink-0" onClick={() => handleDesktopTabScroll('left')} disabled={!canScrollDesktopLeft} aria-label="Scroll tabs left"><ChevronLeft className="h-5 w-5" /></Button>
                                 <ScrollArea orientation="horizontal" className="flex-grow w-full pb-0 [&>[data-radix-scroll-area-scrollbar][data-orientation='horizontal']]:hidden" ref={desktopTabsScrollAreaRef}>
                                     <TabsList ref={desktopTabsListRef} className="border-b-0 whitespace-nowrap justify-start relative pl-1 pr-6">
-                                    {TABS_CONFIG.map((tab, index) => (
-                                        <TabsTrigger key={tab.value} value={tab.value} onClick={() => handleTabChange(index, false)} className={cn("px-3 py-2 text-sm font-medium rounded-md", currentTabIndex === index ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-muted/50")}>
-                                          <tab.icon className="mr-2 h-4 w-4" />{tab.label}
-                                        </TabsTrigger>
-                                    ))}
+                                    {Object.keys(formFieldsData).map((sectionId, index) => {
+                                        const tabConfig = TABS_CONFIG.find(t => t.value === sectionId);
+                                        if (!tabConfig) return null;
+                                        return (
+                                            <TabsTrigger key={tabConfig.value} value={tabConfig.value} onClick={() => handleTabChange(index, false)} className={cn("px-3 py-2 text-sm font-medium rounded-md", currentTabIndex === index ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-muted/50")}>
+                                            <tabConfig.icon className="mr-2 h-4 w-4" />{tabConfig.label}
+                                            </TabsTrigger>
+                                        );
+                                    })}
                                     </TabsList>
                                 </ScrollArea>
                                 <Button variant="outline" size="icon" className="h-9 w-9 shrink-0" onClick={() => handleDesktopTabScroll('right')} disabled={!canScrollDesktopRight} aria-label="Scroll tabs right"><ChevronRight className="h-5 w-5" /></Button>
@@ -1013,7 +1051,7 @@ function NewCaseForm() {
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-0"> 
                     
-                    {Object.entries(formFieldsData).map(([sectionId, sectionData], sectionIndex) => (
+                    {Object.entries(formFieldsData).map(([sectionId, sectionData]: [string, any]) => (
                       <div key={sectionId} ref={TABS_CONFIG.find(t => t.value === sectionId)?.ref as React.RefObject<HTMLDivElement>} className="space-y-6 py-2">
                         <SectionTitle title={sectionData.title} icon={TABS_CONFIG.find(t => t.value === sectionId)?.icon || HelpCircle} />
                         {sectionData.fields.map((field: any, fieldIndex: number) => (
@@ -1098,3 +1136,4 @@ export default function LogNewCasePage() {
     </Suspense>
   );
 }
+
