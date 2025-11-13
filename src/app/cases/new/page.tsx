@@ -56,7 +56,7 @@ import {
 import ReactMarkdown from 'react-markdown';
 import { format } from 'date-fns';
 import fixedFieldsData from '@/data/Fixedfield.json';
-import binocularVisionTemplateData from '@/data/binocular-vision-template.json';
+import orthopticsTemplateData from '@/data/orthoptics-template.json';
 
 // Zod schema based on the new detailed specification
 const fullOptometryCaseSchema = z.object({
@@ -477,9 +477,9 @@ function NewCaseForm() {
 
   useEffect(() => {
     const template = searchParams.get('template');
-    if (template === 'binocular-vision') {
-        setFormFieldsData(binocularVisionTemplateData as any);
-        setTemplateId('binocular-vision');
+    if (template === 'orthoptics') {
+        setFormFieldsData(orthopticsTemplateData as any);
+        setTemplateId('orthoptics');
     } else {
         setFormFieldsData(fixedFieldsData);
         setTemplateId('default');
@@ -983,7 +983,7 @@ function NewCaseForm() {
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-0"> 
                     
                     {Object.entries(formFieldsData).map(([sectionId, sectionData], sectionIndex) => (
-                      <div key={sectionId} ref={TABS_CONFIG[sectionIndex].ref as React.RefObject<HTMLDivElement>} className="space-y-6 py-2">
+                      <div key={sectionId} ref={TABS_CONFIG.find(t => t.value === sectionId)?.ref as React.RefObject<HTMLDivElement>} className="space-y-6 py-2">
                         <SectionTitle title={sectionData.title} icon={TABS_CONFIG.find(t => t.value === sectionId)?.icon || HelpCircle} />
                         {sectionData.fields.map((field, fieldIndex) => (
                           <React.Fragment key={field.name || `${sectionId}-group-${fieldIndex}`}>
@@ -1068,3 +1068,5 @@ export default function LogNewCasePage() {
   );
 }
 
+
+    

@@ -145,7 +145,7 @@ function TemplatesContent() {
   
   const communityTemplates = [
     { id: 'general', name: "General Case", description: "Comprehensive template for routine exams." },
-    { id: 'binocular-vision', name: "Binocular Vision Assessment", description: "Focused workup for BV anomalies." },
+    { id: 'orthoptics', name: "Orthoptics Assessment", description: "Focused workup for strabismus and amblyopia." },
     { id: 'contact-lens', name: "Contact Lens Fitting", description: "For new fittings and follow-ups." },
     { id: 'dry-eye', name: "Dry Eye Workup", description: "Detailed assessment for ocular surface disease." },
     { id: 'glaucoma', name: "Glaucoma Follow-up", description: "Tracking IOP, fields, and optic nerve status." },
@@ -522,5 +522,7 @@ export default function DashboardPage() {
         </Suspense>
     );
 }
+
+    
 
     

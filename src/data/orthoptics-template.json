@@ -1,0 +1,94 @@
+
+{
+    "patientInfo": {
+        "title": "Patient Info",
+        "icon": "User",
+        "fields": [
+            { "name": "patientId", "label": "Patient ID (Optional)", "type": "input", "placeholder": "e.g., P00123" },
+            { "name": "name", "label": "Name", "type": "input", "placeholder": "e.g., Alex Smith" },
+            { "name": "dateOfVisit", "label": "Date of Visit", "type": "datepicker" },
+            { "name": "developmentalHistory", "label": "Developmental History", "type": "textarea", "rows": 2, "placeholder": "e.g., Normal milestones. No known developmental delays." },
+            { "name": "previousVTY_details", "label": "Previous Vision Therapy?", "type": "textarea", "rows": 2, "placeholder": "Details of previous therapy (e.g., type, duration, outcome)." },
+            { "name": "strabismusSurgicalHistory_details", "label": "Strabismus Surgical History?", "type": "textarea", "rows": 2, "placeholder": "Date, Surgeon, Procedure." }
+        ]
+    },
+    "history": {
+        "title": "History",
+        "icon": "History",
+        "fields": [
+            { "name": "chiefComplaint", "label": "Chief Complaint", "type": "textarea", "rows": 2, "placeholder": "e.g., Double vision at near, worse in the evening. / Right eye turns in sometimes." },
+            { "name": "hpi", "label": "History of Present Illness (HPI)", "type": "textarea", "rows": 4, "placeholder": "Onset, duration, severity, modifying factors, specific situations." },
+            { "name": "diplopiaDetails", "label": "Diplopia Details (if applicable)", "type": "textarea", "rows": 2, "placeholder": "e.g., Intermittent diplopia for 3 months, worse at near, horizontal separation." },
+            { "name": "diplopiaType", "label": "Diplopia Type", "type": "select", "options": ["", "Horizontal", "Vertical", "Oblique"] },
+            { "name": "diplopiaFrequency", "label": "Diplopia Frequency", "type": "select", "options": ["", "Constant", "Intermittent", "Only on Gaze"] },
+            { "name": "headaches_details", "label": "Headaches/Eye Strain?", "type": "textarea", "rows": 2, "placeholder": "Describe frequency, severity, triggers." },
+            { "name": "readingComputerDemands", "label": "Reading/Computer Demands", "type": "textarea", "rows": 2, "placeholder": "e.g., Student, 4-6 hours reading/day." },
+            { "name": "pastOcularHistory", "label": "Past Ocular History (POH)", "type": "textarea", "rows": 2 },
+            { "name": "pastMedicalHistory", "label": "Past Medical History (PMH)", "type": "textarea", "rows": 2 }
+        ]
+    },
+    "vaRefraction": {
+        "title": "Examination (Orthoptic Focused)",
+        "icon": "Eye",
+        "fields": [
+            { "name": "vaBestCorrectedOD", "nameOS": "vaBestCorrectedOS", "label": "BCVA", "type": "double-field" },
+            { "name": "vaNearOD", "nameOS": "vaNearOS", "label": "Near VA", "type": "double-field" },
+            { "name": "ocularDominance", "label": "Ocular Dominance", "type": "select", "options": ["", "OD", "OS", "Alternating"] },
+            { "name": "headPosture", "label": "Head Posture/Turn", "type": "select", "options": ["None", "Right Head Turn", "Left Head Turn", "Chin Up", "Chin Down", "Other"] },
+            { "name": "fixationOD", "nameOS": "fixationOS", "label": "Fixation", "type": "double-field", "placeholder": "e.g., Central, Steady, Maintained" },
+            { "name": "saccades", "label": "Saccades", "type": "textarea", "rows": 1, "placeholder": "e.g., Accurate and smooth OU. Hypometric saccades OS." },
+            { "name": "pursuits", "label": "Pursuits", "type": "textarea", "rows": 1, "placeholder": "e.g., Smooth and full OU. Jerky pursuits OD." },
+            { "name": "coverTestDistanceUCT", "nameOS": "coverTestDistanceACT", "label": "Distance Cover Test (UCT/ACT)", "type": "double-field" },
+            { "name": "coverTestNearUCT", "nameOS": "coverTestNearACT", "label": "Near Cover Test (UCT/ACT)", "type": "double-field" },
+            { "name": "angleDeviation", "label": "Angle of Deviation", "type": "textarea", "rows": 2, "placeholder": "e.g., PACT, Krimsky, etc. - Distance 10^ XP, Near 14^ XP." },
+            { "name": "amblyopiaPresent", "label": "Amblyopia Present?", "type": "radio", "items": ["Yes", "No"] },
+            { "name": "strabismusPresent", "label": "Strabismus Present?", "type": "radio", "items": ["Yes", "No"] }
+        ]
+    },
+    "ancillaryTests": {
+        "title": "Vergence & Accommodative Function",
+        "icon": "ListChecks",
+        "fields": [
+            { "name": "npc", "label": "Near Point of Convergence (NPC)", "type": "input", "placeholder": "e.g., Break 5cm, Recovery 7cm." },
+            { "name": "pfvDistanceSmooth", "nameOS": "pfvDistanceJump", "label": "PFV Distance (Smooth/Jump BO)", "type": "double-field" },
+            { "name": "pfvNearSmooth", "nameOS": "pfvNearJump", "label": "PFV Near (Smooth/Jump BO)", "type": "double-field" },
+            { "name": "nfvDistanceSmooth", "nameOS": "nfvDistanceJump", "label": "NFV Distance (Smooth/Jump BI)", "type": "double-field" },
+            { "name": "nfvNearSmooth", "nameOS": "nfvNearJump", "label": "NFV Near (Smooth/Jump BI)", "type": "double-field" },
+            { "name": "vergenceFacility", "label": "Vergence Facility", "type": "input", "placeholder": "e.g., 10 cpm with 3 BI/BO" },
+            { "name": "aaOD", "nameOS": "aaOS", "label": "Amplitude of Accommodation (AA)", "type": "double-field", "placeholder": "e.g., 6D (Push-up)" },
+            { "name": "accommodativeFacility", "label": "Accommodative Facility", "type": "input", "placeholder": "e.g., +/-2.00 flippers: 8 cpm" },
+            { "name": "accommodativeResponse", "label": "Accommodative Response (MEM)", "type": "input", "placeholder": "e.g., +0.75 lag OU" }
+        ]
+    },
+    "anteriorSegment": {
+        "title": "Sensory & Other Investigations",
+        "icon": "Microscope",
+        "fields": [
+            { "name": "stereopsisOrthoptics", "label": "Stereoacuity", "type": "input", "placeholder": "e.g., 40 seconds of arc" },
+            { "name": "wirtCircles", "label": "Wirt Circles", "type": "input", "placeholder": "e.g., 40 seconds of arc" },
+            { "name": "randomDotStereo", "label": "Random Dot Stereo", "type": "input", "placeholder": "e.g., 200 seconds of arc" },
+            { "name": "fusionPresent", "label": "Fusion Present (Distance/Near)?", "type": "radio", "items": ["Yes", "No"] },
+            { "name": "suppression", "label": "Suppression Present?", "type": "textarea", "rows": 1, "placeholder": "e.g., Mild OS suppression at near (Worth 4 Dot test)." },
+            { "name": "correspondence", "label": "Correspondence", "type": "select", "options": ["", "NRC", "ARC", "Suppression", "Unmeasurable"] },
+            { "name": "orthopticInvestigations", "label": "Relevant Investigations", "type": "textarea", "rows": 2, "placeholder": "e.g., VF, Retinal Imaging if indicated." },
+            { "name": "visualPerceptualSkills", "label": "Visual Perceptual Skills Assessment", "type": "textarea", "rows": 3, "placeholder": "e.g., Reversals noted, visual memory deficits." }
+        ]
+    },
+    "plan": {
+        "title": "Assessment & Plan",
+        "icon": "Edit3",
+        "fields": [
+            { "name": "assessmentDiagnoses", "label": "Assessment / Diagnoses", "type": "textarea", "rows": 5, "placeholder": "1. Accommodative Insufficiency OU\n2. Convergence Insufficiency OU\n3. Intermittent Exotropia" },
+            { "name": "plan", "label": "Plan", "type": "textarea", "rows": 5, "placeholder": "1. Prescribe prism (e.g., 2^ BI OU for near work).\n2. Initiate vision therapy program focusing on vergence and accommodative facility.\n3. Vision Therapy Exercises: Pencil push-ups, Brock string, +/- flipper therapy.\n4. Patient education on symptoms and exercises.\n5. RTC 4 weeks for VT progress check." },
+            { "name": "vtProgressStatus", "label": "VT Progress Status", "type": "select", "options": ["", "Progressing Well", "Slow Progress", "Plateau", "Regressed", "N/A (new patient)"] },
+            { "name": "vtCompliance_reason", "label": "Home Therapy Compliance?", "type": "textarea", "rows": 1, "placeholder": "Reason for non-compliance." },
+            { "name": "referralNeuroOphth", "label": "Referral to Neuro/Pediatric Ophth?", "type": "radio", "items": ["Yes", "No"] },
+            { "name": "prognosis", "label": "Prognosis", "type": "textarea", "rows": 2, "placeholder": "e.g., Good with consistent therapy." },
+            { "name": "followUpInstructions", "label": "Follow Up Instructions", "type": "textarea", "rows": 3, "placeholder": "e.g., Return in 4 weeks for vision therapy progress check. Practice exercises daily as instructed." },
+            { "name": "internalNotes", "label": "Internal Notes (Not for Patient)", "type": "textarea", "rows": 3 },
+            { "name": "notesReflection", "label": "Personal Reflection/Learning Points", "type": "textarea", "rows": 4 }
+        ]
+    }
+}
+
+    
