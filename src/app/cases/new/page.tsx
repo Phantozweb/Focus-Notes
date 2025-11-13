@@ -62,6 +62,7 @@ import pediatricTemplateData from '@/data/pediatric-template.json';
 import neuroOptometryTemplateData from '@/data/neuro-optometry-template.json';
 import ocularSurfaceDiseaseTemplateData from '@/data/ocular-surface-disease-template.json';
 import myopiaManagementTemplateData from '@/data/myopia-management-template.json';
+import lowVisionTemplateData from '@/data/low-vision-template.json';
 
 // Zod schema based on the new detailed specification
 const fullOptometryCaseSchema = z.object({
@@ -273,6 +274,9 @@ const TABS_CONFIG_BASE = [
   // Neuro specific tabs
   { value: "examination", label: "Neuro Exam", icon: Eye },
   { value: "rehabilitation", label: "Rehab", icon: ListChecks },
+  { value: "aids", label: "LV Aids", icon: ListChecks },
+  { value: "referrals", label: "Referrals", icon: Users },
+  { value: "treatment", label: "Treatment", icon: NotebookPen },
 ];
 
 const TwoColumnField = ({ label, children }: { label: string; children: React.ReactNode }) => (
@@ -529,6 +533,9 @@ function NewCaseForm() {
     } else if (template === 'myopia-management') {
         setFormFieldsData(myopiaManagementTemplateData as any);
         setTemplateId('myopia-management');
+    } else if (template === 'low-vision') {
+        setFormFieldsData(lowVisionTemplateData as any);
+        setTemplateId('low-vision');
     } else if (template === 'default') {
         setFormFieldsData(fixedFieldsData);
         setTemplateId('default');

@@ -151,6 +151,7 @@ function TemplatesContent() {
     { id: 'myopia-management', name: "Myopia Management", description: "Tracking and managing myopic progression." },
     { id: 'pediatric', name: "Pediatric Exam", description: "Tailored for examining children." },
     { id: 'neuro-optometry', name: "Neuro-Optometry & Rehab", description: "For TBI, stroke, and other neurological cases." },
+    { id: 'low-vision', name: "Low Vision Assessment", description: "For patients requiring low vision aids and rehabilitation." },
   ];
 
   const handleTemplateClick = (templateId: string) => {

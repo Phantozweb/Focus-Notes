@@ -1,0 +1,80 @@
+
+{
+    "patientInfo": {
+        "title": "Patient Info",
+        "icon": "User",
+        "fields": [
+            { "name": "patientId", "label": "Patient ID (Optional)", "type": "input", "placeholder": "e.g., P00123" },
+            { "name": "name", "label": "Name", "type": "input", "placeholder": "e.g., Robert Brown" },
+            { "name": "dateOfVisit", "label": "Date of Visit", "type": "datepicker" },
+            { "name": "primaryLowVisionCause", "label": "Primary Cause of Low Vision", "type": "textarea", "rows": 2, "placeholder": "e.g., Age-related Macular Degeneration (AMD)." },
+            { "name": "onsetProgressionLv", "label": "Onset/Progression of Vision Loss", "type": "textarea", "rows": 2, "placeholder": "e.g., Gradual vision loss over 5 years." }
+        ]
+    },
+    "history": {
+        "title": "History & Functional Goals",
+        "icon": "History",
+        "fields": [
+            { "name": "chiefComplaint", "label": "Chief Complaint", "type": "textarea", "rows": 2, "placeholder": "e.g., Difficulty reading small print." },
+            { "name": "functionalVisionConcerns", "label": "Specific Functional Vision Concerns", "type": "textarea", "rows": 3, "placeholder": "e.g., Cannot read prescription labels." },
+            { "name": "lvGoals", "label": "Goals for Low Vision Aids/Rehab", "type": "textarea", "rows": 2, "placeholder": "e.g., Wants to read newspaper." },
+            { "name": "lightingPreferences", "label": "Lighting Preferences", "type": "input", "placeholder": "e.g., Prefers bright, direct light." },
+            { "name": "glareSensitivityLv", "label": "Glare Sensitivity", "type": "input", "placeholder": "e.g., Significant glare in bright environments." },
+            { "name": "currentAidsUsed", "label": "Current Aids Used", "type": "textarea", "rows": 2, "placeholder": "e.g., Handheld magnifier (4x)." },
+            { "name": "mobility_details_group", "label": "Mobility Details", "type": "textarea", "rows": 2, "placeholder": "Describe specific mobility challenges." }
+        ]
+    },
+    "examination": {
+        "title": "Examination (Low Vision Focused)",
+        "icon": "Eye",
+        "fields": [
+            { "name": "vaChartUsed", "label": "VA Chart Used", "type": "select", "options": ["ETDRS", "Lighthouse", "Feinbloom", "Snellen", "Other"], "placeholder": "Select VA Chart" },
+            { "name": "vaDistanceOD", "nameOS": "vaDistanceOS", "label": "Distance VA (LogMAR/Snellen)", "type": "double-field" },
+            { "name": "vaNearOD", "nameOS": "vaNearOS", "label": "Near VA (M-Units/Jaeger)", "type": "double-field" },
+            { "name": "prl", "label": "Preferred Retinal Locus (PRL)", "type": "input", "placeholder": "e.g., Inferior-temporal PRL OD." },
+            { "name": "eccentricViewingStatus", "label": "Eccentric Viewing Training Status", "type": "select", "options": ["Initiated", "Ongoing", "Proficient", "Not Applicable"], "placeholder": "Select Status" },
+            { "name": "contrastSensitivityLv", "label": "Contrast Sensitivity", "type": "input", "placeholder": "e.g., Pelli-Robson chart: 0.90 log units." },
+            { "name": "contrastSensitivityChart", "label": "Contrast Sensitivity Chart Used", "type": "select", "options": ["Pelli-Robson", "LEA Symbols", "FACT", "Other"], "placeholder": "Select Chart" },
+            { "name": "amslerGridOD", "nameOS": "amslerGridOS", "label": "Amsler Grid", "type": "double-textarea", "rows": 1, "placeholder": "e.g., Large central scotoma OD." },
+            { "name": "visualFieldSpecificsLv", "label": "Visual Fields (specific tests)", "type": "textarea", "rows": 2, "placeholder": "e.g., Tangent screen: Tunnel vision OS." },
+            { "name": "visualFieldType", "label": "Type of Field Loss", "type": "select", "options": ["Central Scotoma", "Peripheral Field Loss", "Hemianopsia", "Tunnel Vision", "Generalized Depression", "Other"], "placeholder": "Select Field Loss Type" },
+            { "name": "refractionLv", "label": "Refraction (to maximize vision)", "type": "textarea", "rows": 2, "placeholder": "e.g., OD: -2.00 -0.50 x 180 Add +4.00." },
+            { "name": "magnificationNeeded", "label": "Calculated Magnification Needed", "type": "input", "placeholder": "e.g., 4X" },
+            { "name": "lightingAssessment", "label": "Lighting Assessment", "type": "textarea", "rows": 2, "placeholder": "e.g., Patient performs better with task lamp (LED, 5000K)." }
+        ]
+    },
+    "aids": {
+        "title": "Low Vision Aids Evaluation",
+        "icon": "ListChecks",
+        "fields": [
+            { "name": "handMagnifiers", "label": "Hand Magnifiers", "type": "textarea", "rows": 2, "placeholder": "e.g., Recommended Eschenbach 7x handheld magnifier." },
+            { "name": "standMagnifiers", "label": "Stand Magnifiers", "type": "textarea", "rows": 2, "placeholder": "e.g., Recommended Coil 5x illuminated stand magnifier." },
+            { "name": "telescopes", "label": "Telescopes (Monocular/Binocular)", "type": "textarea", "rows": 2, "placeholder": "e.g., Eschenbach 4x monocular telescope." },
+            { "name": "filterLenses", "label": "Filter Lenses", "type": "textarea", "rows": 2, "placeholder": "e.g., Recommended No. 540 filter for outdoor glare." },
+            { "name": "nonOpticalAids", "label": "Non-Optical Aids", "type": "textarea", "rows": 2, "placeholder": "e.g., Provided signature guide." },
+            { "name": "electronicAids", "label": "Electronic Aids (CCTV, etc.)", "type": "textarea", "rows": 3, "placeholder": "e.g., Demonstrated desktop CCTV." },
+            { "name": "audioTactileAids", "label": "Audio/Tactile Aids Considered", "type": "textarea", "rows": 2, "placeholder": "e.g., Audiobooks, Braille." },
+            { "name": "aidsDispensedList", "label": "Aids Dispensed Today", "type": "textarea", "rows": 3, "placeholder": "List aids dispensed and instructions." }
+        ]
+    },
+    "referrals": {
+        "title": "Referrals & Rehabilitation",
+        "icon": "Users",
+        "fields": [
+            { "name": "referralOM_details", "label": "O&M Specialist Referral Details", "type": "textarea", "rows": 2, "placeholder": "Specify O&M specialist and reason." },
+            { "name": "referralOT_details", "label": "OT Referral Details", "type": "textarea", "rows": 2, "placeholder": "Specify OT and areas for ADL training." },
+            { "name": "referralSS_details", "label": "Social Services/Support Group Details", "type": "textarea", "rows": 2, "placeholder": "Specify service/group and patient needs." },
+            { "name": "otherReferralsLv", "label": "Other Referrals/Consults", "type": "textarea", "rows": 2, "placeholder": "e.g., genetic counseling" }
+        ]
+    },
+    "plan": {
+        "title": "Assessment & Plan",
+        "icon": "Edit3",
+        "fields": [
+            { "name": "assessmentDiagnoses", "label": "Assessment / Diagnoses", "type": "textarea", "rows": 5, "placeholder": "1. AMD OU, geographic atrophy. 2. Functional vision impairment impacting reading." },
+            { "name": "plan", "label": "Plan / Rehabilitation Strategy", "type": "textarea", "rows": 5, "placeholder": "1. Prescribe 4X illuminated stand magnifier. 2. Refer to O&M specialist." },
+            { "name": "prognosis", "label": "Prognosis (Functional)", "type": "textarea", "rows": 2, "placeholder": "e.g., Fair for improving functional independence." },
+            { "name": "followUpInstructions", "label": "Follow Up Instructions", "type": "textarea", "rows": 3, "placeholder": "e.g., Return in 3 months for LV follow-up." }
+        ]
+    }
+}
