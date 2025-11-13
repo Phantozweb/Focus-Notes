@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -126,8 +127,30 @@ function StoredCaseCard({ caseData, onViewDetails, onDelete }: CaseCardProps) {
   );
 }
 
+const CommunityTemplateItem = ({ name, description }: { name: string, description: string }) => (
+  <div className="flex items-center justify-between p-3 rounded-md hover:bg-muted/50 transition-colors">
+    <div>
+      <p className="font-semibold text-foreground">{name}</p>
+      <p className="text-xs text-muted-foreground">{description}</p>
+    </div>
+    <Button variant="ghost" size="icon" className="h-8 w-8">
+      <ChevronRight className="h-5 w-5" />
+    </Button>
+  </div>
+);
+
+
 function TemplatesContent() {
   const router = useRouter();
+  
+  const communityTemplates = [
+    { name: "General Case", description: "Comprehensive template for routine exams." },
+    { name: "Contact Lens Fitting", description: "For new fittings and follow-ups." },
+    { name: "Dry Eye Workup", description: "Detailed assessment for ocular surface disease." },
+    { name: "Glaucoma Follow-up", description: "Tracking IOP, fields, and optic nerve status." },
+    { name: "Pediatric Exam", description: "Tailored for examining children." },
+    { name: "Low Vision Assessment", description: "For patients needing magnification and aids." },
+  ];
 
   return (
     <div className="flex h-full flex-1 flex-col">
@@ -155,7 +178,7 @@ function TemplatesContent() {
                   <p className="mt-1 text-sm text-muted-foreground">
                     Create a template to reuse it for new cases.
                   </p>
-                  <Button className="mt-6" onClick={() => router.push('/dashboard/templates/new')}>
+                  <Button className="mt-6" onClick={() => router.push('/cases/new')}>
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Create New Template
                   </Button>
@@ -169,12 +192,10 @@ function TemplatesContent() {
                 <CardDescription>Templates shared by the community.</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-10 px-4 border-2 border-dashed rounded-lg bg-muted/20">
-                  <Search className="mx-auto h-12 w-12 text-muted-foreground/40" />
-                  <h3 className="mt-4 text-lg font-semibold text-foreground">Coming Soon</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Browse and use templates created by other professionals.
-                  </p>
+                 <div className="space-y-2">
+                  {communityTemplates.map((template) => (
+                    <CommunityTemplateItem key={template.name} name={template.name} description={template.description} />
+                  ))}
                 </div>
               </CardContent>
             </Card>
