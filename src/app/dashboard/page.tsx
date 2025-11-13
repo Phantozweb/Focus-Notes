@@ -7,7 +7,7 @@ import { MainLayout } from '@/components/layout/main-layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { ArrowRight, PlusCircle, ListChecks, FileText, Activity, BrainCircuit, BarChart3, Users, FileSearch, Trash2, CalendarDays, Download } from 'lucide-react';
+import { ArrowRight, PlusCircle, ListChecks, FileText, Activity, BrainCircuit, BarChart3, Users, FileSearch, Trash2, CalendarDays, Download, NotebookPen, Search, Globe, ChevronRight } from 'lucide-react';
 import useLocalStorage from '@/hooks/use-local-storage';
 import type { StoredOptometryCase } from '@/types/case';
 import { format } from 'date-fns';
@@ -123,6 +123,65 @@ function StoredCaseCard({ caseData, onViewDetails, onDelete }: CaseCardProps) {
         </AlertDialog>
       </CardFooter>
     </Card>
+  );
+}
+
+function TemplatesContent() {
+  const router = useRouter();
+
+  return (
+    <div className="flex h-full flex-1 flex-col">
+      <ScrollArea className="flex-grow">
+        <div className="container pt-8 pb-8">
+          <div className="mb-6">
+            <CardTitle className="text-3xl font-bold text-primary flex items-center">
+              <NotebookPen className="mr-3 h-8 w-8" /> Templates
+            </CardTitle>
+            <CardDescription className="mt-1">
+              Create and manage your case templates.
+            </CardDescription>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <Card className="shadow-xl">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">My Templates</CardTitle>
+                <CardDescription>Your saved case templates.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-10 px-4 border-2 border-dashed rounded-lg">
+                  <FileText className="mx-auto h-12 w-12 text-muted-foreground/50" />
+                  <h3 className="mt-4 text-lg font-semibold text-foreground">No Templates Yet</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Create a template to reuse it for new cases.
+                  </p>
+                  <Button className="mt-6" onClick={() => router.push('/dashboard/templates/new')}>
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Create New Template
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="shadow-xl">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2"><Globe className="h-5 w-5" />Community Templates</CardTitle>
+                <CardDescription>Templates shared by the community.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-10 px-4 border-2 border-dashed rounded-lg bg-muted/20">
+                  <Search className="mx-auto h-12 w-12 text-muted-foreground/40" />
+                  <h3 className="mt-4 text-lg font-semibold text-foreground">Coming Soon</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Browse and use templates created by other professionals.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </ScrollArea>
+    </div>
   );
 }
 
@@ -402,6 +461,10 @@ const PageContent = () => {
 
     if (view === 'cases') {
         return <AllCasesContent />;
+    }
+
+    if (view === 'templates') {
+        return <TemplatesContent />;
     }
 
     return <DashboardContent />;

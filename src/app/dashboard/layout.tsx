@@ -14,7 +14,7 @@ import {
   SidebarHeader,
   SidebarGroup,
 } from '@/components/ui/sidebar';
-import { Eye, LogOut, LayoutDashboard, ListChecks, Settings, BarChart3, User as UserIcon } from 'lucide-react';
+import { Eye, LogOut, LayoutDashboard, ListChecks, Settings, BarChart3, User as UserIcon, NotebookPen } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
@@ -33,6 +33,7 @@ export default function DashboardLayout({
   const menuItems = [
     { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, view: null },
     { path: '/dashboard?view=cases', label: 'Case Records', icon: ListChecks, view: 'cases' },
+    { path: '/dashboard?view=templates', label: 'Templates', icon: NotebookPen, view: 'templates' },
     { path: '#', label: 'Analytics', icon: BarChart3, view: 'analytics', disabled: true },
   ];
 
