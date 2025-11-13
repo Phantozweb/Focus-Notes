@@ -148,7 +148,7 @@ function TemplatesContent() {
     { id: 'orthoptics', name: "Orthoptics Assessment", description: "Focused workup for strabismus and amblyopia." },
     { id: 'contact-lens', name: "Contact Lens Fitting", description: "For new fittings and follow-ups." },
     { id: 'dry-eye', name: "Dry Eye Workup", description: "Detailed assessment for ocular surface disease." },
-    { id: 'glaucoma', name: "Glaucoma Follow-up", description: "Tracking IOP, fields, and optic nerve status." },
+    { id: 'myopia-management', name: "Myopia Management", description: "Tracking and managing myopic progression." },
     { id: 'pediatric', name: "Pediatric Exam", description: "Tailored for examining children." },
     { id: 'neuro-optometry', name: "Neuro-Optometry & Rehab", description: "For TBI, stroke, and other neurological cases." },
   ];
@@ -159,8 +159,7 @@ function TemplatesContent() {
 
   return (
     <div className="h-full flex flex-col">
-       <ScrollArea className="flex-1">
-        <div className="p-4 sm:p-6 lg:p-8">
+       <div className="flex-shrink-0 p-4 sm:p-6 lg:p-8">
           <div className="mb-6">
             <CardTitle className="text-3xl font-bold text-primary flex items-center">
               <NotebookPen className="mr-3 h-8 w-8" /> Templates
@@ -169,45 +168,51 @@ function TemplatesContent() {
               Create a new case by selecting a template.
             </CardDescription>
           </div>
-       
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <Card className="shadow-xl">
-                  <CardHeader>
-                      <CardTitle className="flex items-center gap-2">My Templates</CardTitle>
-                      <CardDescription>Your saved case templates.</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                      <div className="text-center py-10 px-4 border-2 border-dashed rounded-lg">
-                      <FileText className="mx-auto h-12 w-12 text-muted-foreground/50" />
-                      <h3 className="mt-4 text-lg font-semibold text-foreground">Custom Templates Coming Soon</h3>
-                      <p className="mt-1 text-sm text-muted-foreground">
-                          Soon, you'll be able to create and save your own templates here.
-                      </p>
-                      </div>
-                  </CardContent>
-              </Card>
-
-              <Card className="shadow-xl">
-                  <CardHeader>
-                      <CardTitle className="flex items-center gap-2"><Globe className="h-5 w-5" />Community Templates</CardTitle>
-                      <CardDescription>Select a template to start a new case.</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                      <div className="space-y-2">
-                      {communityTemplates.map((template) => (
-                          <CommunityTemplateItem 
-                          key={template.id} 
-                          name={template.name} 
-                          description={template.description}
-                          onClick={() => handleTemplateClick(template.id)}
-                          />
-                      ))}
-                      </div>
-                  </CardContent>
-              </Card>
-          </div>
         </div>
-      </ScrollArea>
+        <div className="flex-1 relative">
+            <div className="absolute inset-0">
+                <ScrollArea className="h-full">
+                    <div className="p-4 sm:p-6 lg:p-8 pt-0">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <Card className="shadow-xl">
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2">My Templates</CardTitle>
+                                    <CardDescription>Your saved case templates.</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="text-center py-10 px-4 border-2 border-dashed rounded-lg">
+                                    <FileText className="mx-auto h-12 w-12 text-muted-foreground/50" />
+                                    <h3 className="mt-4 text-lg font-semibold text-foreground">Custom Templates Coming Soon</h3>
+                                    <p className="mt-1 text-sm text-muted-foreground">
+                                        Soon, you'll be able to create and save your own templates here.
+                                    </p>
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            <Card className="shadow-xl">
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2"><Globe className="h-5 w-5" />Community Templates</CardTitle>
+                                    <CardDescription>Select a template to start a new case.</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="space-y-2">
+                                    {communityTemplates.map((template) => (
+                                        <CommunityTemplateItem 
+                                        key={template.id} 
+                                        name={template.name} 
+                                        description={template.description}
+                                        onClick={() => handleTemplateClick(template.id)}
+                                        />
+                                    ))}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    </div>
+                </ScrollArea>
+            </div>
+       </div>
     </div>
   );
 }

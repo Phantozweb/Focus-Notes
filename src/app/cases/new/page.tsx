@@ -61,6 +61,7 @@ import contactLensTemplateData from '@/data/contact-lens-template.json';
 import pediatricTemplateData from '@/data/pediatric-template.json';
 import neuroOptometryTemplateData from '@/data/neuro-optometry-template.json';
 import ocularSurfaceDiseaseTemplateData from '@/data/ocular-surface-disease-template.json';
+import myopiaManagementTemplateData from '@/data/myopia-management-template.json';
 
 // Zod schema based on the new detailed specification
 const fullOptometryCaseSchema = z.object({
@@ -525,6 +526,9 @@ function NewCaseForm() {
     } else if (template === 'dry-eye') {
         setFormFieldsData(ocularSurfaceDiseaseTemplateData as any);
         setTemplateId('dry-eye');
+    } else if (template === 'myopia-management') {
+        setFormFieldsData(myopiaManagementTemplateData as any);
+        setTemplateId('myopia-management');
     } else if (template === 'default') {
         setFormFieldsData(fixedFieldsData);
         setTemplateId('default');

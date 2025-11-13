@@ -1,0 +1,67 @@
+
+{
+    "patientInfo": {
+        "title": "Patient Info",
+        "icon": "User",
+        "fields": [
+            { "name": "patientId", "label": "Patient ID (Optional)", "type": "input", "placeholder": "e.g., P00123" },
+            { "name": "name", "label": "Name", "type": "input", "placeholder": "e.g., Lily Chen" },
+            { "name": "dateOfVisit", "label": "Date of Visit", "type": "datepicker" },
+            { "name": "age", "label": "Age", "type": "input", "inputType": "number" },
+            { "name": "parentalMyopiaHistory", "label": "Parental Myopia History", "type": "textarea", "rows": 2, "placeholder": "e.g., Mother -4.00D, Father -3.00D." },
+            { "name": "dateOfFirstMyopiaDiagnosis", "label": "Date of First Myopia Diagnosis", "type": "datepicker" }
+        ]
+    },
+    "history": {
+        "title": "History & Lifestyle",
+        "icon": "History",
+        "fields": [
+            { "name": "chiefComplaint", "label": "Chief Complaint", "type": "textarea", "rows": 2, "placeholder": "e.g., Glasses prescription getting stronger every year." },
+            { "name": "myopiaProgressionConcern", "label": "Myopia Progression Concern", "type": "textarea", "rows": 3, "placeholder": "e.g., Reports needing new glasses every 10-12 months." },
+            { "name": "nearWorkHoursPerDay", "label": "Near Work Hours/Day", "type": "input", "inputType": "number", "placeholder": "e.g., 6" },
+            { "name": "outdoorHoursPerDay", "label": "Outdoor Hours/Day", "type": "input", "inputType": "number", "placeholder": "e.g., 1.5" },
+            { "name": "hpi", "label": "History of Present Illness (HPI)", "type": "textarea", "rows": 3, "placeholder": "Details about observed visual changes, progression rate." },
+            { "name": "pastOcularHistory", "label": "Past Ocular History (POH)", "type": "textarea", "rows": 2, "placeholder": "e.g., Previous spectacles, amblyopia management." },
+            { "name": "pastMedicalHistory", "label": "Past Medical History (PMH)", "type": "textarea", "rows": 2 },
+            { "name": "allergies", "label": "Allergies", "type": "textarea", "rows": 1 },
+            { "name": "currentMedications", "label": "Current Medications", "type": "textarea", "rows": 2 }
+        ]
+    },
+    "examination": {
+        "title": "Examination (Myopia Focused)",
+        "icon": "Eye",
+        "fields": [
+            { "name": "vaBestCorrectedHabitualOD", "nameOS": "vaBestCorrectedHabitualOS", "label": "BCVA (Habitual)", "type": "double-field" },
+            { "name": "manifestRefractionOD", "nameOS": "manifestRefractionOS", "label": "Manifest Refraction (Spectacle Rx)", "type": "double-field" },
+            { "name": "cycloplegicRefractionOD", "nameOS": "cycloplegicRefractionOS", "label": "Cycloplegic Refraction", "type": "double-field" },
+            { "name": "axialLengthOD", "nameOS": "axialLengthOS", "label": "Axial Length (mm)", "type": "double-field" },
+            { "name": "k1OD", "nameOS": "k1OS", "label": "Keratometry (K1/Flat)", "type": "double-field" },
+            { "name": "k2OD", "nameOS": "k2OS", "label": "Keratometry (K2/Steep)", "type": "double-field" },
+            { "name": "peripheralRefractionOD", "nameOS": "peripheralRefractionOS", "label": "Peripheral Refraction (Optional)", "type": "double-field" }
+        ]
+    },
+    "treatment": {
+        "title": "Management & Treatment",
+        "icon": "ListChecks",
+        "fields": [
+            { "name": "currentManagementMethod", "label": "Current/Proposed Management Method", "type": "select", "options": ["None (Monitor Only)", "Atropine Eye Drops", "Orthokeratology", "Multifocal Soft Contact Lenses", "DIMS/HAL Spectacles", "Single Vision Spectacles", "Bifocal/Progressive Spectacles", "Other"], "placeholder": "Select Management Method" },
+            { "name": "atropineConcentration", "label": "Atropine Concentration", "type": "input", "placeholder": "e.g., 0.01% QD OU" },
+            { "name": "orthoKLensParameters", "label": "Orthokeratology Lens Parameters", "type": "textarea", "rows": 2 },
+            { "name": "mfclLensParameters", "label": "Multifocal Soft CL Parameters", "type": "textarea", "rows": 2 },
+            { "name": "spectacleLensTypeDetails", "label": "Spectacle Lens Type Details", "type": "input" },
+            { "name": "complianceManagement", "label": "Compliance with Management", "type": "textarea", "rows": 2 },
+            { "name": "sideEffectsManagement", "label": "Side Effects from Management", "type": "textarea", "rows": 2 },
+            { "name": "patientEducationProvided", "label": "Patient Education Provided/Reinforced", "type": "textarea", "rows": 3 }
+        ]
+    },
+    "plan": {
+        "title": "Assessment & Plan",
+        "icon": "Edit3",
+        "fields": [
+            { "name": "assessmentDiagnoses", "label": "Assessment / Diagnoses", "type": "textarea", "rows": 5, "placeholder": "1. Myopia OU, moderate progression rate.\n2. High risk for future high myopia due to parental history." },
+            { "name": "plan", "label": "Plan", "type": "textarea", "rows": 5, "placeholder": "1. Continue Atropine 0.01% QD OU.\n2. RTC 6 months for repeat refraction and axial length." },
+            { "name": "prognosis", "label": "Prognosis", "type": "textarea", "rows": 2 },
+            { "name": "followUpInstructions", "label": "Follow Up Instructions", "type": "textarea", "rows": 3 }
+        ]
+    }
+}
