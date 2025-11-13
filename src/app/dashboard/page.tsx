@@ -127,13 +127,13 @@ function StoredCaseCard({ caseData, onViewDetails, onDelete }: CaseCardProps) {
   );
 }
 
-const CommunityTemplateItem = ({ name, description }: { name: string, description: string }) => (
+const CommunityTemplateItem = ({ name, description, onClick }: { name: string, description: string, onClick: () => void }) => (
   <div className="flex items-center justify-between p-3 rounded-md hover:bg-muted/50 transition-colors">
     <div>
       <p className="font-semibold text-foreground">{name}</p>
       <p className="text-xs text-muted-foreground">{description}</p>
     </div>
-    <Button variant="ghost" size="icon" className="h-8 w-8">
+    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onClick}>
       <ChevronRight className="h-5 w-5" />
     </Button>
   </div>
@@ -144,13 +144,17 @@ function TemplatesContent() {
   const router = useRouter();
   
   const communityTemplates = [
-    { name: "General Case", description: "Comprehensive template for routine exams." },
-    { name: "Contact Lens Fitting", description: "For new fittings and follow-ups." },
-    { name: "Dry Eye Workup", description: "Detailed assessment for ocular surface disease." },
-    { name: "Glaucoma Follow-up", description: "Tracking IOP, fields, and optic nerve status." },
-    { name: "Pediatric Exam", description: "Tailored for examining children." },
-    { name: "Low Vision Assessment", description: "For patients needing magnification and aids." },
+    { id: 'general', name: "General Case", description: "Comprehensive template for routine exams." },
+    { id: 'binocular-vision', name: "Binocular Vision Assessment", description: "Focused workup for BV anomalies." },
+    { id: 'contact-lens', name: "Contact Lens Fitting", description: "For new fittings and follow-ups." },
+    { id: 'dry-eye', name: "Dry Eye Workup", description: "Detailed assessment for ocular surface disease." },
+    { id: 'glaucoma', name: "Glaucoma Follow-up", description: "Tracking IOP, fields, and optic nerve status." },
+    { id: 'pediatric', name: "Pediatric Exam", description: "Tailored for examining children." },
   ];
+
+  const handleTemplateClick = (templateId: string) => {
+    router.push(`/cases/new?template=${templateId}`);
+  };
 
   return (
     <div className="flex h-full flex-1 flex-col">
@@ -189,12 +193,17 @@ function TemplatesContent() {
             <Card className="shadow-xl">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2"><Globe className="h-5 w-5" />Community Templates</CardTitle>
-                <CardDescription>Templates shared by the community.</CardDescription>
+                <CardDescription>Select a template to start a new case.</CardDescription>
               </CardHeader>
               <CardContent>
                  <div className="space-y-2">
                   {communityTemplates.map((template) => (
-                    <CommunityTemplateItem key={template.name} name={template.name} description={template.description} />
+                    <CommunityTemplateItem 
+                      key={template.id} 
+                      name={template.name} 
+                      description={template.description}
+                      onClick={() => handleTemplateClick(template.id)}
+                    />
                   ))}
                 </div>
               </CardContent>

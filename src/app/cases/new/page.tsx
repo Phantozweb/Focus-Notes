@@ -1,4 +1,5 @@
 
+
 'use client';
 import * as React from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -38,9 +39,9 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { FullOptometryCaseData, StoredOptometryCase, ChatMessage as AssistantChatMessage, GenkitChatMessage as AssistantGenkitChatMessage, InteractiveEmrAssistantInput } from '@/types/case';
 import { cn } from '@/lib/utils';
-import { useRef, useState, useEffect, useCallback } from 'react';
+import { useRef, useState, useEffect, useCallback, Suspense } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { interactiveEmrAssistant, type InteractiveEmrAssistantOutput } from '@/ai/flows/interactive-emr-assistant';
 import useLocalStorage from '@/hooks/use-local-storage';
 import {
@@ -54,7 +55,8 @@ import {
 } from "@/components/ui/sheet";
 import ReactMarkdown from 'react-markdown';
 import { format } from 'date-fns';
-import formFieldsData from '@/data/Fixedfield.json';
+import fixedFieldsData from '@/data/Fixedfield.json';
+import binocularVisionTemplateData from '@/data/binocular-vision-template.json';
 
 // Zod schema based on the new detailed specification
 const fullOptometryCaseSchema = z.object({
@@ -124,7 +126,6 @@ const fullOptometryCaseSchema = z.object({
   prismDioptersOS: z.string().optional(),
   prismBaseOS: z.string().optional(),
 
-
   // Ancillary Ocular Tests
   keratometryVerticalOD: z.string().optional(),
   keratometryHorizontalOD: z.string().optional(),
@@ -141,6 +142,10 @@ const fullOptometryCaseSchema = z.object({
   wfdtDistance: z.string().optional(),
   wfdtNear: z.string().optional(),
   stereopsis: z.string().optional(),
+  // BV specific
+  vergenceRanges: z.string().optional(),
+  ac_a_ratio: z.string().optional(),
+  relativeAccommodation: z.string().optional(),
 
   // Slit Lamp & Anterior Segment
   pupillaryEvaluation: z.string().optional(),
@@ -213,6 +218,7 @@ const defaultFormValues: FullOptometryCaseFormValues = {
   vitreousOS: '', opticDiscOD: '', opticDiscOS: '', cupDiscRatioOD: '', cupDiscRatioOS: '',
   maculaOD: '', maculaOS: '', vesselsOD: '', vesselsOS: '', peripheryOD: '', peripheryOS: '',
   diagnosis: '', interventionPlanned: '', learning: '',
+  vergenceRanges: '', ac_a_ratio: '', relativeAccommodation: '',
 };
 
 const SectionTitle = React.forwardRef<HTMLHeadingElement, { title: string; icon: React.ElementType }>(
@@ -434,12 +440,15 @@ const PrismDoubleFormField = ({ form, label }: { form: UseFormReturn<FullOptomet
   </div>
 );
 
-
-export default function LogNewCasePage() {
+function NewCaseForm() {
   const { toast } = useToast();
   const router = useRouter();
   const isMobile = useIsMobile();
   const [currentTabIndex, setCurrentTabIndex] = React.useState(0);
+  const searchParams = useSearchParams();
+
+  const [formFieldsData, setFormFieldsData] = React.useState(fixedFieldsData);
+  const [templateId, setTemplateId] = React.useState('default');
   
   const TABS_CONFIG = React.useMemo(() => TABS_CONFIG_BASE.map(tab => ({ ...tab, ref: React.createRef<HTMLDivElement>() })), []);
   const isScrollingProgrammatically = React.useRef(false);
@@ -465,6 +474,17 @@ export default function LogNewCasePage() {
   const [canScrollDesktopLeft, setCanScrollDesktopLeft] = React.useState(false);
   const [canScrollDesktopRight, setCanScrollDesktopRight] = React.useState(false);
   const DESKTOP_SCROLL_AMOUNT = 250;
+
+  useEffect(() => {
+    const template = searchParams.get('template');
+    if (template === 'binocular-vision') {
+        setFormFieldsData(binocularVisionTemplateData as any);
+        setTemplateId('binocular-vision');
+    } else {
+        setFormFieldsData(fixedFieldsData);
+        setTemplateId('default');
+    }
+  }, [searchParams]);
 
   const scrollToSection = useCallback((sectionRef: React.RefObject<HTMLElement>) => {
     isScrollingProgrammatically.current = true;
@@ -612,6 +632,7 @@ export default function LogNewCasePage() {
       ...data,
       id: Date.now().toString(), 
       timestamp: Date.now(),
+      templateId,
     };
     setStoredCases([...storedCases, newCase]);
     toast({
@@ -963,7 +984,7 @@ export default function LogNewCasePage() {
                     
                     {Object.entries(formFieldsData).map(([sectionId, sectionData], sectionIndex) => (
                       <div key={sectionId} ref={TABS_CONFIG[sectionIndex].ref as React.RefObject<HTMLDivElement>} className="space-y-6 py-2">
-                        <SectionTitle title={sectionData.title} icon={TABS_CONFIG[sectionIndex].icon} />
+                        <SectionTitle title={sectionData.title} icon={TABS_CONFIG.find(t => t.value === sectionId)?.icon || HelpCircle} />
                         {sectionData.fields.map((field, fieldIndex) => (
                           <React.Fragment key={field.name || `${sectionId}-group-${fieldIndex}`}>
                               {renderFormField(field)}
@@ -1036,5 +1057,14 @@ export default function LogNewCasePage() {
         </Sheet>
       </div>
     </MainLayout>
+  )
+}
+
+export default function LogNewCasePage() {
+  return (
+    <Suspense fallback={<div>Loading form...</div>}>
+      <NewCaseForm />
+    </Suspense>
   );
 }
+

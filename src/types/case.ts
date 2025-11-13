@@ -1,4 +1,5 @@
 
+
 import type { z } from 'genkit';
 
 // Updated: Only caseInsights
@@ -48,6 +49,10 @@ export interface FullOptometryCaseData {
   pgpCylOS?: string;
   pgpAxisOS?: string;
 
+  // Auto Refractor
+  autoRefractionOD?: string;
+  autoRefractionOS?: string;
+
   // Refraction - Objective (Retinoscopy)
   objRefractionOD?: string; // Replaces previous manifest/cyclo fields for general notes
   objRefractionOS?: string;
@@ -64,6 +69,11 @@ export interface FullOptometryCaseData {
   finalAcuityOD?: string;
   finalAcuityOS?: string;
   finalCorrectionPreference?: 'Prefers new glasses' | 'Continue same PGP'; // Radio
+  lensType?: string;
+  prismDioptersOD?: string;
+  prismBaseOD?: string;
+  prismDioptersOS?: string;
+  prismBaseOS?: string;
 
   // Ancillary Ocular Tests
   keratometryVerticalOD?: string;
@@ -81,6 +91,12 @@ export interface FullOptometryCaseData {
   wfdtDistance?: string;
   wfdtNear?: string;
   stereopsis?: string;
+
+  // Binocular Vision Specific
+  vergenceRanges?: string;
+  ac_a_ratio?: string;
+  relativeAccommodation?: string;
+
 
   // Slit Lamp & Anterior Segment
   pupillaryEvaluation?: string;
@@ -137,6 +153,7 @@ export interface FullOptometryCaseData {
 export interface StoredOptometryCase extends FullOptometryCaseData {
   id: string;
   timestamp: number;
+  templateId?: string; // To identify which template was used
   analysis?: AnalyzeOptometryCaseOutput; 
   analysisError?: string; 
 }
