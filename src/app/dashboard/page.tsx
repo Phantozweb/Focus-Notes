@@ -152,6 +152,7 @@ function TemplatesContent() {
     { id: 'pediatric', name: "Pediatric Exam", description: "Tailored for examining children." },
     { id: 'neuro-optometry', name: "Neuro-Optometry & Rehab", description: "For TBI, stroke, and other neurological cases." },
     { id: 'low-vision', name: "Low Vision Assessment", description: "For patients requiring low vision aids and rehabilitation." },
+    { id: 'certificate', name: "Certificate Purpose", description: "For driving license, employment, and other fitness certificates." },
   ];
 
   const handleTemplateClick = (templateId: string) => {

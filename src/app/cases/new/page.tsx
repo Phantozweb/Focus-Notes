@@ -63,6 +63,7 @@ import neuroOptometryTemplateData from '@/data/neuro-optometry-template.json';
 import ocularSurfaceDiseaseTemplateData from '@/data/ocular-surface-disease-template.json';
 import myopiaManagementTemplateData from '@/data/myopia-management-template.json';
 import lowVisionTemplateData from '@/data/low-vision-template.json';
+import certificateTemplateData from '@/data/certificate-template.json';
 
 // Zod schema based on the new detailed specification
 const fullOptometryCaseSchema = z.object({
@@ -536,6 +537,9 @@ function NewCaseForm() {
     } else if (template === 'low-vision') {
         setFormFieldsData(lowVisionTemplateData as any);
         setTemplateId('low-vision');
+    } else if (template === 'certificate') {
+        setFormFieldsData(certificateTemplateData as any);
+        setTemplateId('certificate');
     } else if (template === 'default') {
         setFormFieldsData(fixedFieldsData);
         setTemplateId('default');

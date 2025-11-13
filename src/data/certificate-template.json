@@ -1,0 +1,71 @@
+
+{
+    "patientInfo": {
+        "title": "Patient Info",
+        "icon": "User",
+        "fields": [
+            { "name": "patientId", "label": "Patient ID (Optional)", "type": "input", "placeholder": "e.g., P00123" },
+            { "name": "patientName", "label": "Name", "type": "input", "placeholder": "e.g., John Doe" },
+            { "name": "dateOfBirth", "label": "Date of Birth", "type": "datepicker" },
+            { "name": "dateOfExamination", "label": "Date of Examination", "type": "datepicker" },
+            { "name": "certificateType", "label": "Specific Certificate Type", "type": "select", "options": ["Driving License (Private)", "Driving License (Commercial)", "Pilot (FAA Class 1)", "Pilot (FAA Class 2)", "Pilot (FAA Class 3)", "Employment (General)", "Employment (Specific: Police)", "Employment (Specific: Firefighter)", "Other"], "placeholder": "Select Certificate Type" },
+            { "name": "governingBody", "label": "Governing Body/Authority", "type": "input", "placeholder": "e.g., State DMV, FAA, Employer Name" },
+            { "name": "dateOfLastCertificate", "label": "Date of Last Certificate (if renewal)", "type": "datepicker" }
+        ]
+    },
+    "history": {
+        "title": "History",
+        "icon": "History",
+        "fields": [
+            { "name": "chiefComplaint", "label": "Chief Complaint", "type": "textarea", "rows": 2, "placeholder": "e.g., Vision assessment for driving license renewal." },
+            { "name": "hpi", "label": "History of Present Illness (HPI)", "type": "textarea", "rows": 3, "placeholder": "Details about specific visual concerns related to certificate purpose." },
+            { "name": "pmh", "label": "Past Medical History (PMH)", "type": "textarea", "rows": 2, "placeholder": "e.g., Diabetes, Hypertension, Neurological conditions." },
+            { "name": "systemicMedications", "label": "Systemic Medications", "type": "textarea", "rows": 2, "placeholder": "e.g., medications with ocular side effects." },
+            { "name": "ocularROS_details", "label": "Ocular Review of Systems (ROS)", "type": "textarea", "rows": 2, "placeholder": "Details if not WNL" },
+            { "name": "systemicROS_details", "label": "Systemic Review of Systems (ROS)", "type": "textarea", "rows": 2, "placeholder": "Details if not WNL" },
+            { "name": "diplopiaHistory", "label": "History of Diplopia (past/present)?", "type": "radio", "items": ["Yes", "No"] }
+        ]
+    },
+    "examination": {
+        "title": "Examination (Certificate Specific)",
+        "icon": "Eye",
+        "fields": [
+            { "name": "vaUncorrectedOD", "nameOS": "vaUncorrectedOS", "label": "UCVA", "type": "double-field" },
+            { "name": "vaBestCorrectedHabitualOD", "nameOS": "vaBestCorrectedHabitualOS", "label": "BCVA (Habitual Rx)", "type": "double-field" },
+            { "name": "vaBestCorrectedOD", "nameOS": "vaBestCorrectedOS", "label": "BCVA (Best Corrected)", "type": "double-field" },
+            { "name": "vaNearOD", "nameOS": "vaNearOS", "label": "Near VA", "type": "double-field" },
+            { "name": "distanceVaLogMAROD", "nameOS": "distanceVaLogMAROS", "label": "Distance VA (LogMAR)", "type": "double-field" },
+            { "name": "colorVisionCertificate", "label": "Color Vision", "type": "select", "options": ["Normal", "Red-Green Deficiency", "Blue-Yellow Deficiency", "Acquired Deficiency", "Not Tested", "Other"], "placeholder": "Select Color Vision Status" },
+            { "name": "visualFieldSpecifics", "label": "Specific Visual Field Test", "type": "textarea", "rows": 2, "placeholder": "e.g., Esterman Binocular Field Test." },
+            { "name": "visualFieldFindingsCertificate", "label": "Visual Field Findings", "type": "textarea", "rows": 3, "placeholder": "e.g., Binocular field meets 120 degrees horizontal, 20 degrees vertical." },
+            { "name": "peripheralVisionHorizontal", "label": "Peripheral Vision (Horizontal - degrees)", "type": "input", "inputType": "number" },
+            { "name": "peripheralVisionVertical", "label": "Peripheral Vision (Vertical - degrees)", "type": "input", "inputType": "number" },
+            { "name": "eomsCertificate", "label": "EOMs / Diplopia", "type": "textarea", "rows": 2, "placeholder": "e.g., Full range of motion, no diplopia." },
+            { "name": "glareSensitivity", "label": "Glare Sensitivity (Optional)", "type": "input" },
+            { "name": "contrastSensitivity", "label": "Contrast Sensitivity (Optional)", "type": "input" },
+            { "name": "darkAdaptation", "label": "Dark Adaptation (Optional)", "type": "input" },
+            { "name": "depthPerception", "label": "Depth Perception (seconds of arc)", "type": "input" },
+            { "name": "refractionDetailsCertificate", "label": "Refraction Details", "type": "textarea", "rows": 2, "placeholder": "e.g., Current Rx: OD: -2.00DS, OS: -2.25DS." },
+            { "name": "visionCorrectionRequired", "label": "Vision Correction Required/Allowed", "type": "select", "options": ["Yes (Spectacles Only)", "Yes (Contact Lenses Only)", "Yes (Either)", "No"], "placeholder": "Select Correction Status" },
+            { "name": "restrictionsEndorsements", "label": "Restrictions/Endorsements", "type": "textarea", "rows": 2, "placeholder": "e.g., Must wear corrective lenses, Daylight driving only." },
+            { "name": "ocularHealthStatus", "label": "General Ocular Health Status", "type": "textarea", "rows": 2, "placeholder": "e.g., No progressive eye disease." }
+        ]
+    },
+    "investigations": {
+        "title": "Investigations",
+        "icon": "ListChecks",
+        "fields": [
+            { "name": "certificateInvestigations", "label": "Relevant Investigations", "type": "textarea", "rows": 3, "placeholder": "e.g., Humphrey 30-2 performed." }
+        ]
+    },
+    "plan": {
+        "title": "Assessment & Plan",
+        "icon": "Edit3",
+        "fields": [
+            { "name": "assessmentDiagnoses", "label": "Assessment / Diagnoses", "type": "textarea", "rows": 3, "placeholder": "1. Myopia OU (corrected). 2. Visually fit for purpose." },
+            { "name": "meetsStandards", "label": "Patient meets visual standards?", "type": "select", "options": ["Yes", "No", "Conditional"], "placeholder": "Select Fitness" },
+            { "name": "plan", "label": "Plan / Recommendations", "type": "textarea", "rows": 5, "placeholder": "1. Patient meets visual standards for a Class B driving license. 2. Provided copy of completed certificate form." },
+            { "name": "prognosis", "label": "Prognosis", "type": "textarea", "rows": 2, "placeholder": "e.g., Good with current management." }
+        ]
+    }
+}
