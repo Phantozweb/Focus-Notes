@@ -1,0 +1,69 @@
+
+{
+    "patientInfo": {
+      "title": "Patient Info",
+      "icon": "User",
+      "fields": [
+        { "name": "mrdNo", "label": "Patient ID (Optional)", "type": "input", "placeholder": "e.g., P00123" },
+        { "name": "name", "label": "Name", "type": "input", "placeholder": "e.g., Emily White" },
+        { "name": "dateOfVisit", "label": "Date of Visit", "type": "datepicker" },
+        { "name": "primaryOSDCause", "label": "Primary OSD Cause", "type": "textarea", "rows": 2, "placeholder": "e.g., Chronic MGD with evaporative dry eye." }
+      ]
+    },
+    "history": {
+      "title": "History & Symptoms",
+      "icon": "History",
+      "fields": [
+        { "name": "chiefComplaint", "label": "Chief Complaint", "type": "textarea", "rows": 2, "placeholder": "e.g., Chronic burning and grittiness." },
+        { "name": "osdiScore", "label": "OSDI Score", "type": "input", "inputType": "number", "placeholder": "e.g., 45" },
+        { "name": "deq5Score", "label": "DEQ-5 Score", "type": "input", "inputType": "number", "placeholder": "e.g., 18" },
+        { "name": "hpi", "label": "History of Present Illness", "type": "textarea", "rows": 3, "placeholder": "Onset, duration, severity of symptoms..." },
+        { "name": "pastOcularHistory", "label": "Past Ocular History (OSD)", "type": "textarea", "rows": 2, "placeholder": "e.g., Recurrent corneal erosions, CL wear." },
+        { "name": "pastMedicalHistory", "label": "Past Medical History (OSD)", "type": "textarea", "rows": 2, "placeholder": "e.g., Sjögren's, Rheumatoid Arthritis, Rosacea." },
+        { "name": "allergies", "label": "Allergies", "type": "textarea", "rows": 1, "placeholder": "Environmental allergens (pollen, dust mites)." },
+        { "name": "currentMedications", "label": "Current Systemic Medications", "type": "textarea", "rows": 2, "placeholder": "e.g., Antihistamines, diuretics, antidepressants." },
+        { "name": "ocularMedications", "label": "Current Ocular Medications", "type": "textarea", "rows": 2, "placeholder": "e.g., Anti-glaucoma drops, artificial tears." },
+        { "name": "environmentalFactors", "label": "Environmental/Lifestyle Factors", "type": "textarea", "rows": 2, "placeholder": "e.g., Dry indoor air, prolonged computer use." }
+      ]
+    },
+    "examination": {
+      "title": "OSD Examination",
+      "icon": "Eye",
+      "fields": [
+        { "name": "tbutNonInvasiveOD", "nameOS": "tbutNonInvasiveOS", "label": "Non-Invasive TBUT (sec)", "type": "double-field" },
+        { "name": "tbutInvasiveOD", "nameOS": "tbutInvasiveOS", "label": "Invasive TBUT (sec)", "type": "double-field" },
+        { "name": "schirmer1_OD", "nameOS": "schirmer1_OS", "label": "Schirmer I (mm/5min)", "type": "double-field" },
+        { "name": "tearOsmolarity_OD", "nameOS": "tearOsmolarity_OS", "label": "Tear Osmolarity (mOsm/L)", "type": "double-field" },
+        { "name": "inflammaDry_OD", "nameOS": "inflammaDry_OS", "label": "InflammaDry", "type": "double-select", "options": ["Positive", "Negative"] },
+        { "name": "lidMarginAssessment_OD", "nameOS": "lidMarginAssessment_OS", "label": "Lid Margin Assessment", "type": "double-select", "options": ["WNL", "MGD Grade 1", "MGD Grade 2", "MGD Grade 3", "Anterior Blepharitis", "Posterior Blepharitis", "Demodex"] },
+        { "name": "meibography_OD", "nameOS": "meibography_OS", "label": "Meibography", "type": "double-field", "placeholder": "e.g., Grade 1 gland dropout" },
+        { "name": "cornealStainingOD_details", "nameOS": "cornealStainingOS_details", "label": "Corneal Staining", "type": "double-textarea", "rows": 2, "placeholder": "e.g., 2+ SPK inferior." },
+        { "name": "conjunctivalStainingOD_details", "nameOS": "conjunctivalStainingOS_details", "label": "Conjunctival Staining", "type": "double-textarea", "rows": 2, "placeholder": "e.g., 1+ Lissamine Green staining." }
+      ]
+    },
+    "treatment": {
+      "title": "Treatment & Management",
+      "icon": "ListChecks",
+      "fields": [
+        { "name": "artificialTears", "label": "Artificial Tears / Lubricants", "type": "textarea", "rows": 2, "placeholder": "e.g., Systane Ultra UD QID OU." },
+        { "name": "antiInflammatoryDrops", "label": "Anti-inflammatory Drops", "type": "textarea", "rows": 2, "placeholder": "e.g., Restasis BID OU." },
+        { "name": "punctalPlugsDetails", "label": "Punctal Plugs", "type": "textarea", "rows": 2, "placeholder": "e.g., Collagen plugs inserted in lower puncta OU." },
+        { "name": "thermalPulsationDetails", "label": "Thermal Pulsation", "type": "textarea", "rows": 2, "placeholder": "e.g., LipiFlow performed today OU." },
+        { "name": "iplTreatmentDetails", "label": "IPL Treatment", "type": "textarea", "rows": 2, "placeholder": "e.g., Recommended series of 4 sessions." },
+        { "name": "scleralLensesDetails", "label": "Scleral Lenses", "type": "textarea", "rows": 2, "placeholder": "e.g., Discussed scleral lenses for severe DED." },
+        { "name": "nutritionalSupplements", "label": "Nutritional Supplements", "type": "textarea", "rows": 2, "placeholder": "e.g., Recommended Omega-3 fatty acids." },
+        { "name": "lidHygiene", "label": "Lid Hygiene", "type": "textarea", "rows": 2, "placeholder": "e.g., Warm compresses BID." },
+        { "name": "environmentalModifications", "label": "Environmental Modifications", "type": "textarea", "rows": 2, "placeholder": "e.g., Humidifier at home." }
+      ]
+    },
+    "plan": {
+        "title": "Assessment & Plan",
+        "icon": "Edit3",
+        "fields": [
+            { "name": "assessmentDiagnoses", "label": "Assessment / Diagnoses", "type": "textarea", "rows": 4, "placeholder": "1. Chronic evaporative dry eye secondary to MGD OU." },
+            { "name": "plan", "label": "Plan", "type": "textarea", "rows": 5, "placeholder": "1. Continue Restasis BID OU. \n2. RTC 2 months for OSD follow-up." },
+            { "name": "prognosis", "label": "Prognosis", "type": "textarea", "rows": 2, "placeholder": "e.g., Good for maintaining symptom control." },
+            { "name": "followUpInstructions", "label": "Follow Up Instructions", "type": "textarea", "rows": 3, "placeholder": "e.g., Continue all prescribed treatments. Return in 2 months." }
+        ]
+    }
+}

@@ -60,6 +60,7 @@ import orthopticsTemplateData from '@/data/orthoptics-template.json';
 import contactLensTemplateData from '@/data/contact-lens-template.json';
 import pediatricTemplateData from '@/data/pediatric-template.json';
 import neuroOptometryTemplateData from '@/data/neuro-optometry-template.json';
+import ocularSurfaceDiseaseTemplateData from '@/data/ocular-surface-disease-template.json';
 
 // Zod schema based on the new detailed specification
 const fullOptometryCaseSchema = z.object({
@@ -521,6 +522,9 @@ function NewCaseForm() {
     } else if (template === 'neuro-optometry') {
         setFormFieldsData(neuroOptometryTemplateData as any);
         setTemplateId('neuro-optometry');
+    } else if (template === 'dry-eye') {
+        setFormFieldsData(ocularSurfaceDiseaseTemplateData as any);
+        setTemplateId('dry-eye');
     } else if (template === 'default') {
         setFormFieldsData(fixedFieldsData);
         setTemplateId('default');
@@ -1136,4 +1140,3 @@ export default function LogNewCasePage() {
     </Suspense>
   );
 }
-
