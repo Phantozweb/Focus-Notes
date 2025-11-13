@@ -1,0 +1,99 @@
+
+{
+    "patientInfo": {
+      "title": "Patient & Visit Information",
+      "icon": "User",
+      "fields": [
+        { "name": "posting", "label": "Posting", "type": "select", "options": ["General OPD", "Community OPD", "Retina OPD"], "placeholder": "Select a posting type" },
+        { "name": "mrdNo", "label": "MRD No", "type": "input", "placeholder": "Enter Medical Record Number" },
+        { "name": "dateOfVisit", "label": "Date of Visit", "type": "datepicker" },
+        { "name": "name", "label": "Name", "type": "input", "placeholder": "e.g., John Doe" },
+        { "name": "age", "label": "Age", "type": "input", "inputType": "number", "placeholder": "e.g., 25" },
+        { "name": "sex", "label": "Sex", "type": "radio", "items": ["Male", "Female", "Other"] }
+      ]
+    },
+    "history": {
+      "title": "Patient History",
+      "icon": "History",
+      "fields": [
+        { "name": "chiefComplaint", "label": "Chief Complaints", "type": "textarea", "rows": 4 },
+        { "name": "pastOcularHistory", "label": "Past Ocular History", "type": "textarea", "rows": 3 },
+        { "name": "currentMedications", "label": "Current Medications", "type": "textarea", "rows": 3 },
+        { "name": "pastMedicalHistory", "label": "Past Medical History", "type": "textarea", "rows": 3 },
+        { "name": "recentInvestigations", "label": "Recent Investigations", "type": "textarea", "rows": 3 },
+        { "name": "familyHistory", "label": "Family History", "type": "textarea", "rows": 3 },
+        { "name": "allergies", "label": "Allergy History", "type": "textarea", "rows": 3 },
+        { "name": "birthHistory", "label": "Birth History", "type": "textarea", "rows": 3 }
+      ]
+    },
+    "vaRefraction": {
+      "title": "VA & Refraction",
+      "icon": "Eye",
+      "fields": [
+        { "type": "va-group" },
+        { "type": "pgp-group" },
+        { "name": "autoRefractionOD", "nameOS": "autoRefractionOS", "label": "Auto-Refraction", "type": "double-field" },
+        { "name": "objRefractionOD", "nameOS": "objRefractionOS", "label": "Objective Refraction", "type": "double-field" },
+        { "name": "objRefractionFindingsOD", "nameOS": "objRefractionFindingsOS", "label": "Objective Findings", "type": "checkbox-group", "items": [{ "id": "noGlow", "label": "No Glow" }, { "id": "dullGlow", "label": "Dull Glow" }, { "id": "centralOpacity", "label": "Central Opacity" }] },
+        { "name": "subjRefractionOD", "nameOS": "subjRefractionOS", "label": "Subjective Refraction", "type": "double-field" },
+        { "name": "subjRefractionChecksOD", "nameOS": "subjRefractionChecksOS", "label": "Subjective Checks", "type": "checkbox-group", "items": [{ "id": "fogging", "label": "Fogging" }, { "id": "duochrome", "label": "Duo chrome" }, { "id": "jcc", "label": "JCC" }] },
+        { "name": "finalAcuityOD", "nameOS": "finalAcuityOS", "label": "Final Acuity w/ New Rx", "type": "double-field" },
+        { "name": "finalCorrectionPreference", "label": "Final Correction Preference", "type": "radio", "items": ["Prefers new glasses", "Continue same PGP"] },
+        { "name": "lensType", "label": "Lens Type", "type": "select-with-input", "options": ["Single Vision", "Bifocal", "Trifocal", "Progressive", "Occupational", "Other"] },
+        { "type": "prism-group" }
+      ]
+    },
+    "ancillaryTests": {
+        "title": "Ancillary Ocular Tests",
+        "icon": "ListChecks",
+        "fields": [
+            { "type": "keratometry-group" },
+            { "name": "coverTest", "label": "Cover Test", "type": "input", "placeholder": "e.g., orthophoria D&N" },
+            { "name": "eom", "label": "EOM", "type": "input", "placeholder": "e.g., SAFE" },
+            { "type": "npc-group" },
+            { "type": "npa-group" },
+            { "type": "wfdt-group" },
+            { "name": "stereopsis", "label": "Stereopsis", "type": "input", "placeholder": "e.g., 40 sec of arc" }
+        ]
+    },
+    "anteriorSegment": {
+        "title": "Anterior Segment & Tonometry",
+        "icon": "Microscope",
+        "fields": [
+            { "name": "pupillaryEvaluation", "label": "Pupillary Evaluation", "type": "textarea", "rows": 3 },
+            { "name": "externalExamination", "label": "External Examination", "type": "textarea", "rows": 3 },
+            { "name": "lidsLashesOD", "nameOS": "lidsLashesOS", "label": "Lids & Lashes", "type": "double-textarea", "rows": 2 },
+            { "name": "conjunctivaScleraOD", "nameOS": "conjunctivaScleraOS", "label": "Conjunctiva & Sclera", "type": "double-textarea", "rows": 2 },
+            { "name": "corneaOD", "nameOS": "corneaOS", "label": "Cornea", "type": "double-textarea", "rows": 2 },
+            { "name": "anteriorChamberOD", "nameOS": "anteriorChamberOS", "label": "Anterior Chamber", "type": "double-textarea", "rows": 2 },
+            { "name": "irisOD", "nameOS": "irisOS", "label": "Iris", "type": "double-textarea", "rows": 2 },
+            { "name": "lensOD", "nameOS": "lensOS", "label": "Lens", "type": "double-textarea", "rows": 2 },
+            { "name": "tonometryPressureOD", "nameOS": "tonometryPressureOS", "label": "Tonometry Pressure (mmHg)", "type": "double-field" },
+            { "name": "tonometryMethod", "label": "Tonometry Method", "type": "select", "options": ["GAT", "NCT", "Perkins"] },
+            { "name": "tonometryTime", "label": "Tonometry Time", "type": "input", "inputType": "time" },
+            { "name": "tbutOD", "nameOS": "tbutOS", "label": "TBUT (sec)", "type": "double-field" },
+            { "name": "schirmerOD", "nameOS": "schirmerOS", "label": "Schirmer's (mm)", "type": "double-field" }
+        ]
+    },
+    "posteriorSegment": {
+        "title": "Posterior Segment Examination",
+        "icon": "ScanEye",
+        "fields": [
+            { "name": "vitreousOD", "nameOS": "vitreousOS", "label": "Vitreous", "type": "double-textarea", "rows": 2 },
+            { "name": "opticDiscOD", "nameOS": "opticDiscOS", "label": "Optic Disc", "type": "double-textarea", "rows": 2 },
+            { "name": "cupDiscRatioOD", "nameOS": "cupDiscRatioOS", "label": "Cup/Disc Ratio", "type": "double-field" },
+            { "name": "maculaOD", "nameOS": "maculaOS", "label": "Macula", "type": "double-textarea", "rows": 2 },
+            { "name": "vesselsOD", "nameOS": "vesselsOS", "label": "Vessels", "type": "double-textarea", "rows": 2 },
+            { "name": "peripheryOD", "nameOS": "peripheryOS", "label": "Periphery (Dilated)", "type": "double-textarea", "rows": 3 }
+        ]
+    },
+    "plan": {
+        "title": "Diagnosis & Plan",
+        "icon": "Edit3",
+        "fields": [
+            { "name": "diagnosis", "label": "Diagnosis", "type": "textarea", "rows": 4 },
+            { "name": "interventionPlanned", "label": "Intervention Planned", "type": "textarea", "rows": 5 },
+            { "name": "learning", "label": "Learning / Reflection", "type": "textarea", "rows": 4 }
+        ]
+    }
+}

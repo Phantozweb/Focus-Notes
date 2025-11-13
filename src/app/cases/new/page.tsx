@@ -54,6 +54,7 @@ import {
 } from "@/components/ui/sheet";
 import ReactMarkdown from 'react-markdown';
 import { format } from 'date-fns';
+import formFieldsData from '@/data/Fixedfield.json';
 
 // Zod schema based on the new detailed specification
 const fullOptometryCaseSchema = z.object({
@@ -621,68 +622,220 @@ export default function LogNewCasePage() {
     setAssistantMessages([]); 
   }
 
-  const renderFormField = (name: keyof FullOptometryCaseFormValues, label: string, placeholder?: string, isTextarea: boolean = false, rows?: number, inputType?: string) => (
-    <FormField
-      control={form.control}
-      name={name}
-      render={({ field }) => (
-        <FormItem>
-          <TwoColumnField label={label}>
-            <FormControl>
-              {isTextarea ? (
-                <Textarea placeholder={placeholder || `Enter ${label.toLowerCase()}...`} {...field} value={field.value as string || ''} rows={rows || 3} className="resize-y" />
-              ) : (
-                <Input type={inputType || 'text'} placeholder={placeholder || `Enter ${label.toLowerCase()}...`} {...field} value={field.value as string | number || ''} />
-              )}
-            </FormControl>
-            <FormMessage />
-          </TwoColumnField>
-        </FormItem>
-      )}
-    />
-  );
-  
-  const renderDoubleFormField = (nameOD: keyof FullOptometryCaseFormValues, nameOS: keyof FullOptometryCaseFormValues, label: string, placeholderOD?: string, placeholderOS?: string, isTextarea: boolean = false, rows?: number) => (
-    <div className="md:grid md:grid-cols-3 md:gap-3 items-start">
-      <FormLabel className="md:col-span-1 md:mt-2 block text-sm font-medium text-muted-foreground">{label}</FormLabel>
-      <div className="md:col-span-2 mt-1 md:mt-0 grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <FormField
-          control={form.control}
-          name={nameOD}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-xs text-muted-foreground">OD (Right Eye)</FormLabel>
-              <FormControl>
-                {isTextarea ? (
-                  <Textarea placeholder={placeholderOD || `OD...`} {...field} value={field.value as string || ''} rows={rows || 2} className="resize-y" />
-                ) : (
-                  <Input placeholder={placeholderOD || `OD...`} {...field} value={field.value as string || ''} />
+  const renderFormField = (fieldConfig: any) => {
+    const { name, label, type, placeholder, rows, inputType, options, items, nameOS } = fieldConfig;
+    switch (type) {
+      case 'input':
+        return (
+            <FormField
+                control={form.control}
+                name={name}
+                render={({ field }) => (
+                    <FormItem>
+                    <TwoColumnField label={label}>
+                        <FormControl>
+                            <Input type={inputType || 'text'} placeholder={placeholder || `Enter ${label.toLowerCase()}...`} {...field} value={field.value as string | number || ''} />
+                        </FormControl>
+                        <FormMessage />
+                    </TwoColumnField>
+                    </FormItem>
                 )}
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name={nameOS}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-xs text-muted-foreground">OS (Left Eye)</FormLabel>
-              <FormControl>
-                {isTextarea ? (
-                  <Textarea placeholder={placeholderOS || `OS...`} {...field} value={field.value as string || ''} rows={rows || 2} className="resize-y" />
-                ) : (
-                  <Input placeholder={placeholderOS || `OS...`} {...field} value={field.value as string || ''} />
+            />
+        );
+      case 'textarea':
+        return (
+            <FormField
+                control={form.control}
+                name={name}
+                render={({ field }) => (
+                    <FormItem>
+                    <TwoColumnField label={label}>
+                        <FormControl>
+                            <Textarea placeholder={placeholder || `Enter ${label.toLowerCase()}...`} {...field} value={field.value as string || ''} rows={rows || 3} className="resize-y" />
+                        </FormControl>
+                        <FormMessage />
+                    </TwoColumnField>
+                    </FormItem>
                 )}
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
-    </div>
-  );
+            />
+        );
+      case 'select':
+        return (
+            <FormField control={form.control} name={name} render={({ field }) => (
+                <FormItem>
+                    <TwoColumnField label={label}>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl><SelectTrigger><SelectValue placeholder={placeholder} /></SelectTrigger></FormControl>
+                            <SelectContent>{options.map((opt: string) => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}</SelectContent>
+                        </Select>
+                        <FormMessage />
+                    </TwoColumnField>
+                </FormItem>
+            )} />
+        );
+      case 'datepicker':
+        return (
+            <FormField control={form.control} name={name} render={({ field }) => (
+                <FormItem>
+                    <TwoColumnField label={label}>
+                        <Popover>
+                            <PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}><CalendarIcon className="mr-2 h-4 w-4" />{field.value ? format(new Date(field.value), "PPP") : <span>Pick a date</span>}</Button></FormControl></PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start"><CalendarComponent mode="single" selected={field.value ? new Date(field.value) : undefined} onSelect={(date) => field.onChange(date?.getTime())} initialFocus /></PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                    </TwoColumnField>
+                </FormItem>
+            )} />
+        );
+      case 'radio':
+        return (
+            <FormField control={form.control} name={name} render={({ field }) => (
+                <FormItem>
+                    <TwoColumnField label={label}>
+                        <FormControl>
+                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex items-center space-x-4">
+                                {items.map((item: string) => (
+                                    <FormItem key={item} className="flex items-center space-x-2">
+                                        <FormControl><RadioGroupItem value={item} /></FormControl>
+                                        <FormLabel className="font-normal">{item}</FormLabel>
+                                    </FormItem>
+                                ))}
+                            </RadioGroup>
+                        </FormControl>
+                        <FormMessage />
+                    </TwoColumnField>
+                </FormItem>
+            )} />
+        );
+    case 'double-field':
+        return (
+            <div className="md:grid md:grid-cols-3 md:gap-3 items-start">
+            <FormLabel className="md:col-span-1 md:mt-2 block text-sm font-medium text-muted-foreground">{label}</FormLabel>
+            <div className="md:col-span-2 mt-1 md:mt-0 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <FormField
+                control={form.control}
+                name={name}
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel className="text-xs text-muted-foreground">OD (Right Eye)</FormLabel>
+                    <FormControl>
+                        <Input placeholder={`OD...`} {...field} value={field.value as string || ''} />
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+                <FormField
+                control={form.control}
+                name={nameOS}
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel className="text-xs text-muted-foreground">OS (Left Eye)</FormLabel>
+                    <FormControl>
+                        <Input placeholder={`OS...`} {...field} value={field.value as string || ''} />
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+            </div>
+            </div>
+        );
+    case 'double-textarea':
+        return (
+            <div className="md:grid md:grid-cols-3 md:gap-3 items-start">
+            <FormLabel className="md:col-span-1 md:mt-2 block text-sm font-medium text-muted-foreground">{label}</FormLabel>
+            <div className="md:col-span-2 mt-1 md:mt-0 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <FormField
+                control={form.control}
+                name={name}
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel className="text-xs text-muted-foreground">OD (Right Eye)</FormLabel>
+                    <FormControl>
+                        <Textarea placeholder={`OD...`} {...field} value={field.value as string || ''} rows={rows || 2} className="resize-y" />
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+                <FormField
+                control={form.control}
+                name={nameOS}
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel className="text-xs text-muted-foreground">OS (Left Eye)</FormLabel>
+                    <FormControl>
+                        <Textarea placeholder={`OS...`} {...field} value={field.value as string || ''} rows={rows || 2} className="resize-y" />
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+            </div>
+            </div>
+        );
+    case 'checkbox-group':
+        return (
+            <div className="md:grid md:grid-cols-3 md:gap-3 items-start">
+                <FormLabel className="md:col-span-1 md:mt-2 block text-sm font-medium text-muted-foreground">{label}</FormLabel>
+                <div className="md:col-span-2 mt-1 md:mt-0 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <CheckboxGroup form={form} name={name} items={items} eyeLabel="OD (Right Eye)" />
+                    <CheckboxGroup form={form} name={nameOS} items={items} eyeLabel="OS (Left Eye)" />
+                </div>
+            </div>
+        );
+    case 'select-with-input':
+        return <InputWithSelect form={form} name={name} label={label} options={options} placeholder="Enter lens type..." />;
+    case 'va-group':
+        return (
+            <div className="p-4 border rounded-lg bg-card/50">
+                <h4 className="font-medium text-center mb-4">Visual Acuity</h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center text-sm font-medium"><div className="md:col-start-2">OD (Right Eye)</div><div>OS (Left Eye)</div></div>
+                <VisualAcuityDoubleFormField form={form} nameOD="distanceUnaidedOD" nameOS="distanceUnaidedOS" label="Distance - Unaided" />
+                <VisualAcuityDoubleFormField form={form} nameOD="distancePinholeOD" nameOS="distancePinholeOS" label="Distance - Pinhole" />
+                <VisualAcuityDoubleFormField form={form} nameOD="distanceOldGlassesOD" nameOS="distanceOldGlassesOS" label="Distance - Old Glasses" />
+                <VisualAcuityDoubleFormField form={form} nameOD="nearUnaidedOD" nameOS="nearUnaidedOS" label="Near - Unaided" />
+                <VisualAcuityDoubleFormField form={form} nameOD="nearPinholeOD" nameOS="nearPinholeOS" label="Near - Pinhole" />
+                <VisualAcuityDoubleFormField form={form} nameOD="nearOldGlassesOD" nameOS="nearOldGlassesOS" label="Near - Old Glasses" />
+            </div>
+        );
+    case 'pgp-group':
+        return (
+            <div className="p-4 border rounded-lg bg-card/50">
+                <h4 className="font-medium text-center mb-4">Previous Glasses Rx (PGP)</h4>
+                <div className="grid grid-cols-4 gap-2 text-center text-sm font-medium"><div className="col-start-2">Sph (D)</div><div>Cyl (D)</div><div>Axis</div></div>
+                <div className="grid grid-cols-4 gap-x-2 gap-y-2 items-center"><FormLabel className="text-right">OD</FormLabel><FormField control={form.control} name="pgpSphOD" render={({ field }) => (<Input {...field} />)}/><FormField control={form.control} name="pgpCylOD" render={({ field }) => (<Input {...field} />)}/><FormField control={form.control} name="pgpAxisOD" render={({ field }) => (<Input {...field} />)}/></div>
+                <div className="grid grid-cols-4 gap-x-2 gap-y-2 items-center mt-2"><FormLabel className="text-right">OS</FormLabel><FormField control={form.control} name="pgpSphOS" render={({ field }) => (<Input {...field} />)}/><FormField control={form.control} name="pgpCylOS" render={({ field }) => (<Input {...field} />)}/><FormField control={form.control} name="pgpAxisOS" render={({ field }) => (<Input {...field} />)}/></div>
+            </div>
+        );
+    case 'prism-group':
+        return <PrismDoubleFormField form={form} label="Prism" />;
+    case 'keratometry-group':
+        return (
+            <div className="p-4 border rounded-lg bg-card/50 space-y-4">
+                <h4 className="font-medium mb-2 text-center">Keratometry</h4>
+                <div className="grid grid-cols-5 gap-2 text-center text-sm font-medium"><div className="col-start-2">Vertical</div><div>Horizontal</div><div className="col-start-2">Vertical</div><div>Horizontal</div></div>
+                <div className="grid grid-cols-5 gap-x-2 gap-y-2 items-center"><FormLabel className="text-right">OD</FormLabel><FormField control={form.control} name="keratometryVerticalOD" render={({ field }) => (<Input {...field} />)}/><FormField control={form.control} name="keratometryHorizontalOD" render={({ field }) => (<Input {...field} />)}/><FormLabel className="text-right col-start-1">OS</FormLabel><FormField control={form.control} name="keratometryVerticalOS" render={({ field }) => (<Input {...field} />)}/><FormField control={form.control} name="keratometryHorizontalOS" render={({ field }) => (<Input {...field} />)}/></div>
+                {renderFormField({name: 'keratometryComments', label: 'Comments', type: 'textarea', rows: 2})}
+            </div>
+        );
+    case 'npc-group':
+        return (
+            <div className="md:grid md:grid-cols-3 md:gap-3 items-start"><FormLabel className="md:col-span-1 md:mt-2">NPC (cm)</FormLabel><div className="md:col-span-2 grid grid-cols-2 gap-4"><FormField control={form.control} name="npcSubj" render={({ field }) => (<FormItem><FormLabel className="text-xs">SUBJ</FormLabel><Input {...field} /></FormItem>)}/><FormField control={form.control} name="npcObj" render={({ field }) => (<FormItem><FormLabel className="text-xs">OBJEC</FormLabel><Input {...field} /></FormItem>)}/></div></div>
+        );
+    case 'npa-group':
+        return (
+            <div className="md:grid md:grid-cols-3 md:gap-3 items-start"><FormLabel className="md:col-span-1 md:mt-2">NPA (D)</FormLabel><div className="md:col-span-2 grid grid-cols-3 gap-4"><FormField control={form.control} name="npaOD" render={({ field }) => (<FormItem><FormLabel className="text-xs">OD</FormLabel><Input {...field} /></FormItem>)}/><FormField control={form.control} name="npaOS" render={({ field }) => (<FormItem><FormLabel className="text-xs">OS</FormLabel><Input {...field} /></FormItem>)}/><FormField control={form.control} name="npaOU" render={({ field }) => (<FormItem><FormLabel className="text-xs">OU</FormLabel><Input {...field} /></FormItem>)}/></div></div>
+        );
+    case 'wfdt-group':
+        return (
+            <div className="md:grid md:grid-cols-3 md:gap-3 items-start"><FormLabel className="md:col-span-1 md:mt-2">WFDT</FormLabel><div className="md:col-span-2 grid grid-cols-2 gap-4"><FormField control={form.control} name="wfdtDistance" render={({ field }) => (<FormItem><FormLabel className="text-xs">Distance</FormLabel><Input {...field} /></FormItem>)}/><FormField control={form.control} name="wfdtNear" render={({ field }) => (<FormItem><FormLabel className="text-xs">Near</FormLabel><Input {...field} /></FormItem>)}/></div></div>
+        );
+      default:
+        return null;
+    }
+  };
 
   useEffect(() => {
     if (assistantScrollAreaRef.current) {
@@ -808,129 +961,16 @@ export default function LogNewCasePage() {
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-0"> 
                     
-                    {/* Patient Info */}
-                    <div ref={TABS_CONFIG[0].ref as React.RefObject<HTMLDivElement>} className="space-y-6 py-2">
-                        <SectionTitle title={TABS_CONFIG[0].label} icon={TABS_CONFIG[0].icon} />
-                        <FormField control={form.control} name="posting" render={({ field }) => (<FormItem><TwoColumnField label="Posting"><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select a posting type" /></SelectTrigger></FormControl><SelectContent><SelectItem value="General OPD">General OPD</SelectItem><SelectItem value="Community OPD">Community OPD</SelectItem><SelectItem value="Retina OPD">Retina OPD</SelectItem></SelectContent></Select><FormMessage /></TwoColumnField></FormItem>)} />
-                        {renderFormField('mrdNo', 'MRD No', 'Enter Medical Record Number')}
-                        <FormField control={form.control} name="dateOfVisit" render={({ field }) => (<FormItem><TwoColumnField label="Date of Visit"><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}><CalendarIcon className="mr-2 h-4 w-4" />{field.value ? format(new Date(field.value), "PPP") : <span>Pick a date</span>}</Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><CalendarComponent mode="single" selected={field.value ? new Date(field.value) : undefined} onSelect={(date) => field.onChange(date?.getTime())} initialFocus /></PopoverContent></Popover><FormMessage /></TwoColumnField></FormItem>)} />
-                        {renderFormField('name', 'Name', 'e.g., John Doe')}
-                        {renderFormField('age', 'Age', 'e.g., 25', false, undefined, 'number')}
-                        <FormField control={form.control} name="sex" render={({ field }) => (<FormItem><TwoColumnField label="Sex"><FormControl><RadioGroup onValueChange={field.onChange} value={field.value} className="flex items-center space-x-4"><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="Male" /></FormControl><FormLabel className="font-normal">Male</FormLabel></FormItem><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="Female" /></FormControl><FormLabel className="font-normal">Female</FormLabel></FormItem><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="Other" /></FormControl><FormLabel className="font-normal">Other</FormLabel></FormItem></RadioGroup></FormControl><FormMessage /></TwoColumnField></FormItem>)} />
-                    </div>
-
-                    {/* History */}
-                    <div ref={TABS_CONFIG[1].ref as React.RefObject<HTMLDivElement>} className="space-y-6 py-2">
-                        <SectionTitle title={TABS_CONFIG[1].label} icon={TABS_CONFIG[1].icon} />
-                        {renderFormField('chiefComplaint', 'Chief Complaints', '', true, 4)}
-                        {renderFormField('pastOcularHistory', 'Past Ocular History', '', true, 3)}
-                        {renderFormField('currentMedications', 'Current Medications', '', true, 3)}
-                        {renderFormField('pastMedicalHistory', 'Past Medical History', '', true, 3)}
-                        {renderFormField('recentInvestigations', 'Recent Investigations', '', true, 3)}
-                        {renderFormField('familyHistory', 'Family History', '', true, 3)}
-                        {renderFormField('allergies', 'Allergy History', '', true, 3)}
-                        {renderFormField('birthHistory', 'Birth History', '', true, 3)}
-                    </div>
-
-                    {/* VA & Refraction */}
-                    <div ref={TABS_CONFIG[2].ref as React.RefObject<HTMLDivElement>} className="space-y-8 py-2">
-                        <SectionTitle title={TABS_CONFIG[2].label} icon={TABS_CONFIG[2].icon} />
-                        <div className="p-4 border rounded-lg bg-card/50">
-                            <h4 className="font-medium text-center mb-4">Visual Acuity</h4>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center text-sm font-medium"><div className="md:col-start-2">OD (Right Eye)</div><div>OS (Left Eye)</div></div>
-                            <VisualAcuityDoubleFormField form={form} nameOD="distanceUnaidedOD" nameOS="distanceUnaidedOS" label="Distance - Unaided" />
-                            <VisualAcuityDoubleFormField form={form} nameOD="distancePinholeOD" nameOS="distancePinholeOS" label="Distance - Pinhole" />
-                            <VisualAcuityDoubleFormField form={form} nameOD="distanceOldGlassesOD" nameOS="distanceOldGlassesOS" label="Distance - Old Glasses" />
-                            <VisualAcuityDoubleFormField form={form} nameOD="nearUnaidedOD" nameOS="nearUnaidedOS" label="Near - Unaided" />
-                            <VisualAcuityDoubleFormField form={form} nameOD="nearPinholeOD" nameOS="nearPinholeOS" label="Near - Pinhole" />
-                            <VisualAcuityDoubleFormField form={form} nameOD="nearOldGlassesOD" nameOS="nearOldGlassesOS" label="Near - Old Glasses" />
-                        </div>
-                        <div className="p-4 border rounded-lg bg-card/50">
-                            <h4 className="font-medium text-center mb-4">Previous Glasses Rx (PGP)</h4>
-                            <div className="grid grid-cols-4 gap-2 text-center text-sm font-medium"><div className="col-start-2">Sph (D)</div><div>Cyl (D)</div><div>Axis</div></div>
-                            <div className="grid grid-cols-4 gap-x-2 gap-y-2 items-center"><FormLabel className="text-right">OD</FormLabel><FormField control={form.control} name="pgpSphOD" render={({ field }) => (<Input {...field} />)}/><FormField control={form.control} name="pgpCylOD" render={({ field }) => (<Input {...field} />)}/><FormField control={form.control} name="pgpAxisOD" render={({ field }) => (<Input {...field} />)}/></div>
-                            <div className="grid grid-cols-4 gap-x-2 gap-y-2 items-center mt-2"><FormLabel className="text-right">OS</FormLabel><FormField control={form.control} name="pgpSphOS" render={({ field }) => (<Input {...field} />)}/><FormField control={form.control} name="pgpCylOS" render={({ field }) => (<Input {...field} />)}/><FormField control={form.control} name="pgpAxisOS" render={({ field }) => (<Input {...field} />)}/></div>
-                        </div>
-                         <div className="p-4 border rounded-lg bg-card/50 space-y-4">
-                            <h4 className="font-medium text-center mb-2">Auto-Refractor Values</h4>
-                            {renderDoubleFormField('autoRefractionOD', 'autoRefractionOS', 'Auto-Refraction', 'e.g., -1.00 / -0.50 x 180', 'e.g., -1.25 DS')}
-                        </div>
-                        <div className="p-4 border rounded-lg bg-card/50 space-y-4">
-                          <h4 className="font-medium text-center mb-2">Objective Refraction</h4>
-                          {renderDoubleFormField('objRefractionOD', 'objRefractionOS', 'Retinoscopy Findings', 'e.g., -1.00 / -0.50 x 180', 'e.g., -1.25 DS')}
-                          <div className="md:grid md:grid-cols-3 md:gap-3 items-start"><FormLabel className="md:col-span-1 md:mt-2 block text-sm font-medium text-muted-foreground">Objective Findings</FormLabel><div className="md:col-span-2 mt-1 md:mt-0 grid grid-cols-1 sm:grid-cols-2 gap-4"><CheckboxGroup form={form} name="objRefractionFindingsOD" items={[{id: 'noGlow', label:'No Glow'},{id: 'dullGlow', label:'Dull Glow'},{id: 'centralOpacity', label:'Central Opacity'}]} eyeLabel="OD" /><CheckboxGroup form={form} name="objRefractionFindingsOS" items={[{id: 'noGlow', label:'No Glow'},{id: 'dullGlow', label:'Dull Glow'},{id: 'centralOpacity', label:'Central Opacity'}]} eyeLabel="OS" /></div></div>
-                        </div>
-                        <div className="p-4 border rounded-lg bg-card/50 space-y-4">
-                          <h4 className="font-medium text-center mb-2">Subjective Refraction</h4>
-                          {renderDoubleFormField('subjRefractionOD', 'subjRefractionOS', 'Subjective Correction', 'e.g., -1.00 / -0.50 x 180', 'e.g., -1.25 DS')}
-                          <div className="md:grid md:grid-cols-3 md:gap-3 items-start"><FormLabel className="md:col-span-1 md:mt-2 block text-sm font-medium text-muted-foreground">Subjective Checks</FormLabel><div className="md:col-span-2 mt-1 md:mt-0 grid grid-cols-1 sm:grid-cols-2 gap-4"><CheckboxGroup form={form} name="subjRefractionChecksOD" items={[{id: 'fogging', label:'Fogging'},{id: 'duochrome', label:'Duo chrome'},{id: 'jcc', label:'JCC'}]} eyeLabel="OD" /><CheckboxGroup form={form} name="subjRefractionChecksOS" items={[{id: 'fogging', label:'Fogging'},{id: 'duochrome', label:'Duo chrome'},{id: 'jcc', label:'JCC'}]} eyeLabel="OS" /></div></div>
-                        </div>
-                        <div className="p-4 border rounded-lg bg-card/50 space-y-4">
-                          <h4 className="font-medium text-center mb-2">Final Correction</h4>
-                          {renderDoubleFormField('finalAcuityOD', 'finalAcuityOS', 'Visual Acuity w/ New Rx')}
-                          <FormField control={form.control} name="finalCorrectionPreference" render={({ field }) => (<FormItem><TwoColumnField label="Decision"><FormControl><RadioGroup onValueChange={field.onChange} value={field.value} className="flex items-center space-x-4"><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="Prefers new glasses" /></FormControl><FormLabel className="font-normal">Prefers new glasses</FormLabel></FormItem><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="Continue same PGP" /></FormControl><FormLabel className="font-normal">Continue same PGP</FormLabel></FormItem></RadioGroup></FormControl><FormMessage /></TwoColumnField></FormItem>)} />
-                          <InputWithSelect form={form} name="lensType" label="Lens Type" options={["Single Vision", "Bifocal", "Trifocal", "Progressive", "Occupational", "Other"]} placeholder="Enter lens type..." />
-                          <PrismDoubleFormField form={form} label="Prism" />
-                        </div>
-                    </div>
-
-                    {/* Ancillary Tests */}
-                    <div ref={TABS_CONFIG[3].ref as React.RefObject<HTMLDivElement>} className="space-y-6 py-2">
-                        <SectionTitle title={TABS_CONFIG[3].label} icon={TABS_CONFIG[3].icon} />
-                        <div className="p-4 border rounded-lg bg-card/50 space-y-4">
-                            <h4 className="font-medium mb-2 text-center">Keratometry</h4>
-                            <div className="grid grid-cols-5 gap-2 text-center text-sm font-medium"><div className="col-start-2">Vertical</div><div>Horizontal</div><div className="col-start-2">Vertical</div><div>Horizontal</div></div>
-                            <div className="grid grid-cols-5 gap-x-2 gap-y-2 items-center"><FormLabel className="text-right">OD</FormLabel><FormField control={form.control} name="keratometryVerticalOD" render={({ field }) => (<Input {...field} />)}/><FormField control={form.control} name="keratometryHorizontalOD" render={({ field }) => (<Input {...field} />)}/><FormLabel className="text-right col-start-1">OS</FormLabel><FormField control={form.control} name="keratometryVerticalOS" render={({ field }) => (<Input {...field} />)}/><FormField control={form.control} name="keratometryHorizontalOS" render={({ field }) => (<Input {...field} />)}/></div>
-                            {renderFormField('keratometryComments', 'Comments', '', true, 2)}
-                        </div>
-                        {renderFormField('coverTest', 'Cover Test', 'e.g., orthophoria D&N')}
-                        {renderFormField('eom', 'EOM', 'e.g., SAFE')}
-                        <div className="md:grid md:grid-cols-3 md:gap-3 items-start"><FormLabel className="md:col-span-1 md:mt-2">NPC (cm)</FormLabel><div className="md:col-span-2 grid grid-cols-2 gap-4"><FormField control={form.control} name="npcSubj" render={({ field }) => (<FormItem><FormLabel className="text-xs">SUBJ</FormLabel><Input {...field} /></FormItem>)}/><FormField control={form.control} name="npcObj" render={({ field }) => (<FormItem><FormLabel className="text-xs">OBJEC</FormLabel><Input {...field} /></FormItem>)}/></div></div>
-                        <div className="md:grid md:grid-cols-3 md:gap-3 items-start"><FormLabel className="md:col-span-1 md:mt-2">NPA (D)</FormLabel><div className="md:col-span-2 grid grid-cols-3 gap-4"><FormField control={form.control} name="npaOD" render={({ field }) => (<FormItem><FormLabel className="text-xs">OD</FormLabel><Input {...field} /></FormItem>)}/><FormField control={form.control} name="npaOS" render={({ field }) => (<FormItem><FormLabel className="text-xs">OS</FormLabel><Input {...field} /></FormItem>)}/><FormField control={form.control} name="npaOU" render={({ field }) => (<FormItem><FormLabel className="text-xs">OU</FormLabel><Input {...field} /></FormItem>)}/></div></div>
-                        <div className="md:grid md:grid-cols-3 md:gap-3 items-start"><FormLabel className="md:col-span-1 md:mt-2">WFDT</FormLabel><div className="md:col-span-2 grid grid-cols-2 gap-4"><FormField control={form.control} name="wfdtDistance" render={({ field }) => (<FormItem><FormLabel className="text-xs">Distance</FormLabel><Input {...field} /></FormItem>)}/><FormField control={form.control} name="wfdtNear" render={({ field }) => (<FormItem><FormLabel className="text-xs">Near</FormLabel><Input {...field} /></FormItem>)}/></div></div>
-                        {renderFormField('stereopsis', 'Stereopsis', 'e.g., 40 sec of arc')}
-                    </div>
-
-                    {/* Anterior Segment */}
-                    <div ref={TABS_CONFIG[4].ref as React.RefObject<HTMLDivElement>} className="space-y-6 py-2">
-                        <SectionTitle title={TABS_CONFIG[4].label} icon={TABS_CONFIG[4].icon} />
-                        {renderFormField('pupillaryEvaluation', 'Pupillary Evaluation', '', true, 3)}
-                        {renderFormField('externalExamination', 'External Examination', '', true, 3)}
-                        <h4 className="font-medium text-muted-foreground pt-4">Slit Lamp Examination (Text substitute for diagram)</h4>
-                        {renderDoubleFormField('lidsLashesOD', 'lidsLashesOS', 'Lids & Lashes', 'WNL', 'WNL', true, 2)}
-                        {renderDoubleFormField('conjunctivaScleraOD', 'conjunctivaScleraOS', 'Conjunctiva & Sclera', 'Clear, quiet', 'Clear, quiet', true, 2)}
-                        {renderDoubleFormField('corneaOD', 'corneaOS', 'Cornea', 'Clear, compact', 'Clear, compact', true, 2)}
-                        {renderDoubleFormField('anteriorChamberOD', 'anteriorChamberOS', 'Anterior Chamber', 'Deep & quiet', 'Deep & quiet', true, 2)}
-                        {renderDoubleFormField('irisOD', 'irisOS', 'Iris', 'Flat, intact', 'Flat, intact', true, 2)}
-                        {renderDoubleFormField('lensOD', 'lensOS', 'Lens', 'Clear / Grade 1 NS', 'Clear / Grade 1 NS', true, 2)}
-                        <h4 className="font-medium text-muted-foreground pt-4">Tonometry</h4>
-                        {renderDoubleFormField('tonometryPressureOD', 'tonometryPressureOS', 'Pressure (mmHg)')}
-                        <FormField control={form.control} name="tonometryMethod" render={({ field }) => (<FormItem><TwoColumnField label="Method"><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select method" /></SelectTrigger></FormControl><SelectContent><SelectItem value="GAT">GAT</SelectItem><SelectItem value="NCT">NCT</SelectItem><SelectItem value="Perkins">Perkins</SelectItem></SelectContent></Select></TwoColumnField></FormItem>)} />
-                        {renderFormField('tonometryTime', 'Time', '', false, undefined, 'time')}
-                        <h4 className="font-medium text-muted-foreground pt-4">Dry Eye Tests</h4>
-                        {renderDoubleFormField('tbutOD', 'tbutOS', 'TBUT (sec)')}
-                        {renderDoubleFormField('schirmerOD', 'schirmerOS', 'Schirmer\'s (mm)')}
-                    </div>
-
-                    {/* Posterior Segment */}
-                    <div ref={TABS_CONFIG[5].ref as React.RefObject<HTMLDivElement>} className="space-y-6 py-2">
-                        <SectionTitle title={TABS_CONFIG[5].label} icon={TABS_CONFIG[5].icon} />
-                        <h4 className="font-medium text-muted-foreground">Fundus Examination (Text substitute for diagram)</h4>
-                        {renderDoubleFormField('vitreousOD', 'vitreousOS', 'Vitreous', 'Clear, PVD', 'Clear', true, 2)}
-                        {renderDoubleFormField('opticDiscOD', 'opticDiscOS', 'Optic Disc', 'Pink, sharp margins', 'Pink, sharp margins', true, 2)}
-                        {renderDoubleFormField('cupDiscRatioOD', 'cupDiscRatioOS', 'Cup/Disc Ratio', '0.3', '0.35', false)}
-                        {renderDoubleFormField('maculaOD', 'maculaOS', 'Macula', 'Flat, good foveal reflex', 'Flat, good foveal reflex', true, 2)}
-                        {renderDoubleFormField('vesselsOD', 'vesselsOS', 'Vessels', 'Normal caliber and course', 'Normal caliber and course', true, 2)}
-                        {renderDoubleFormField('peripheryOD', 'peripheryOS', 'Periphery (Dilated)', 'Flat, no breaks or lesions', 'Flat, no breaks or lesions', true, 3)}
-                    </div>
-                    
-                    {/* Plan */}
-                    <div ref={TABS_CONFIG[6].ref as React.RefObject<HTMLDivElement>} className="space-y-6 py-2">
-                        <SectionTitle title={TABS_CONFIG[6].label} icon={TABS_CONFIG[6].icon} />
-                        {renderFormField('diagnosis', 'Diagnosis', 'Enter diagnosis (e.g., Myopia, Presbyopia)', true, 4)}
-                        {renderFormField('interventionPlanned', 'Intervention Planned', 'Describe the management plan', true, 5)}
-                        {renderFormField('learning', 'Learning / Reflection', 'What were the key learning points from this case?', true, 4)}
-                    </div>
+                    {Object.entries(formFieldsData).map(([sectionId, sectionData], sectionIndex) => (
+                      <div key={sectionId} ref={TABS_CONFIG[sectionIndex].ref as React.RefObject<HTMLDivElement>} className="space-y-6 py-2">
+                        <SectionTitle title={sectionData.title} icon={TABS_CONFIG[sectionIndex].icon} />
+                        {sectionData.fields.map((field, fieldIndex) => (
+                          <React.Fragment key={field.name || `${sectionId}-group-${fieldIndex}`}>
+                              {renderFormField(field)}
+                          </React.Fragment>
+                        ))}
+                      </div>
+                    ))}
 
                     <div className="flex justify-end space-x-3 pt-8 mt-8 border-t border-border">
                         <Button type="button" variant="outline" onClick={() => {form.reset(defaultFormValues); setAssistantMessages([]);}}>Clear Form</Button>
