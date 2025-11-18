@@ -517,6 +517,30 @@ function NewCaseForm() {
 
   useEffect(() => {
     const template = searchParams.get('template');
+    let prefillData = null;
+
+    if (searchParams.get('prefill') === 'true') {
+        const data = localStorage.getItem('prefilledCaseData');
+        if (data) {
+            try {
+                prefillData = JSON.parse(data);
+                form.reset({ ...defaultFormValues, ...prefillData });
+                toast({
+                  title: 'EMR Data Pre-filled',
+                  description: 'Data from your scanned sheet has been filled in. Please review and save.',
+                });
+            } catch (e) {
+                console.error("Failed to parse prefill data", e);
+                toast({
+                  variant: 'destructive',
+                  title: 'Prefill Failed',
+                  description: 'Could not load data from the scanned sheet.',
+                });
+            }
+            localStorage.removeItem('prefilledCaseData');
+        }
+    }
+
     if (template === 'orthoptics') {
         setFormFieldsData(orthopticsTemplateData as any);
         setTemplateId('orthoptics');
@@ -551,7 +575,7 @@ function NewCaseForm() {
         setFormFieldsData(null);
         setTemplateId(null);
     }
-  }, [searchParams]);
+  }, [searchParams, form, toast]);
 
   const scrollToSection = useCallback((sectionRef: React.RefObject<HTMLElement>) => {
     isScrollingProgrammatically.current = true;

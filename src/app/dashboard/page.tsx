@@ -296,8 +296,8 @@ function DashboardContent() {
                <Button size="lg" variant="outline" onClick={() => router.push('/dashboard?view=cases')}>
                 <ListChecks className="mr-2 h-5 w-5" /> View All Case Records
               </Button>
-              <Button size="lg" variant="outline" disabled>
-                <ScanLine className="mr-2 h-5 w-5" /> Convert Physical Case Sheet <Badge variant="secondary" className="ml-2">Soon</Badge>
+              <Button size="lg" variant="outline" onClick={() => router.push('/cases/scan')}>
+                <ScanLine className="mr-2 h-5 w-5" /> Convert Physical Case Sheet
               </Button>
             </CardContent>
           </Card>
@@ -532,5 +532,3 @@ export default function DashboardPage() {
         </Suspense>
     );
 }
-
-    
