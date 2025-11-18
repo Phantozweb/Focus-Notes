@@ -58,7 +58,7 @@ function WelcomeModal({ open, onOpenChange }: { open: boolean, onOpenChange: (op
                             <h4 className="font-semibold">Focus Cast</h4>
                             <p className="text-sm text-muted-foreground">A free podcast platform for eyecare professionals and students.</p>
                         </div>
-                        <Button variant="outline" size="sm" className="ml-auto" onClick={() => handleLinkClick('#')}>Listen Now <Rss className="ml-2 h-4 w-4" /></Button>
+                        <Button variant="outline" size="sm" className="ml-auto" onClick={() => handleLinkClick('https://FocusCast.netlify.app')}>Listen Now <Rss className="ml-2 h-4 w-4" /></Button>
                     </CardHeader>
                 </Card>
                  <Card>
@@ -68,7 +68,7 @@ function WelcomeModal({ open, onOpenChange }: { open: boolean, onOpenChange: (op
                             <h4 className="font-semibold">Focus Links</h4>
                             <p className="text-sm text-muted-foreground">The global community for eye care. Create your professional profile.</p>
                         </div>
-                        <Button variant="outline" size="sm" className="ml-auto" onClick={() => handleLinkClick('#')}>Join Now <ArrowRight className="ml-2 h-4 w-4" /></Button>
+                        <Button variant="outline" size="sm" className="ml-auto" onClick={() => handleLinkClick('https://www.focuslinks.in')}>Join Now <ArrowRight className="ml-2 h-4 w-4" /></Button>
                     </CardHeader>
                 </Card>
                  <Card>
@@ -78,7 +78,7 @@ function WelcomeModal({ open, onOpenChange }: { open: boolean, onOpenChange: (op
                             <h4 className="font-semibold">Focus.Ai</h4>
                             <p className="text-sm text-muted-foreground">The optometry AI tool that powers Focus CaseX, developed with your feedback.</p>
                         </div>
-                        <Button variant="outline" size="sm" className="ml-auto" onClick={() => handleLinkClick('#')}>Learn More <Info className="ml-2 h-4 w-4" /></Button>
+                        <Button variant="outline" size="sm" className="ml-auto" onClick={() => handleLinkClick('https://focusai.netlify.app')}>Learn More <Info className="ml-2 h-4 w-4" /></Button>
                     </CardHeader>
                 </Card>
             </div>
