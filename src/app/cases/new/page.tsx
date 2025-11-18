@@ -23,7 +23,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import {
-  User, Briefcase, History, Eye, Microscope, Edit3, Save, FileTextIcon, ScanEye, ChevronLeft, ChevronRight, NotebookPen, ArrowLeft, Bot, Send, X, Loader2, Baby, HelpCircle, ChevronDown, ListChecks, Calendar, Compass
+  User, Briefcase, History, Eye, Microscope, Edit3, Save, FileTextIcon, ScanEye, ChevronLeft, ChevronRight, NotebookPen, ArrowLeft, Bot, Send, X, Loader2, Baby, HelpCircle, ChevronDown, ListChecks, Calendar, Compass, Users
 } from 'lucide-react';
 import {
   Select,
