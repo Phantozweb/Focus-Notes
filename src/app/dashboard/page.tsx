@@ -289,7 +289,10 @@ function DashboardContent() {
             </CardHeader>
             <CardContent className="flex flex-col space-y-3">
               <Button size="lg" onClick={() => router.push('/cases/new?template=default')}>
-                <PlusCircle className="mr-2 h-5 w-5" /> Log a New Case
+                <PlusCircle className="mr-2 h-5 w-5" /> Log a New General Case
+              </Button>
+               <Button size="lg" variant="outline" onClick={() => router.push('/dashboard?view=templates')}>
+                <NotebookPen className="mr-2 h-5 w-5" /> Choose from Templates
               </Button>
                <Button size="lg" variant="outline" onClick={() => router.push('/dashboard?view=cases')}>
                 <ListChecks className="mr-2 h-5 w-5" /> View All Case Records
