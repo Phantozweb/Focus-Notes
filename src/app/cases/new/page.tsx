@@ -65,6 +65,7 @@ import myopiaManagementTemplateData from '@/data/myopia-management-template.json
 import lowVisionTemplateData from '@/data/low-vision-template.json';
 import certificateTemplateData from '@/data/certificate-template.json';
 import followUpTemplateData from '@/data/follow-up-template.json';
+import { trackActivity } from '@/lib/tracker';
 
 // Zod schema based on the new detailed specification
 const fullOptometryCaseSchema = z.object({
@@ -516,6 +517,7 @@ function NewCaseForm() {
   const DESKTOP_SCROLL_AMOUNT = 250;
 
   useEffect(() => {
+    trackActivity('Page View: New Case Form', 'User landed on the new case logging page.');
     const template = searchParams.get('template');
     let prefillData = null;
 
@@ -525,6 +527,7 @@ function NewCaseForm() {
             try {
                 prefillData = JSON.parse(data);
                 form.reset({ ...defaultFormValues, ...prefillData });
+                trackActivity('EMR Data Pre-filled', 'AI-extracted data has been automatically filled into the EMR form.');
                 toast({
                   title: 'EMR Data Pre-filled',
                   description: 'Data from your scanned sheet has been filled in. Please review and save.',
@@ -727,6 +730,10 @@ function NewCaseForm() {
       templateId: templateId || 'default',
     };
     setStoredCases([...storedCases, newCase]);
+    trackActivity('New Case Saved', `A new case for "${data.name}" has been saved.`, [
+        { name: 'Template Used', value: templateId || 'default', inline: true },
+        { name: 'Case ID', value: newCase.id, inline: true },
+    ]);
     toast({
       title: 'Case Saved Successfully!',
       description: `Case for ${data.name} has been saved.`,
@@ -959,11 +966,13 @@ function NewCaseForm() {
   const handleSendToAssistant = async () => {
     if (!currentAssistantInput.trim()) return;
 
-    const newUserMessage: AssistantChatMessage = { id: Date.now().toString(), role: 'user', content: currentAssistantInput.trim() };
+    const userMessageContent = currentAssistantInput.trim();
+    const newUserMessage: AssistantChatMessage = { id: Date.now().toString(), role: 'user', content: userMessageContent };
     setAssistantMessages(prev => [...prev, newUserMessage]);
     const currentInputForAI = currentAssistantInput;
     setCurrentAssistantInput('');
     setIsAssistantLoading(true);
+    trackActivity('AI Assistant: User Message Sent', `Section: ${TABS_CONFIG[currentTabIndex]?.label || "General"}`, [{ name: 'User Message', value: userMessageContent }]);
 
     const sectionContext = TABS_CONFIG[currentTabIndex]?.label || "General";
     const formSnapshot = form.getValues();
@@ -975,6 +984,7 @@ function NewCaseForm() {
       const result: InteractiveEmrAssistantOutput = await interactiveEmrAssistant(aiInput);
       const aiResponse: AssistantChatMessage = { id: (Date.now() + 1).toString(), role: 'assistant', content: result.aiResponseMessage };
       setAssistantMessages(prev => [...prev, aiResponse]);
+      trackActivity('AI Assistant: AI Response', `Section: ${sectionContext}`, [{ name: 'AI Message', value: result.aiResponseMessage.substring(0, 500) + '...' }]);
 
       if (result.fieldsToUpdateJson) {
         try {
@@ -991,6 +1001,7 @@ function NewCaseForm() {
             if (fieldUpdateMessages.length > 0) {
                 const systemUpdateMessage: AssistantChatMessage = { id: (Date.now() + 2).toString(), role: 'system', content: `AI updated: ${fieldUpdateMessages.join(', ')}.` };
                 setAssistantMessages(prev => [...prev, systemUpdateMessage]);
+                trackActivity('AI Assistant: Form Fields Updated', `AI automatically updated fields in section: ${sectionContext}`, [{ name: 'Fields Updated', value: fieldUpdateMessages.join(', ') }]);
                 toast({ title: "AI Form Update", description: `AI updated the following fields: ${fieldUpdateMessages.join(', ')}.`});
             }
           }
@@ -1004,6 +1015,7 @@ function NewCaseForm() {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred with the AI assistant.';
       const errorResponse: AssistantChatMessage = { id: (Date.now() + 1).toString(), role: 'assistant', content: `Sorry, I encountered an error: ${errorMessage}` };
       setAssistantMessages(prev => [...prev, errorResponse]);
+      trackActivity('AI Assistant: Error', `Error in section: ${sectionContext}`, [{ name: 'Error Message', value: errorMessage }]);
       toast({ title: 'AI Assistant Error', description: errorMessage, variant: 'destructive' });
     } finally {
       setIsAssistantLoading(false);
@@ -1110,7 +1122,7 @@ function NewCaseForm() {
                     ))}
 
                     <div className="flex justify-end space-x-3 pt-8 mt-8 border-t border-border">
-                        <Button type="button" variant="outline" onClick={() => {form.reset(defaultFormValues); setAssistantMessages([]);}}>Clear Form</Button>
+                        <Button type="button" variant="outline" onClick={() => {form.reset(defaultFormValues); setAssistantMessages([]); trackActivity('Form Cleared', 'User cleared the new case form.');}}>Clear Form</Button>
                         <Button type="submit" className="bg-primary hover:bg-primary/90"><Save className="mr-2 h-4 w-4" /> Save Case</Button>
                     </div>
                     </form>

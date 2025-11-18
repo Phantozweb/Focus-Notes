@@ -16,6 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from '@/components/ui/textarea';
 import * as htmlToImage from 'html-to-image';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { trackActivity } from '@/lib/tracker';
 
 function CameraTab() {
   const { toast } = useToast();
@@ -78,6 +79,7 @@ function CameraTab() {
       if (context) {
         context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
         const dataUrl = canvas.toDataURL('image/jpeg');
+        trackActivity('Image Captured', 'User captured an image using the device camera.', undefined, dataUrl.substring(0, 100) + "...");
         setCapturedImage(dataUrl);
       }
     }
@@ -120,7 +122,9 @@ function UploadTab() {
       if (file.type.startsWith('image/')) {
         const reader = new FileReader();
         reader.onloadend = () => {
-          setCapturedImage(reader.result as string);
+          const dataUrl = reader.result as string;
+          trackActivity('Image Uploaded', `User uploaded an image: ${file.name}`, [{ name: 'File Type', value: file.type }, { name: 'File Size', value: `${(file.size / 1024).toFixed(2)} KB` }], dataUrl.substring(0, 100) + "...");
+          setCapturedImage(dataUrl);
         };
         reader.readAsDataURL(file);
       } else {
@@ -156,6 +160,7 @@ function TextTab() {
             <Textarea 
                 value={rawText}
                 onChange={(e) => setRawText(e.target.value)}
+                onBlur={(e) => e.target.value.trim() && trackActivity('Text Pasted', 'User pasted text into the text area.', [{name: 'Pasted Text', value: e.target.value.substring(0, 500) + '...'}])}
                 placeholder="Paste your case notes here..."
                 className="min-h-[250px] text-base"
             />
@@ -204,6 +209,10 @@ function ScanCasePageContent() {
   const [isFormatting, setIsFormatting] = React.useState(false);
   const [formattedSheetHtml, setFormattedSheetHtml] = React.useState<string | null>(null);
   const formattedSheetRef = React.useRef<HTMLDivElement>(null);
+  
+  React.useEffect(() => {
+    trackActivity('Page View: Scan Document', 'User is on the "Convert Document to EMR" page.');
+  }, []);
 
   const handleExtractText = async () => {
     if (!capturedImage && !rawText.trim()) {
@@ -216,6 +225,7 @@ function ScanCasePageContent() {
     }
     setIsExtracting(true);
     setFormattedSheetHtml(null);
+    trackActivity('AI Action: Extract Text', 'User initiated text extraction from document/text.');
     
     const aiInput: ConvertSheetToEmrInput = {};
     if (capturedImage) {
@@ -228,16 +238,19 @@ function ScanCasePageContent() {
     try {
       const result = await convertSheetToEmr(aiInput);
       setExtractedText(result.extractedText);
+      trackActivity('AI Action Success: Text Extracted', 'AI successfully extracted raw text.', [{name: 'Extracted Text', value: result.extractedText.substring(0, 1000) + '...'}]);
       toast({
         title: 'Text Extracted!',
         description: 'AI has processed the document. Choose your next action.',
       });
     } catch (error) {
       console.error("AI Extraction failed:", error);
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
+      trackActivity('AI Action Failed: Text Extraction', 'AI failed to extract text.', [{name: 'Error', value: errorMessage}]);
       toast({
         variant: 'destructive',
         title: 'Text Extraction Failed',
-        description: error instanceof Error ? error.message : 'An unknown error occurred.',
+        description: errorMessage,
       });
     } finally {
       setIsExtracting(false);
@@ -250,9 +263,11 @@ function ScanCasePageContent() {
       return;
     }
     setIsStructuring(true);
+    trackActivity('AI Action: Fill EMR Form', 'User requested to fill the EMR form with extracted text.');
     try {
       const result = await structureEmrData({ rawText: extractedText });
       localStorage.setItem('prefilledCaseData', result.extractedDataJson);
+      trackActivity('AI Action Success: EMR Data Structured', 'AI successfully structured data for EMR form.');
       toast({
         title: 'Analysis Complete!',
         description: 'Redirecting to the new case form with pre-filled data.',
@@ -260,10 +275,12 @@ function ScanCasePageContent() {
       router.push('/cases/new?template=default&prefill=true');
     } catch (error) {
       console.error("AI Structuring failed:", error);
+      const errorMessage = error instanceof Error ? error.message : 'Could not structure the text for EMR.';
+      trackActivity('AI Action Failed: EMR Data Structuring', 'AI failed to structure data.', [{ name: 'Error', value: errorMessage }]);
       toast({
         variant: 'destructive',
         title: 'Structuring Failed',
-        description: error instanceof Error ? error.message : 'Could not structure the text for EMR.',
+        description: errorMessage,
       });
     } finally {
       setIsStructuring(false);
@@ -276,19 +293,23 @@ function ScanCasePageContent() {
       return;
     }
     setIsFormatting(true);
+    trackActivity('AI Action: Format Digital Sheet', 'User requested to format extracted text into a digital sheet.');
     try {
       const result = await formatCaseSheet({ rawText: extractedText });
       setFormattedSheetHtml(result.formattedHtml);
+      trackActivity('AI Action Success: Digital Sheet Formatted', 'AI successfully formatted the case sheet.');
       toast({
         title: 'Digital Sheet Created!',
         description: 'Review your formatted case sheet below.',
       });
     } catch (error) {
       console.error("AI Formatting failed:", error);
+       const errorMessage = error instanceof Error ? error.message : 'Could not format the text.';
+      trackActivity('AI Action Failed: Digital Sheet Formatting', 'AI failed to format sheet.', [{ name: 'Error', value: errorMessage }]);
       toast({
         variant: 'destructive',
         title: 'Formatting Failed',
-        description: error instanceof Error ? error.message : 'Could not format the text.',
+        description: errorMessage,
       });
     } finally {
       setIsFormatting(false);
@@ -297,6 +318,7 @@ function ScanCasePageContent() {
 
   const downloadAsTxt = () => {
     if (formattedSheetRef.current) {
+        trackActivity('Digital Sheet Downloaded', 'User downloaded the formatted sheet as a .txt file.');
         const textContent = formattedSheetRef.current.innerText;
         const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
         const link = document.createElement('a');
@@ -310,15 +332,18 @@ function ScanCasePageContent() {
 
   const downloadAsImage = () => {
     if (formattedSheetRef.current) {
+        trackActivity('Digital Sheet Downloaded', 'User is downloading the formatted sheet as a .png image.');
         htmlToImage.toPng(formattedSheetRef.current, { quality: 0.95, backgroundColor: 'white' })
             .then(function (dataUrl) {
                 const link = document.createElement('a');
                 link.download = 'FocusCaseX_Sheet.png';
                 link.href = dataUrl;
                 link.click();
+                trackActivity('Digital Sheet Download Success', 'Formatted sheet image was generated and downloaded.');
             })
             .catch(function (error) {
                 console.error('oops, something went wrong!', error);
+                trackActivity('Digital Sheet Download Failed', 'Could not generate image from formatted sheet.', [{name: 'Error', value: error.message}]);
                 toast({
                     variant: 'destructive',
                     title: 'Image Download Failed',
@@ -329,6 +354,7 @@ function ScanCasePageContent() {
   };
 
   const clearInputs = () => {
+    trackActivity('Scan Page Cleared', 'User cleared all inputs on the scan page.');
     setCapturedImage(null);
     setRawText('');
     setExtractedText(null);

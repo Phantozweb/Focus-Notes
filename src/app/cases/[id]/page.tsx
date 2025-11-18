@@ -31,6 +31,7 @@ import { analyzeOptometryCase } from '@/ai/flows/analyze-optometry-case';
 import { chatWithCase } from '@/ai/flows/chat-with-case-flow';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { trackActivity } from '@/lib/tracker';
 
 const DetailItem = ({ icon: Icon, label, value, isFullWidth = false, isPreWrap = false }: { icon: React.ElementType, label: string, value?: string | number | null | Date, isFullWidth?: boolean, isPreWrap?: boolean }) => {
   const isValuePresent = value !== null && value !== undefined && (typeof value === 'string' ? value.trim() !== '' : true);
@@ -124,6 +125,9 @@ export default function CaseDetailPage() {
   const [isSendingQuery, setIsSendingQuery] = React.useState(false);
 
   React.useEffect(() => {
+    if (caseId) {
+        trackActivity('Page View: Case Details', `Viewing case with ID: ${caseId}`);
+    }
     if (caseId && storedCases.length > 0) {
       const foundCase = storedCases.find(c => c.id === caseId);
       setCurrentCase(foundCase || null);
@@ -153,6 +157,7 @@ export default function CaseDetailPage() {
   const handleAnalyzeCase = async () => {
     if (!currentCase) return;
     setIsAnalyzing(true);
+    trackActivity('AI Action: Get Initial Insights', `Analyzing case for "${currentCase.name || 'N/A'}" (ID: ${currentCase.id}).`);
     const aiInput: AnalyzeOptometryCaseInput = {
       visualAcuity: `Final Acuity OD: ${currentCase.finalAcuityOD || 'N/A'}, OS: ${currentCase.finalAcuityOS || 'N/A'}`,
       refraction: `Subjective Rx OD: ${currentCase.subjRefractionOD || 'N/A'}, OS: ${currentCase.subjRefractionOS || 'N/A'}`,
@@ -167,6 +172,7 @@ export default function CaseDetailPage() {
       );
       setStoredCases(updatedCases);
       setCurrentCase(prev => prev ? { ...prev, analysis: analysisResult as AnalyzeOptometryCaseOutput, analysisError: undefined } : null);
+      trackActivity('AI Action Success: Insights Generated', `Successfully generated insights for case ID: ${currentCase.id}.`);
       toast({ title: 'AI Insights Updated', description: 'Case insights have been refreshed.' });
     } catch (error) {
       console.error('AI Analysis Error:', error);
@@ -176,6 +182,7 @@ export default function CaseDetailPage() {
       );
       setStoredCases(updatedCases);
       setCurrentCase(prev => prev ? { ...prev, analysis: undefined, analysisError: errorMessage } : null);
+      trackActivity('AI Action Failed: Insights Error', `Failed to generate insights for case ID: ${currentCase.id}.`, [{ name: 'Error', value: errorMessage }]);
       toast({ title: 'AI Insights Failed', description: errorMessage, variant: 'destructive' });
     } finally {
       setIsAnalyzing(false);
@@ -211,10 +218,12 @@ export default function CaseDetailPage() {
   const handleSendQuery = async () => {
     if (!currentUserQuery.trim() || !currentCase) return;
 
-    const newUserMessage: ChatMessage = { id: Date.now().toString(), role: 'user', content: currentUserQuery.trim() };
+    const userQuery = currentUserQuery.trim();
+    const newUserMessage: ChatMessage = { id: Date.now().toString(), role: 'user', content: userQuery };
     setChatMessages(prev => [...prev, newUserMessage]);
     setCurrentUserQuery('');
     setIsSendingQuery(true);
+    trackActivity('AI Chat: User Message Sent', `Case ID: ${currentCase.id}`, [{ name: 'User Query', value: userQuery }]);
 
     const caseSummary = prepareCaseSummaryString(currentCase);
     const historyForAI: GenkitChatMessage[] = chatMessages.map(msg => ({ role: msg.role === 'user' ? 'user' : 'model', parts: [{ text: msg.content }] }));
@@ -225,11 +234,13 @@ export default function CaseDetailPage() {
       const result = await chatWithCase(aiInput);
       const aiResponse: ChatMessage = { id: (Date.now() + 1).toString(), role: 'assistant', content: result.aiResponse };
       setChatMessages(prev => [...prev, aiResponse]);
+      trackActivity('AI Chat: Assistant Response', `Case ID: ${currentCase.id}`, [{ name: 'Assistant Response', value: result.aiResponse.substring(0, 500) + '...' }]);
     } catch (error) {
       console.error('CRITICAL_AI_DEBUG: Chat AI Error on client:', error);
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred with Focus AI.';
       const errorResponse: ChatMessage = { id: (Date.now() + 1).toString(), role: 'assistant', content: `Sorry, I encountered an error: ${errorMessage}` };
       setChatMessages(prev => [...prev, errorResponse]);
+      trackActivity('AI Chat: Error', `Case ID: ${currentCase.id}`, [{ name: 'Error', value: errorMessage }]);
       toast({ title: 'Focus AI Error', description: errorMessage, variant: 'destructive' });
     } finally {
       setIsSendingQuery(false);

@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import dynamic from 'next/dynamic';
 import { Loader2 } from 'lucide-react';
+import { trackActivity } from '@/lib/tracker';
 
 // Dashboard-specific components
 const StatCard = ({ title, value, icon: Icon }: { title: string; value: string | number; icon: React.ElementType }) => (
@@ -156,8 +157,13 @@ function TemplatesContent() {
   ];
 
   const handleTemplateClick = (templateId: string) => {
+    trackActivity('Template Selected', `User selected the "${templateId}" template to start a new case.`);
     router.push(`/cases/new?template=${templateId}`);
   };
+  
+  React.useEffect(() => {
+    trackActivity('Page View: Templates', 'User is viewing the templates page.');
+  }, []);
 
   return (
     <div className="h-full flex flex-col">
@@ -226,6 +232,10 @@ function DashboardContent() {
   const [storedCases] = useLocalStorage<StoredOptometryCase[]>('optometryCases', memoizedInitialCases);
   const [searchTerm, setSearchTerm] = React.useState('');
 
+  React.useEffect(() => {
+    trackActivity('Page View: Dashboard', 'User has landed on the main dashboard.');
+  }, []);
+
   const stats = React.useMemo(() => {
     const totalCases = storedCases.length;
     const aiAnalyzed = storedCases.filter(c => !!c.analysis).length;
@@ -234,6 +244,7 @@ function DashboardContent() {
   
   const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    trackActivity('Case Search Initiated', `User searched for: "${searchTerm}" from dashboard.`);
     if (searchTerm.trim()) {
       router.push(`/dashboard?view=cases&search=${encodeURIComponent(searchTerm.trim())}`);
     } else {
@@ -246,7 +257,13 @@ function DashboardContent() {
   }, [storedCases]);
 
   const handleViewDetails = (caseId: string) => {
+    trackActivity('View Case Details', `User clicked to view case ID: ${caseId} from recent cases.`);
     router.push(`/cases/${caseId}`);
+  };
+  
+  const handleQuickActionClick = (path: string, action: string) => {
+    trackActivity('Quick Action Clicked', `User clicked on: "${action}"`);
+    router.push(path);
   };
 
   return (
@@ -287,16 +304,16 @@ function DashboardContent() {
               <CardTitle className="flex items-center gap-2"><Activity className="h-5 w-5 text-primary" />Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col space-y-3">
-              <Button size="lg" onClick={() => router.push('/cases/new?template=default')}>
+              <Button size="lg" onClick={() => handleQuickActionClick('/cases/new?template=default', 'Log a New General Case')}>
                 <PlusCircle className="mr-2 h-5 w-5" /> Log a New General Case
               </Button>
-               <Button size="lg" variant="outline" onClick={() => router.push('/dashboard?view=templates')}>
+               <Button size="lg" variant="outline" onClick={() => handleQuickActionClick('/dashboard?view=templates', 'Choose from Templates')}>
                 <NotebookPen className="mr-2 h-5 w-5" /> Choose from Templates
               </Button>
-               <Button size="lg" variant="outline" onClick={() => router.push('/dashboard?view=cases')}>
+               <Button size="lg" variant="outline" onClick={() => handleQuickActionClick('/dashboard?view=cases', 'View All Case Records')}>
                 <ListChecks className="mr-2 h-5 w-5" /> View All Case Records
               </Button>
-              <Button size="lg" variant="outline" onClick={() => router.push('/cases/scan')}>
+              <Button size="lg" variant="outline" onClick={() => handleQuickActionClick('/cases/scan', 'Convert Physical Case Sheet')}>
                 <ScanLine className="mr-2 h-5 w-5" /> Convert Physical Case Sheet
               </Button>
             </CardContent>
@@ -325,7 +342,7 @@ function DashboardContent() {
                   <p className="mt-1 text-sm text-muted-foreground">
                     Your recent cases will appear here once you log them.
                   </p>
-                  <Button className="mt-6" onClick={() => router.push('/cases/new?template=default')}>
+                  <Button className="mt-6" onClick={() => handleQuickActionClick('/cases/new?template=default', 'Log Your First Case')}>
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Log Your First Case
                   </Button>
@@ -348,18 +365,24 @@ function AllCasesContent() {
   
   const urlSearchTerm = searchParams.get('search') || '';
   const [searchTerm, setSearchTerm] = React.useState(urlSearchTerm);
+  
+  React.useEffect(() => {
+    trackActivity('Page View: All Cases', 'User is viewing the list of all case records.');
+  }, []);
 
   React.useEffect(() => {
     setSearchTerm(urlSearchTerm);
   }, [urlSearchTerm]);
 
   const handleViewDetails = (caseId: string) => {
+    trackActivity('View Case Details', `User clicked to view case ID: ${caseId} from all cases list.`);
     router.push(`/cases/${caseId}`);
   };
 
   const handleDeleteCase = (caseId: string) => {
-    const updatedCases = storedCases.filter(c => c.id !== caseId);
-    setStoredCases(updatedCases);
+    const caseToDelete = storedCases.find(c => c.id === caseId);
+    setStoredCases(storedCases.filter(c => c.id !== caseId));
+    trackActivity('Case Deleted', `Case for "${caseToDelete?.name || 'N/A'}" (ID: ${caseId}) was deleted.`);
     toast({ title: 'Case Deleted', description: `Case ID ${caseId.substring(0,6)}... has been deleted.` });
   };
   
@@ -368,6 +391,7 @@ function AllCasesContent() {
       toast({ title: 'No Cases to Export', description: 'There are no cases to export.', variant: 'destructive' });
       return;
     }
+    trackActivity('Export Cases', `User exported ${filteredCases.length} cases to CSV.`);
     const casesToExport = filteredCases.map(c => {
         const flatCase: Record<string, any> = {};
         for (const [key, value] of Object.entries(c)) {
@@ -418,6 +442,7 @@ function AllCasesContent() {
 
   const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    trackActivity('Case Search Initiated', `User searched for: "${searchTerm}"`);
     router.push(`/dashboard?view=cases&search=${encodeURIComponent(searchTerm)}`);
   };
 
@@ -445,7 +470,7 @@ function AllCasesContent() {
         </Card>
         
         <div className="flex gap-2 mb-6">
-            <Button onClick={() => router.push('/cases/new?template=default')}>
+            <Button onClick={() => { trackActivity('Action: Log New Case', 'User clicked "Log New Case" from All Cases page.'); router.push('/cases/new?template=default'); }}>
               <PlusCircle className="mr-2 h-4 w-4" /> Log New Case
             </Button>
             <Button onClick={handleExport} variant="outline" disabled={filteredCases.length === 0}>
