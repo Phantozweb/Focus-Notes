@@ -18,7 +18,7 @@ import { Progress } from '@/components/ui/progress';
 
 
 function WelcomeSection() {
-  const startDate = new Date('2024-10-15');
+  const startDate = new Date('2023-10-01'); // Corrected start date for accurate calculation
   const [daysPassed, setDaysPassed] = React.useState(400);
   const [progress, setProgress] = React.useState(13);
 
@@ -27,7 +27,11 @@ function WelcomeSection() {
     // This will only run on the client side to avoid hydration mismatch
     const today = new Date();
     // Correctly calculate days passed starting from 400 on day one
-    setDaysPassed(differenceInDays(today, startDate) + 400);
+    const baseDays = 413; // Set the count on Oct 15, 2024
+    const referenceDate = new Date('2024-10-15');
+    const daysSinceReference = differenceInDays(today, referenceDate);
+    
+    setDaysPassed(baseDays + daysSinceReference);
     
     // Animate progress bar
     const timer = setTimeout(() => setProgress(35), 500);
@@ -372,5 +376,7 @@ export default function HomePage() {
     </MainLayout>
   );
 }
+
+    
 
     
