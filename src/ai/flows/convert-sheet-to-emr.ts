@@ -26,7 +26,7 @@ const prompt = ai.definePrompt({
   name: 'convertSheetToEmrPrompt',
   input: { schema: ConvertSheetToEmrInputSchema },
   output: { schema: ConvertSheetToEmrOutputSchema },
-  model: 'googleai/gemini-1.5-flash-latest', // Use a model with strong vision/language capabilities
+  model: 'googleai/gemini-2.5-pro',
   prompt: `You are an expert AI assistant specializing in Optical Character Recognition (OCR) and data extraction for optometry electronic medical records (EMR). Your task is to analyze an image OR a block of raw text, extract all relevant clinical information, and structure it into a specific JSON format.
 
   **Instructions:**

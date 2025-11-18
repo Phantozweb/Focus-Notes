@@ -57,7 +57,7 @@ const chatWithCasePrompt = ai.definePrompt(
     output: { schema: ChatWithCaseOutputSchema },
     system: systemInstructionTemplate, // System instructions with caseSummary placeholder
     prompt: `{{{userQuery}}}`,         // User's current query
-    model: 'googleai/gemini-2.0-flash', // Align with default model
+    model: 'googleai/gemini-2.5-pro', // Align with default model
     // No explicit config/safetySettings for now, to mirror working insight flow.
     // Add if issues persist:
     // config: {

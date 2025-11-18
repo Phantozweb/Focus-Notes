@@ -116,7 +116,7 @@ const emrAssistantPrompt = ai.definePrompt(
     output: { schema: InteractiveEmrAssistantOutputSchema },
     system: systemInstructionTemplate,
     prompt: `{{{currentUserMessage}}}`,
-    model: 'googleai/gemini-2.0-flash', 
+    model: 'googleai/gemini-2.5-pro', 
     config: {
       temperature: 0.3, 
       safetySettings: [
