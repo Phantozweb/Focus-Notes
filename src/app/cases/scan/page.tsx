@@ -36,9 +36,6 @@ function CameraTab() {
         mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
         setStream(mediaStream);
         setHasCameraPermission(true);
-        if (videoRef.current) {
-          videoRef.current.srcObject = mediaStream;
-        }
       } catch (error) {
         console.error('Error accessing camera:', error);
         setHasCameraPermission(false);
@@ -59,6 +56,13 @@ function CameraTab() {
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  React.useEffect(() => {
+    if (stream && videoRef.current) {
+        videoRef.current.srcObject = stream;
+    }
+  }, [stream]);
+
 
   const handleCapture = () => {
     const canvas = document.createElement('canvas');
