@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -20,19 +19,20 @@ import { Progress } from '@/components/ui/progress';
 
 function WelcomeSection() {
   const startDate = new Date('2024-10-15');
-  const [daysPassed, setDaysPassed] = React.useState(0);
+  const [daysPassed, setDaysPassed] = React.useState(400);
   const [progress, setProgress] = React.useState(13);
 
 
   React.useEffect(() => {
     // This will only run on the client side to avoid hydration mismatch
     const today = new Date();
-    setDaysPassed(differenceInDays(today, startDate));
+    // Correctly calculate days passed starting from 400 on day one
+    setDaysPassed(differenceInDays(today, startDate) + 400);
     
     // Animate progress bar
     const timer = setTimeout(() => setProgress(35), 500);
     return () => clearTimeout(timer);
-  }, [startDate]);
+  }, []); // Empty dependency array ensures this runs once on mount
 
   const handleLinkClick = (url: string) => {
     window.open(url, '_blank');
