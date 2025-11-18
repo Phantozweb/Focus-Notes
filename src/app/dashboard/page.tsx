@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -8,7 +7,7 @@ import { MainLayout } from '@/components/layout/main-layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { ArrowRight, PlusCircle, ListChecks, FileText, Activity, BrainCircuit, BarChart3, Users, FileSearch, Trash2, CalendarDays, Download, NotebookPen, Search, Globe, ChevronRight } from 'lucide-react';
+import { ArrowRight, PlusCircle, ListChecks, FileText, Activity, BrainCircuit, BarChart3, Users, FileSearch, Trash2, CalendarDays, Download, NotebookPen, Search, Globe, ChevronRight, ScanLine } from 'lucide-react';
 import useLocalStorage from '@/hooks/use-local-storage';
 import type { StoredOptometryCase } from '@/types/case';
 import { format } from 'date-fns';
@@ -297,6 +296,9 @@ function DashboardContent() {
                <Button size="lg" variant="outline" onClick={() => router.push('/dashboard?view=cases')}>
                 <ListChecks className="mr-2 h-5 w-5" /> View All Case Records
               </Button>
+              <Button size="lg" variant="outline" disabled>
+                <ScanLine className="mr-2 h-5 w-5" /> Convert Physical Case Sheet <Badge variant="secondary" className="ml-2">Soon</Badge>
+              </Button>
             </CardContent>
           </Card>
         </div>
@@ -530,3 +532,5 @@ export default function DashboardPage() {
         </Suspense>
     );
 }
+
+    
