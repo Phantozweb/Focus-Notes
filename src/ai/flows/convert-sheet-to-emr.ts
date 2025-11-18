@@ -27,7 +27,7 @@ const prompt = ai.definePrompt({
   input: { schema: ConvertSheetToEmrInputSchema },
   output: { schema: ConvertSheetToEmrOutputSchema },
   model: 'googleai/gemini-1.5-flash-latest', // Use a model with strong vision/language capabilities
-  system: `You are an expert AI assistant specializing in Optical Character Recognition (OCR) and data extraction for optometry electronic medical records (EMR). Your task is to analyze an image OR a block of raw text, extract all relevant clinical information, and structure it into a specific JSON format.
+  prompt: `You are an expert AI assistant specializing in Optical Character Recognition (OCR) and data extraction for optometry electronic medical records (EMR). Your task is to analyze an image OR a block of raw text, extract all relevant clinical information, and structure it into a specific JSON format.
 
   **Instructions:**
 
@@ -43,9 +43,12 @@ const prompt = ai.definePrompt({
   **Known EMR Field Names:**
   "posting", "mrdNo", "dateOfVisit", "name", "age", "sex", "chiefComplaint", "pastOcularHistory", "currentMedications", "pastMedicalHistory", "recentInvestigations", "familyHistory", "birthHistory", "allergies", "distanceUnaidedOD", "distanceUnaidedOS", "distancePinholeOD", "distancePinholeOS", "distanceOldGlassesOD", "distanceOldGlassesOS", "nearUnaidedOD", "nearUnaidedOS", "nearPinholeOD", "nearPinholeOS", "nearOldGlassesOD", "nearOldGlassesOS", "pgpSphOD", "pgpCylOD", "pgpAxisOD", "pgpSphOS", "pgpCylOS", "pgpAxisOS", "autoRefractionOD", "autoRefractionOS", "objRefractionOD", "objRefractionOS", "objRefractionFindingsOD", "objRefractionFindingsOS", "subjRefractionOD", "subjRefractionOS", "subjRefractionChecksOD", "subjRefractionChecksOS", "finalAcuityOD", "finalAcuityOS", "finalCorrectionPreference", "lensType", "prismDioptersOD", "prismBaseOD", "prismDioptersOS", "prismBaseOS", "keratometryVerticalOD", "keratometryHorizontalOD", "keratometryVerticalOS", "keratometryHorizontalOS", "keratometryComments", "coverTest", "eom", "npcSubj", "npcObj", "npaOD", "npaOS", "npaOU", "wfdtDistance", "wfdtNear", "stereopsis", "pupillaryEvaluation", "externalExamination", "lidsLashesOD", "lidsLashesOS", "conjunctivaScleraOD", "conjunctivaScleraOS", "corneaOD", "corneaOS", "anteriorChamberOD", "anteriorChamberOS", "irisOD", "irisOS", "lensOD", "lensOS", "tonometryPressureOD", "tonometryPressureOS", "tonometryMethod", "tonometryTime", "tbutOD", "tbutOS", "schirmerOD", "schirmerOS", "vitreousOD", "vitreousOS", "opticDiscOD", "opticDiscOS", "cupDiscRatioOD", "cupDiscRatioOS", "maculaOD", "maculaOS", "vesselsOD", "vesselsOS", "peripheryOD", "peripheryOS", "diagnosis", "interventionPlanned", "learning"
 
+  **User Input to Process:**
+  {{#if imageDataUri}}Image of the case sheet: {{media url=imageDataUri}}{{/if}}
+  {{#if rawText}}Raw text from case document: {{{rawText}}}{{/if}}
+  
   Analyze the input and provide the structured JSON string now.
-  `,
-  prompt: `{{#if imageDataUri}}Image of the case sheet: {{media url=imageDataUri}}{{/if}}{{#if rawText}}Raw text from case document: {{{rawText}}}{{/if}}`
+  `
 });
 
 export async function convertSheetToEmr(input: ConvertSheetToEmrInput): Promise<ConvertSheetToEmrOutput> {
