@@ -193,3 +193,21 @@ export interface InteractiveEmrAssistantOutput {
   fieldsToUpdateJson?: string;
   aiResponseMessage: string;
 }
+
+// For structuring EMR data from raw text
+export interface StructureEmrDataInput {
+  rawText: string;
+}
+export interface StructureEmrDataOutput {
+  extractedDataJson: string;
+}
+
+// For converting sheet to text (step 1)
+export interface ConvertSheetToEmrInput {
+  imageDataUri?: string;
+  rawText?: string;
+}
+
+export interface ConvertSheetToEmrOutput {
+  extractedText: string;
+}

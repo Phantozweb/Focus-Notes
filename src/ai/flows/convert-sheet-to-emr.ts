@@ -17,9 +17,10 @@ const ConvertSheetToEmrInputSchema = z.object({
   rawText: z.string().optional().describe("Raw unstructured text copied from a document or typed by the user."),
 });
 
+// MODIFIED: This flow now ONLY outputs the extracted raw text.
 export type ConvertSheetToEmrOutput = z.infer<typeof ConvertSheetToEmrOutputSchema>;
 const ConvertSheetToEmrOutputSchema = z.object({
-  extractedDataJson: z.string().describe("A JSON string representing an object where keys are EMR form field names and values are the extracted data. Example: '{\"name\": \"John Doe\", \"age\": 45}'.")
+  extractedText: z.string().describe("The raw, unstructured text extracted from the input image or text. This will be used for a preview before final structuring.")
 });
 
 const prompt = ai.definePrompt({
@@ -27,32 +28,24 @@ const prompt = ai.definePrompt({
   input: { schema: ConvertSheetToEmrInputSchema },
   output: { schema: ConvertSheetToEmrOutputSchema },
   model: 'googleai/gemini-2.5-pro',
-  prompt: `You are an expert AI assistant specializing in Optical Character Recognition (OCR) and data extraction for optometry electronic medical records (EMR). Your task is to analyze an image OR a block of raw text, extract all relevant clinical information, and structure it into a specific JSON format.
+  prompt: `You are an expert AI assistant specializing in Optical Character Recognition (OCR) and text extraction. Your task is to analyze an image OR a block of raw text and extract ALL text content exactly as it appears.
 
   **Instructions:**
 
-  1.  **Analyze the Input**: Carefully examine the provided image or raw text of the optometry case sheet.
-  2.  **Extract Text**: If an image is provided, perform OCR. If raw text is provided, parse it directly.
-  3.  **Map to EMR Fields**: Map the extracted information to the corresponding EMR field names listed below. Be precise. If a value for a field is not present, omit the key from the final JSON.
-  4.  **Format Correctly**:
-      *   For radio buttons or dropdowns with specific values (like 'sex', 'posting'), use the exact string value.
-      *   For checkboxes (like 'subjRefractionChecksOD'), create an array of strings.
-      *   For dates, attempt to parse them into a "YYYY-MM-DD" format. If not possible, use the extracted string.
-  5.  **Return JSON String**: Your final output MUST be a single, valid JSON string in the 'extractedDataJson' field.
-
-  **Known EMR Field Names:**
-  "posting", "mrdNo", "dateOfVisit", "name", "age", "sex", "chiefComplaint", "pastOcularHistory", "currentMedications", "pastMedicalHistory", "recentInvestigations", "familyHistory", "birthHistory", "allergies", "distanceUnaidedOD", "distanceUnaidedOS", "distancePinholeOD", "distancePinholeOS", "distanceOldGlassesOD", "distanceOldGlassesOS", "nearUnaidedOD", "nearUnaidedOS", "nearPinholeOD", "nearPinholeOS", "nearOldGlassesOD", "nearOldGlassesOS", "pgpSphOD", "pgpCylOD", "pgpAxisOD", "pgpSphOS", "pgpCylOS", "pgpAxisOS", "autoRefractionOD", "autoRefractionOS", "objRefractionOD", "objRefractionOS", "objRefractionFindingsOD", "objRefractionFindingsOS", "subjRefractionOD", "subjRefractionOS", "subjRefractionChecksOD", "subjRefractionChecksOS", "finalAcuityOD", "finalAcuityOS", "finalCorrectionPreference", "lensType", "prismDioptersOD", "prismBaseOD", "prismDioptersOS", "prismBaseOS", "keratometryVerticalOD", "keratometryHorizontalOD", "keratometryVerticalOS", "keratometryHorizontalOS", "keratometryComments", "coverTest", "eom", "npcSubj", "npcObj", "npaOD", "npaOS", "npaOU", "wfdtDistance", "wfdtNear", "stereopsis", "pupillaryEvaluation", "externalExamination", "lidsLashesOD", "lidsLashesOS", "conjunctivaScleraOD", "conjunctivaScleraOS", "corneaOD", "corneaOS", "anteriorChamberOD", "anteriorChamberOS", "irisOD", "irisOS", "lensOD", "lensOS", "tonometryPressureOD", "tonometryPressureOS", "tonometryMethod", "tonometryTime", "tbutOD", "tbutOS", "schirmerOD", "schirmerOS", "vitreousOD", "vitreousOS", "opticDiscOD", "opticDiscOS", "cupDiscRatioOD", "cupDiscRatioOS", "maculaOD", "maculaOS", "vesselsOD", "vesselsOS", "peripheryOD", "peripheryOS", "diagnosis", "interventionPlanned", "learning"
+  1.  **Analyze the Input**: Carefully examine the provided image or raw text.
+  2.  **Extract ALL Text**: If an image is provided, perform OCR to extract every word. If raw text is provided, use it directly.
+  3.  **Return Raw Text**: Your final output MUST be only the raw, unstructured text in the 'extractedText' field. Do not summarize, format, or structure the text in any way. Preserve the original line breaks and spacing as much as possible.
 
   **User Input to Process:**
   {{#if imageDataUri}}Image of the case sheet: {{media url=imageDataUri}}{{/if}}
   {{#if rawText}}Raw text from case document: {{{rawText}}}{{/if}}
   
-  Analyze the input and provide the structured JSON string now.
+  Extract all text content now.
   `
 });
 
 export async function convertSheetToEmr(input: ConvertSheetToEmrInput): Promise<ConvertSheetToEmrOutput> {
-  console.log("AI FLOW: Starting EMR conversion...");
+  console.log("AI FLOW: Starting EMR text extraction (Step 1)...");
   if (!input.imageDataUri && !input.rawText) {
     throw new Error("Input must contain either an image URI or raw text.");
   }
@@ -60,19 +53,11 @@ export async function convertSheetToEmr(input: ConvertSheetToEmrInput): Promise<
   const result = await prompt(input);
   const output = result.output;
 
-  if (!output || !output.extractedDataJson) {
-    console.error("AI FLOW ERROR: The AI model did not return the expected JSON output.", result);
-    throw new Error("Failed to extract data from the sheet. The AI model returned an invalid response.");
-  }
-
-  try {
-    // Validate that the output is a parseable JSON object
-    JSON.parse(output.extractedDataJson);
-  } catch (e) {
-    console.error("AI FLOW ERROR: The model returned a string that is not valid JSON.", output.extractedDataJson);
-    throw new Error("Failed to parse the extracted data. The AI returned a malformed structure.");
+  if (!output || typeof output.extractedText !== 'string') {
+    console.error("AI FLOW ERROR: The AI model did not return the expected raw text output.", result);
+    throw new Error("Failed to extract text from the sheet. The AI model returned an invalid response.");
   }
   
-  console.log("AI FLOW: EMR conversion successful.");
+  console.log("AI FLOW: Raw text extraction successful (Step 1).");
   return output;
 }

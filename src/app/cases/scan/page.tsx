@@ -8,8 +8,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Camera, AlertTriangle, Loader2, Wand2, UploadCloud, X, ArrowLeft, FileText, Image as ImageIcon } from 'lucide-react';
+import { Camera, AlertTriangle, Loader2, Wand2, UploadCloud, X, ArrowLeft, FileText, Image as ImageIcon, Send } from 'lucide-react';
 import { convertSheetToEmr, type ConvertSheetToEmrInput } from '@/ai/flows/convert-sheet-to-emr';
+import { structureEmrData } from '@/ai/flows/structure-emr-data'; // New import
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from '@/components/ui/textarea';
 
@@ -120,8 +121,6 @@ function UploadTab() {
         };
         reader.readAsDataURL(file);
       } else {
-        // For non-image files, we'd need a different handling strategy
-        // This could involve a different AI flow or client-side parsing
         alert("Only image uploads are supported for now. PDF and text file support is coming soon!");
       }
     }
@@ -168,6 +167,8 @@ const ScanPageContext = React.createContext<{
   setRawText: (text: string) => void;
   uploadedFile: File | null;
   setUploadedFile: (file: File | null) => void;
+  extractedText: string | null;
+  setExtractedText: (text: string | null) => void;
 } | null>(null);
 
 function useScanPage() {
@@ -182,9 +183,10 @@ function ScanPageProvider({ children }: { children: React.ReactNode }) {
   const [capturedImage, setCapturedImage] = React.useState<string | null>(null);
   const [rawText, setRawText] = React.useState('');
   const [uploadedFile, setUploadedFile] = React.useState<File | null>(null);
+  const [extractedText, setExtractedText] = React.useState<string | null>(null);
   
   return (
-    <ScanPageContext.Provider value={{ capturedImage, setCapturedImage, rawText, setRawText, uploadedFile, setUploadedFile }}>
+    <ScanPageContext.Provider value={{ capturedImage, setCapturedImage, rawText, setRawText, uploadedFile, setUploadedFile, extractedText, setExtractedText }}>
       {children}
     </ScanPageContext.Provider>
   );
@@ -193,10 +195,11 @@ function ScanPageProvider({ children }: { children: React.ReactNode }) {
 function ScanCasePageContent() {
   const router = useRouter();
   const { toast } = useToast();
-  const { capturedImage, setCapturedImage, rawText, setRawText } = useScanPage();
-  const [isAnalyzing, setIsAnalyzing] = React.useState(false);
+  const { capturedImage, setCapturedImage, rawText, setRawText, extractedText, setExtractedText } = useScanPage();
+  const [isExtracting, setIsExtracting] = React.useState(false);
+  const [isStructuring, setIsStructuring] = React.useState(false);
 
-  const handleAnalyze = async () => {
+  const handleExtractText = async () => {
     if (!capturedImage && !rawText.trim()) {
         toast({
             variant: 'destructive',
@@ -205,7 +208,7 @@ function ScanCasePageContent() {
         });
         return;
     }
-    setIsAnalyzing(true);
+    setIsExtracting(true);
     
     const aiInput: ConvertSheetToEmrInput = {};
     if (capturedImage) {
@@ -217,6 +220,31 @@ function ScanCasePageContent() {
 
     try {
       const result = await convertSheetToEmr(aiInput);
+      setExtractedText(result.extractedText);
+      toast({
+        title: 'Text Extracted!',
+        description: 'Review the clinical sheet preview below before sending to EMR.',
+      });
+    } catch (error) {
+      console.error("AI Extraction failed:", error);
+      toast({
+        variant: 'destructive',
+        title: 'Text Extraction Failed',
+        description: error instanceof Error ? error.message : 'An unknown error occurred.',
+      });
+    } finally {
+      setIsExtracting(false);
+    }
+  };
+  
+  const handleSendToEmr = async () => {
+    if (!extractedText) {
+      toast({ variant: 'destructive', title: 'No text to process', description: 'Extracted text is missing.' });
+      return;
+    }
+    setIsStructuring(true);
+    try {
+      const result = await structureEmrData({ rawText: extractedText });
       localStorage.setItem('prefilledCaseData', result.extractedDataJson);
       toast({
         title: 'Analysis Complete!',
@@ -224,26 +252,51 @@ function ScanCasePageContent() {
       });
       router.push('/cases/new?template=default&prefill=true');
     } catch (error) {
-      console.error("AI Analysis failed:", error);
+      console.error("AI Structuring failed:", error);
       toast({
         variant: 'destructive',
-        title: 'Analysis Failed',
-        description: error instanceof Error ? error.message : 'An unknown error occurred.',
+        title: 'Structuring Failed',
+        description: error instanceof Error ? error.message : 'Could not structure the text for EMR.',
       });
     } finally {
-      setIsAnalyzing(false);
+      setIsStructuring(false);
     }
   };
 
   const clearInputs = () => {
     setCapturedImage(null);
     setRawText('');
+    setExtractedText(null);
+  }
+
+  if (extractedText) {
+    return (
+       <div className="space-y-6 flex flex-col items-center">
+        <h3 className="text-xl font-semibold text-center">Clinical Sheet Preview</h3>
+        <p className="text-center text-muted-foreground text-sm">Review the text extracted by the AI. If it looks correct, send it to the EMR to be structured and filled into the form.</p>
+        <div className="p-4 border rounded-lg bg-muted w-full max-h-[50vh] overflow-y-auto">
+            <pre className="whitespace-pre-wrap text-sm text-muted-foreground font-sans">{extractedText}</pre>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
+          <Button onClick={clearInputs} variant="outline" size="lg" className="w-full sm:w-auto">
+            <X className="mr-2 h-5 w-5" /> Start Over
+          </Button>
+          <Button onClick={handleSendToEmr} disabled={isStructuring} size="lg" className="w-full sm:w-auto">
+            {isStructuring ? (
+              <><Loader2 className="mr-2 h-5 w-5 animate-spin" />Structuring...</>
+            ) : (
+              <><Send className="mr-2 h-5 w-5" /> Send to EMR Form</>
+            )}
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   if (capturedImage || rawText.trim()) {
     return (
       <div className="space-y-6 flex flex-col items-center">
-        <h3 className="text-xl font-semibold text-center">Preview & Analyze</h3>
+        <h3 className="text-xl font-semibold text-center">Preview & Extract Text</h3>
         {capturedImage && <img src={capturedImage} alt="Captured case sheet" className="rounded-lg shadow-lg max-w-full h-auto max-h-[60vh] border" />}
         {rawText && !capturedImage && (
             <div className="p-4 border rounded-lg bg-muted w-full max-h-[40vh] overflow-y-auto">
@@ -254,11 +307,11 @@ function ScanCasePageContent() {
           <Button onClick={clearInputs} variant="outline" size="lg" className="w-full sm:w-auto">
             <X className="mr-2 h-5 w-5" /> Clear Input
           </Button>
-          <Button onClick={handleAnalyze} disabled={isAnalyzing} size="lg" className="w-full sm:w-auto">
-            {isAnalyzing ? (
-              <><Loader2 className="mr-2 h-5 w-5 animate-spin" />Analyzing...</>
+          <Button onClick={handleExtractText} disabled={isExtracting} size="lg" className="w-full sm:w-auto">
+            {isExtracting ? (
+              <><Loader2 className="mr-2 h-5 w-5 animate-spin" />Extracting Text...</>
             ) : (
-              <><Wand2 className="mr-2 h-5 w-5" /> Analyze with AI</>
+              <><Wand2 className="mr-2 h-5 w-5" /> Extract Text with AI</>
             )}
           </Button>
         </div>
@@ -315,4 +368,3 @@ export default function ScanCasePage() {
       </MainLayout>
     );
 }
-
