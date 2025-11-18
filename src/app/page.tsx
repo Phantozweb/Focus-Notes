@@ -64,7 +64,7 @@ function WelcomeSection() {
                       </div>
 
                       <div>
-                          <h3 className="font-semibold mb-4 text-center text-xl text-foreground">Focus CaseX is part of a larger ecosystem:</h3>
+                          <h3 className="font-semibold mb-4 text-center text-xl text-foreground">Our other projects</h3>
                           <div className="space-y-4">
                               <Card className="hover:shadow-md transition-shadow">
                                   <CardHeader className="flex-row items-center gap-4 space-y-0 pb-4">
