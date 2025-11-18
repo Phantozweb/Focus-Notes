@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -18,20 +19,19 @@ import { Progress } from '@/components/ui/progress';
 
 
 function WelcomeSection() {
-  const startDate = new Date('2023-10-01'); // Corrected start date for accurate calculation
-  const [daysPassed, setDaysPassed] = React.useState(400);
+  const [daysPassed, setDaysPassed] = React.useState<number | null>(null);
   const [progress, setProgress] = React.useState(13);
 
 
   React.useEffect(() => {
     // This will only run on the client side to avoid hydration mismatch
     const today = new Date();
-    // Correctly calculate days passed starting from 400 on day one
-    const baseDays = 413; // Set the count on Oct 15, 2024
     const referenceDate = new Date('2024-10-15');
-    const daysSinceReference = differenceInDays(today, referenceDate);
     
-    setDaysPassed(baseDays + daysSinceReference);
+    // Calculate days passed since the reference date, ensuring it's not negative
+    const daysSinceReference = Math.max(0, differenceInDays(today, referenceDate));
+    
+    setDaysPassed(daysSinceReference);
     
     // Animate progress bar
     const timer = setTimeout(() => setProgress(35), 500);
@@ -56,7 +56,7 @@ function WelcomeSection() {
                   <CardContent className="p-6 space-y-8">
                       <div className="text-center bg-muted p-4 rounded-lg border">
                           <p className="font-semibold text-lg text-foreground">Project Started: <span className="font-bold text-primary/90">October 15, 2024</span></p>
-                          <p className="font-bold text-4xl text-primary">{daysPassed}th Day</p>
+                          <p className="font-bold text-4xl text-primary">{daysPassed !== null ? `${daysPassed}th Day` : '...'}</p>
                           <p className="text-muted-foreground">Days of Innovation & Community Feedback</p>
                       </div>
 
@@ -197,7 +197,7 @@ export default function HomePage() {
        <style jsx global>{`
         @keyframes fade-in-down { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fade-in-up { from { opacity: 0; transform: translateY(20px); } to- { opacity: 1; transform: translateY(0); } }
-        @keyframes subtle-float { 0% { transform: translateY(0px); } 50% { transform: translateY(-8px); } 100% { transform: translateY(0px); } }
+        @keyframes subtle-float { 0% { transform: translateY(0px); } 50% { transform: translateY(-8px); } 100% { translateY(0px); } }
         .animate-fade-in-down { animation: fade-in-down 0.8s ease-out forwards; }
         .animate-fade-in-up { animation: fade-in-up 0.8s ease-out forwards; }
         .animate-subtle-float { animation: subtle-float 6s ease-in-out infinite; }
