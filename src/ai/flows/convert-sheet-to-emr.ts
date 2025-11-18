@@ -1,10 +1,10 @@
 
 'use server';
 /**
- * @fileOverview AI flow for converting a physical case sheet image to structured EMR data.
+ * @fileOverview AI flow for converting a physical case sheet image or raw text to structured EMR data.
  *
- * - convertSheetToEmr - Extracts text from an image and maps it to EMR fields.
- * - ConvertSheetToEmrInput - The input type (image data).
+ * - convertSheetToEmr - Extracts text from an image/text and maps it to EMR fields.
+ * - ConvertSheetToEmrInput - The input type (image data or raw text).
  * - ConvertSheetToEmrOutput - The output type (JSON string of EMR data).
  */
 
@@ -13,7 +13,8 @@ import { z } from 'genkit';
 
 export type ConvertSheetToEmrInput = z.infer<typeof ConvertSheetToEmrInputSchema>;
 const ConvertSheetToEmrInputSchema = z.object({
-  imageDataUri: z.string().describe("A photo of the case sheet as a data URI ('data:<mimetype>;base64,<data>')."),
+  imageDataUri: z.string().optional().describe("A photo of the case sheet as a data URI ('data:<mimetype>;base64,<data>')."),
+  rawText: z.string().optional().describe("Raw unstructured text copied from a document or typed by the user."),
 });
 
 export type ConvertSheetToEmrOutput = z.infer<typeof ConvertSheetToEmrOutputSchema>;
@@ -25,13 +26,13 @@ const prompt = ai.definePrompt({
   name: 'convertSheetToEmrPrompt',
   input: { schema: ConvertSheetToEmrInputSchema },
   output: { schema: ConvertSheetToEmrOutputSchema },
-  model: 'googleai/gemini-1.5-flash-latest', // Use a model with strong vision capabilities
-  system: `You are an expert AI assistant specializing in Optical Character Recognition (OCR) and data extraction for optometry electronic medical records (EMR). Your task is to analyze an image of a physical case sheet, extract all relevant clinical information, and structure it into a specific JSON format.
+  model: 'googleai/gemini-1.5-flash-latest', // Use a model with strong vision/language capabilities
+  system: `You are an expert AI assistant specializing in Optical Character Recognition (OCR) and data extraction for optometry electronic medical records (EMR). Your task is to analyze an image OR a block of raw text, extract all relevant clinical information, and structure it into a specific JSON format.
 
   **Instructions:**
 
-  1.  **Analyze the Image**: Carefully examine the provided image of the optometry case sheet.
-  2.  **Extract Text**: Perform OCR to extract all handwritten and printed text from the sheet.
+  1.  **Analyze the Input**: Carefully examine the provided image or raw text of the optometry case sheet.
+  2.  **Extract Text**: If an image is provided, perform OCR. If raw text is provided, parse it directly.
   3.  **Map to EMR Fields**: Map the extracted information to the corresponding EMR field names listed below. Be precise. If a value for a field is not present, omit the key from the final JSON.
   4.  **Format Correctly**:
       *   For radio buttons or dropdowns with specific values (like 'sex', 'posting'), use the exact string value.
@@ -42,13 +43,16 @@ const prompt = ai.definePrompt({
   **Known EMR Field Names:**
   "posting", "mrdNo", "dateOfVisit", "name", "age", "sex", "chiefComplaint", "pastOcularHistory", "currentMedications", "pastMedicalHistory", "recentInvestigations", "familyHistory", "birthHistory", "allergies", "distanceUnaidedOD", "distanceUnaidedOS", "distancePinholeOD", "distancePinholeOS", "distanceOldGlassesOD", "distanceOldGlassesOS", "nearUnaidedOD", "nearUnaidedOS", "nearPinholeOD", "nearPinholeOS", "nearOldGlassesOD", "nearOldGlassesOS", "pgpSphOD", "pgpCylOD", "pgpAxisOD", "pgpSphOS", "pgpCylOS", "pgpAxisOS", "autoRefractionOD", "autoRefractionOS", "objRefractionOD", "objRefractionOS", "objRefractionFindingsOD", "objRefractionFindingsOS", "subjRefractionOD", "subjRefractionOS", "subjRefractionChecksOD", "subjRefractionChecksOS", "finalAcuityOD", "finalAcuityOS", "finalCorrectionPreference", "lensType", "prismDioptersOD", "prismBaseOD", "prismDioptersOS", "prismBaseOS", "keratometryVerticalOD", "keratometryHorizontalOD", "keratometryVerticalOS", "keratometryHorizontalOS", "keratometryComments", "coverTest", "eom", "npcSubj", "npcObj", "npaOD", "npaOS", "npaOU", "wfdtDistance", "wfdtNear", "stereopsis", "pupillaryEvaluation", "externalExamination", "lidsLashesOD", "lidsLashesOS", "conjunctivaScleraOD", "conjunctivaScleraOS", "corneaOD", "corneaOS", "anteriorChamberOD", "anteriorChamberOS", "irisOD", "irisOS", "lensOD", "lensOS", "tonometryPressureOD", "tonometryPressureOS", "tonometryMethod", "tonometryTime", "tbutOD", "tbutOS", "schirmerOD", "schirmerOS", "vitreousOD", "vitreousOS", "opticDiscOD", "opticDiscOS", "cupDiscRatioOD", "cupDiscRatioOS", "maculaOD", "maculaOS", "vesselsOD", "vesselsOS", "peripheryOD", "peripheryOS", "diagnosis", "interventionPlanned", "learning"
 
-  Analyze the image and provide the structured JSON string now.
+  Analyze the input and provide the structured JSON string now.
   `,
-  prompt: `Image of the case sheet: {{media url=imageDataUri}}`
+  prompt: `{{#if imageDataUri}}Image of the case sheet: {{media url=imageDataUri}}{{/if}}{{#if rawText}}Raw text from case document: {{{rawText}}}{{/if}}`
 });
 
 export async function convertSheetToEmr(input: ConvertSheetToEmrInput): Promise<ConvertSheetToEmrOutput> {
-  console.log("AI FLOW: Starting EMR sheet conversion for image...");
+  console.log("AI FLOW: Starting EMR conversion...");
+  if (!input.imageDataUri && !input.rawText) {
+    throw new Error("Input must contain either an image URI or raw text.");
+  }
   
   const result = await prompt(input);
   const output = result.output;
@@ -66,6 +70,6 @@ export async function convertSheetToEmr(input: ConvertSheetToEmrInput): Promise<
     throw new Error("Failed to parse the extracted data. The AI returned a malformed structure.");
   }
   
-  console.log("AI FLOW: EMR sheet conversion successful.");
+  console.log("AI FLOW: EMR conversion successful.");
   return output;
 }
