@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -7,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { MainLayout } from '@/components/layout/main-layout';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { CheckCircle, Eye, BrainCircuit, ShieldCheck, Zap, FolderKanban, PlusCircle, ArrowRight, LogIn, XCircle, Check, MessageSquare, Share2 } from 'lucide-react';
+import { CheckCircle, Eye, BrainCircuit, ShieldCheck, Zap, FolderKanban, PlusCircle, ArrowRight, LogIn, XCircle, Check, MessageSquare, Share2, PartyPopper } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -17,7 +16,6 @@ import Autoplay from "embla-carousel-autoplay";
 
 export default function HomePage() {
   const router = useRouter();
-  const [selectedPlan, setSelectedPlan] = React.useState('Yearly');
   const carouselPlugin = React.useRef(
     Autoplay({ delay: 3000, stopOnInteraction: true })
   );
@@ -54,36 +52,6 @@ export default function HomePage() {
       description: "Easily export your case data to CSV format for reporting, sharing with mentors, or for your personal academic portfolio.",
     }
   ];
-
-  const individualPricingTiers = [
-    {
-      name: "Monthly",
-      price: "₹1500",
-      price_sub: "/ month",
-      save: null,
-    },
-    {
-      name: "6 Months",
-      price: "₹6000",
-      price_sub: "billed semi-annually",
-      save: "Save 33%",
-    },
-    {
-      name: "Yearly",
-      price: "₹9000",
-      price_sub: "billed annually",
-      save: "Save 50%",
-      popular: true,
-    }
-  ];
-
-  const institutionTier = {
-    name: "Institution",
-    price: "Contact Us",
-    features: ["Includes all Individual Plan features", "Ideal for universities & colleges", "Special pricing for bulk licenses", "Simplified billing for your organization"],
-    cta: "Contact Sales",
-    variant: 'outline'
-  };
 
   const comparisonData = [
     { feature: "AI Assistance", focusCaseX: true, traditional: false, generic: false },
@@ -150,8 +118,8 @@ export default function HomePage() {
             Effortlessly log cases with our AI assistant, manage patient records with ease, and accelerate your clinical workflow.
           </p>
           <div className="flex flex-wrap justify-center items-center gap-4 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
-            <Button size="lg" onClick={() => router.push('#pricing')} className="shadow-lg hover:shadow-primary/30 transition-shadow">
-               <PlusCircle /> Get Started
+            <Button size="lg" onClick={() => router.push('/dashboard')} className="shadow-lg hover:shadow-primary/30 transition-shadow">
+               <PlusCircle /> Get Started for Free
             </Button>
             <Button size="lg" variant="outline" onClick={() => router.push('#features')} className="shadow-lg hover:shadow-lg transition-shadow bg-background/50">
                <ArrowRight /> Learn More
@@ -246,22 +214,25 @@ export default function HomePage() {
 
       {/* Pricing Section */}
       <section id="pricing" className="py-20 md:py-28 bg-muted/40 dark:bg-card">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-primary">Simple, Transparent Pricing</h2>
-            <p className="mt-4 text-lg text-muted-foreground">Choose the plan that's right for you.</p>
+            <Badge variant="secondary" className="text-base py-2 px-4 rounded-full mb-4 bg-green-100 text-green-800 border-green-200 dark:bg-green-900/50 dark:text-green-300 dark:border-green-700">
+              <PartyPopper className="mr-2 h-5 w-5"/> Beta Testing Phase
+            </Badge>
+            <h2 className="text-3xl md:text-4xl font-bold text-primary">Free to Use, For Now!</h2>
+            <p className="mt-4 text-lg text-muted-foreground">Focus CaseX is currently in an open beta. All features are completely free to use during this period. Jump in and start exploring!</p>
           </div>
           
-          <div className="grid lg:grid-cols-5 gap-8 items-start">
-            {/* Individual Plan */}
-            <Card className="lg:col-span-3 shadow-xl rounded-2xl border-2 border-primary">
+          <div className="grid grid-cols-1 gap-8 items-start">
+            {/* Free Beta Plan */}
+            <Card className="shadow-xl rounded-2xl border-2 border-primary">
               <CardHeader className="pb-4">
-                  <CardTitle className="text-2xl font-bold">Individual Plan</CardTitle>
-                  <CardDescription>For students and practicing optometrists.</CardDescription>
+                  <CardTitle className="text-2xl font-bold">Free Beta Access</CardTitle>
+                  <CardDescription>For all students, educators, and practitioners.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div>
-                  <h4 className="font-semibold mb-3">All individual plans include:</h4>
+                  <h4 className="font-semibold mb-3">All features included:</h4>
                   <ul className="space-y-3 text-muted-foreground text-sm grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
                     <li className="flex items-center gap-3"><CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" /><span>Unlimited cases</span></li>
                     <li className="flex items-center gap-3"><CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" /><span>Full AI Assistant access</span></li>
@@ -271,61 +242,11 @@ export default function HomePage() {
                     <li className="flex items-center gap-3"><CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" /><span>Priority Support</span></li>
                   </ul>
                 </div>
-
-                <div className="space-y-3">
-                   {individualPricingTiers.map((tier) => (
-                    <button 
-                      key={tier.name} 
-                      onClick={() => setSelectedPlan(tier.name)}
-                      className={cn(
-                        "w-full text-left p-4 rounded-lg border transition-all hover:border-primary",
-                        selectedPlan === tier.name ? 'border-primary bg-primary/5 ring-2 ring-primary' : 'border-border'
-                      )}>
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-4">
-                           <div className={cn("h-5 w-5 rounded-full border-2 flex items-center justify-center", selectedPlan === tier.name ? 'border-primary' : 'border-muted-foreground')}>
-                             {selectedPlan === tier.name && <div className="h-2.5 w-2.5 rounded-full bg-primary"></div>}
-                          </div>
-                          <div>
-                            <p className="font-semibold text-foreground">{tier.name}</p>
-                            <p className="text-xs text-muted-foreground">{tier.price_sub}</p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-bold text-lg text-foreground">{tier.price}</p>
-                          {tier.save && <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200 dark:bg-green-900/50 dark:text-green-300 dark:border-green-700 font-bold">{tier.save}</Badge>}
-                          {tier.popular && <Badge className="mt-1" variant="default">Best Value</Badge>}
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
               </CardContent>
               <CardFooter>
-                 <Button size="lg" className="w-full" onClick={() => router.push(`/checkout?plan=${selectedPlan}`)}>Get Started</Button>
-              </CardFooter>
-            </Card>
-
-            {/* Institution Plan */}
-            <Card className="lg:col-span-2 shadow-lg rounded-2xl border h-full flex flex-col">
-              <CardHeader>
-                <CardTitle className="text-2xl font-bold">{institutionTier.name}</CardTitle>
-                <CardDescription className="text-4xl font-bold text-foreground">
-                   {institutionTier.price}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="flex-grow">
-                <ul className="space-y-4 text-muted-foreground">
-                  {institutionTier.features.map((feature) => (
-                    <li key={feature} className="flex items-center gap-3">
-                      <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-              <CardFooter className="p-6 mt-auto">
-                <Button size="lg" variant={institutionTier.variant as "default" | "outline"} className="w-full" onClick={() => router.push('/contact')}>{institutionTier.cta}</Button>
+                 <Button size="lg" className="w-full" onClick={() => router.push('/dashboard')}>
+                    Go to App & Get Started
+                 </Button>
               </CardFooter>
             </Card>
           </div>
