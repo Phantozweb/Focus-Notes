@@ -21,6 +21,7 @@ function CameraTab() {
   const { setCapturedImage } = useScanPage();
 
   React.useEffect(() => {
+    let mediaStream: MediaStream | null = null;
     const getCameraPermission = async () => {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         setHasCameraPermission(false);
@@ -32,7 +33,7 @@ function CameraTab() {
         return;
       }
       try {
-        const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
         setStream(mediaStream);
         setHasCameraPermission(true);
         if (videoRef.current) {
@@ -52,11 +53,12 @@ function CameraTab() {
     getCameraPermission();
 
     return () => {
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
+      if (mediaStream) {
+        mediaStream.getTracks().forEach(track => track.stop());
       }
     };
-  }, [toast, stream]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleCapture = () => {
     const canvas = document.createElement('canvas');
