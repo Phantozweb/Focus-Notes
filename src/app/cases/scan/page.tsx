@@ -8,11 +8,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Camera, AlertTriangle, Loader2, Wand2, UploadCloud, X, ArrowLeft, FileText, Image as ImageIcon, Send } from 'lucide-react';
+import { Camera, AlertTriangle, Loader2, Wand2, UploadCloud, X, ArrowLeft, FileText, Image as ImageIcon, Send, FileDown, Eye } from 'lucide-react';
 import { convertSheetToEmr, type ConvertSheetToEmrInput } from '@/ai/flows/convert-sheet-to-emr';
-import { structureEmrData } from '@/ai/flows/structure-emr-data'; // New import
+import { structureEmrData } from '@/ai/flows/structure-emr-data';
+import { formatCaseSheet } from '@/ai/flows/format-case-sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from '@/components/ui/textarea';
+import * as htmlToImage from 'html-to-image';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 function CameraTab() {
   const { toast } = useToast();
@@ -198,6 +201,9 @@ function ScanCasePageContent() {
   const { capturedImage, setCapturedImage, rawText, setRawText, extractedText, setExtractedText } = useScanPage();
   const [isExtracting, setIsExtracting] = React.useState(false);
   const [isStructuring, setIsStructuring] = React.useState(false);
+  const [isFormatting, setIsFormatting] = React.useState(false);
+  const [formattedSheetHtml, setFormattedSheetHtml] = React.useState<string | null>(null);
+  const formattedSheetRef = React.useRef<HTMLDivElement>(null);
 
   const handleExtractText = async () => {
     if (!capturedImage && !rawText.trim()) {
@@ -209,6 +215,7 @@ function ScanCasePageContent() {
         return;
     }
     setIsExtracting(true);
+    setFormattedSheetHtml(null);
     
     const aiInput: ConvertSheetToEmrInput = {};
     if (capturedImage) {
@@ -223,7 +230,7 @@ function ScanCasePageContent() {
       setExtractedText(result.extractedText);
       toast({
         title: 'Text Extracted!',
-        description: 'Review the clinical sheet preview below before sending to EMR.',
+        description: 'AI has processed the document. Choose your next action.',
       });
     } catch (error) {
       console.error("AI Extraction failed:", error);
@@ -263,33 +270,128 @@ function ScanCasePageContent() {
     }
   };
 
+  const handleFormatSheet = async () => {
+    if (!extractedText) {
+      toast({ variant: 'destructive', title: 'No text to format', description: 'Extracted text is missing.' });
+      return;
+    }
+    setIsFormatting(true);
+    try {
+      const result = await formatCaseSheet({ rawText: extractedText });
+      setFormattedSheetHtml(result.formattedHtml);
+      toast({
+        title: 'Digital Sheet Created!',
+        description: 'Review your formatted case sheet below.',
+      });
+    } catch (error) {
+      console.error("AI Formatting failed:", error);
+      toast({
+        variant: 'destructive',
+        title: 'Formatting Failed',
+        description: error instanceof Error ? error.message : 'Could not format the text.',
+      });
+    } finally {
+      setIsFormatting(false);
+    }
+  };
+
+  const downloadAsTxt = () => {
+    if (formattedSheetRef.current) {
+        const textContent = formattedSheetRef.current.innerText;
+        const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'FocusCaseX_Sheet.txt';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+  };
+
+  const downloadAsImage = () => {
+    if (formattedSheetRef.current) {
+        htmlToImage.toPng(formattedSheetRef.current, { quality: 0.95, backgroundColor: 'white' })
+            .then(function (dataUrl) {
+                const link = document.createElement('a');
+                link.download = 'FocusCaseX_Sheet.png';
+                link.href = dataUrl;
+                link.click();
+            })
+            .catch(function (error) {
+                console.error('oops, something went wrong!', error);
+                toast({
+                    variant: 'destructive',
+                    title: 'Image Download Failed',
+                    description: 'Could not generate the image for download.',
+                });
+            });
+    }
+  };
+
   const clearInputs = () => {
     setCapturedImage(null);
     setRawText('');
     setExtractedText(null);
+    setFormattedSheetHtml(null);
+  }
+
+  if (isFormatting) {
+    return (
+        <div className="flex flex-col items-center justify-center min-h-[300px] text-center">
+            <Loader2 className="h-10 w-10 animate-spin text-primary mb-4" />
+            <h3 className="text-xl font-semibold">Formatting Your Digital Sheet</h3>
+            <p className="text-muted-foreground">The AI is organizing the data into a professional layout...</p>
+        </div>
+    );
+  }
+
+  if (formattedSheetHtml) {
+    return (
+       <div className="space-y-6">
+        <h3 className="text-2xl font-bold text-center text-primary">Formatted Digital Case Sheet</h3>
+        <p className="text-center text-muted-foreground text-sm max-w-2xl mx-auto">Review your AI-generated digital sheet. You can download it as a text file or an image, or send the original text to pre-fill the EMR form.</p>
+        
+        <ScrollArea className="max-h-[60vh] w-full border rounded-lg shadow-inner">
+           <div ref={formattedSheetRef} className="p-6 bg-white text-black" dangerouslySetInnerHTML={{ __html: formattedSheetHtml }} />
+        </ScrollArea>
+        
+        <div className="flex flex-col sm:flex-row gap-4 w-full justify-center items-center">
+            <Button onClick={downloadAsTxt} variant="outline"><FileDown className="mr-2 h-4 w-4"/>Download as TXT</Button>
+            <Button onClick={downloadAsImage} variant="outline"><ImageIcon className="mr-2 h-4 w-4"/>Download as Image</Button>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-4 w-full justify-center border-t pt-6 mt-4">
+          <Button onClick={clearInputs} variant="secondary" size="lg" className="w-full sm:w-auto">
+            <X className="mr-2 h-5 w-5" /> Start Over
+          </Button>
+          <Button onClick={handleSendToEmr} disabled={isStructuring} size="lg" className="w-full sm:w-auto">
+            {isStructuring ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Send className="mr-2 h-5 w-5" />} Fill EMR with Original Text
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   if (extractedText) {
     return (
-       <div className="space-y-6 flex flex-col items-center">
-        <h3 className="text-xl font-semibold text-center">Clinical Sheet Preview</h3>
-        <p className="text-center text-muted-foreground text-sm">Review the text extracted by the AI. If it looks correct, send it to the EMR to be structured and filled into the form.</p>
+        <div className="space-y-6 flex flex-col items-center">
+        <h3 className="text-xl font-semibold text-center">Text Extraction Complete!</h3>
+        <p className="text-center text-muted-foreground text-sm">What would you like to do next?</p>
         <div className="p-4 border rounded-lg bg-muted w-full max-h-[50vh] overflow-y-auto">
             <pre className="whitespace-pre-wrap text-sm text-muted-foreground font-sans">{extractedText}</pre>
         </div>
         <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
-          <Button onClick={clearInputs} variant="outline" size="lg" className="w-full sm:w-auto">
-            <X className="mr-2 h-5 w-5" /> Start Over
-          </Button>
-          <Button onClick={handleSendToEmr} disabled={isStructuring} size="lg" className="w-full sm:w-auto">
-            {isStructuring ? (
-              <><Loader2 className="mr-2 h-5 w-5 animate-spin" />Structuring...</>
-            ) : (
-              <><Send className="mr-2 h-5 w-5" /> Send to EMR Form</>
-            )}
-          </Button>
+            <Button onClick={handleFormatSheet} disabled={isFormatting} size="lg" className="w-full sm:w-auto">
+                <Wand2 className="mr-2 h-5 w-5" /> Format as Digital Sheet
+            </Button>
+            <Button onClick={handleSendToEmr} disabled={isStructuring} size="lg" className="w-full sm:w-auto">
+                <Send className="mr-2 h-5 w-5" /> Fill EMR Form Directly
+            </Button>
         </div>
-      </div>
+         <Button onClick={clearInputs} variant="link" className="mt-4 text-muted-foreground">
+            <X className="mr-2 h-4 w-4" /> Start Over
+        </Button>
+        </div>
     );
   }
 

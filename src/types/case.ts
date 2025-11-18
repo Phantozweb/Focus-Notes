@@ -211,3 +211,12 @@ export interface ConvertSheetToEmrInput {
 export interface ConvertSheetToEmrOutput {
   extractedText: string;
 }
+
+// For formatting the extracted text into HTML
+export interface FormatCaseSheetInput {
+    rawText: string;
+}
+
+export interface FormatCaseSheetOutput {
+    formattedHtml: string;
+}
