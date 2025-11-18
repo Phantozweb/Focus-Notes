@@ -44,7 +44,7 @@ function WelcomeModal({ open, onOpenChange }: { open: boolean, onOpenChange: (op
         </DialogHeader>
         <div className="py-4 space-y-6">
             <div className="text-center bg-muted p-4 rounded-lg">
-                <p className="font-semibold text-lg text-foreground">Project Started: December 12, 2024</p>
+                <p className="font-semibold text-lg text-foreground">Project Started: <span className="font-bold text-primary/90">December 12, 2024</span></p>
                 <p className="font-bold text-4xl text-primary">{daysPassed >= 0 ? daysPassed : 0}</p>
                 <p className="text-muted-foreground">Days of Innovation & Community Feedback</p>
             </div>
