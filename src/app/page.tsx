@@ -6,19 +6,110 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { MainLayout } from '@/components/layout/main-layout';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { CheckCircle, Eye, BrainCircuit, ShieldCheck, Zap, FolderKanban, PlusCircle, ArrowRight, LogIn, XCircle, Check, MessageSquare, Share2, PartyPopper } from 'lucide-react';
+import { CheckCircle, Eye, BrainCircuit, ShieldCheck, Zap, FolderKanban, PlusCircle, ArrowRight, LogIn, XCircle, Check, MessageSquare, Share2, PartyPopper, Mic, Link as LinkIcon, Rss, Info, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import Autoplay from "embla-carousel-autoplay";
+import { differenceInDays } from 'date-fns';
+
+function WelcomeModal({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
+  const router = useRouter();
+  const startDate = new Date('2024-12-12');
+  const [daysPassed, setDaysPassed] = React.useState(0);
+
+  React.useEffect(() => {
+    // This will only run on the client side
+    setDaysPassed(differenceInDays(new Date(), startDate));
+  }, [startDate]);
+
+  const handleLinkClick = (url: string) => {
+    window.open(url, '_blank');
+  };
+  
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-2xl">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 text-2xl text-primary">
+            <PartyPopper className="h-7 w-7" />
+            Welcome to Focus CaseX!
+          </DialogTitle>
+          <DialogDescription>
+            We're in the early stages and are thrilled to have you here. Your feedback is crucial as we grow.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="py-4 space-y-6">
+            <div className="text-center bg-muted p-4 rounded-lg">
+                <p className="font-semibold text-lg text-foreground">Project Started: December 12, 2024</p>
+                <p className="font-bold text-4xl text-primary">{daysPassed >= 0 ? daysPassed : 0}</p>
+                <p className="text-muted-foreground">Days of Innovation & Community Feedback</p>
+            </div>
+          <div>
+            <h3 className="font-semibold mb-3 text-foreground">Focus CaseX is part of a larger ecosystem:</h3>
+            <div className="space-y-4">
+                <Card>
+                    <CardHeader className="flex-row items-center gap-4 space-y-0 pb-3">
+                        <Mic className="h-8 w-8 text-primary" />
+                        <div>
+                            <h4 className="font-semibold">Focus Cast</h4>
+                            <p className="text-sm text-muted-foreground">A free podcast platform for eyecare professionals and students.</p>
+                        </div>
+                        <Button variant="outline" size="sm" className="ml-auto" onClick={() => handleLinkClick('#')}>Listen Now <Rss className="ml-2 h-4 w-4" /></Button>
+                    </CardHeader>
+                </Card>
+                 <Card>
+                    <CardHeader className="flex-row items-center gap-4 space-y-0 pb-3">
+                        <LinkIcon className="h-8 w-8 text-primary" />
+                        <div>
+                            <h4 className="font-semibold">Focus Links</h4>
+                            <p className="text-sm text-muted-foreground">The global community for eye care. Create your professional profile.</p>
+                        </div>
+                        <Button variant="outline" size="sm" className="ml-auto" onClick={() => handleLinkClick('#')}>Join Now <ArrowRight className="ml-2 h-4 w-4" /></Button>
+                    </CardHeader>
+                </Card>
+                 <Card>
+                    <CardHeader className="flex-row items-center gap-4 space-y-0 pb-3">
+                        <BrainCircuit className="h-8 w-8 text-primary" />
+                        <div>
+                            <h4 className="font-semibold">Focus.Ai</h4>
+                            <p className="text-sm text-muted-foreground">The optometry AI tool that powers Focus CaseX, developed with your feedback.</p>
+                        </div>
+                        <Button variant="outline" size="sm" className="ml-auto" onClick={() => handleLinkClick('#')}>Learn More <Info className="ml-2 h-4 w-4" /></Button>
+                    </CardHeader>
+                </Card>
+            </div>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button onClick={() => onOpenChange(false)}>
+            <ArrowRight className="mr-2 h-4 w-4" />
+            Continue to App
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 export default function HomePage() {
   const router = useRouter();
   const carouselPlugin = React.useRef(
     Autoplay({ delay: 3000, stopOnInteraction: true })
   );
+
+  const [showWelcomeModal, setShowWelcomeModal] = React.useState(false);
+
+  React.useEffect(() => {
+    const hasSeenModal = localStorage.getItem('hasSeenWelcomeModal');
+    if (!hasSeenModal) {
+      setShowWelcomeModal(true);
+      localStorage.setItem('hasSeenWelcomeModal', 'true');
+    }
+  }, []);
 
   const features = [
     {
@@ -96,6 +187,7 @@ export default function HomePage() {
 
   return (
     <MainLayout>
+       <WelcomeModal open={showWelcomeModal} onOpenChange={setShowWelcomeModal} />
        <style jsx global>{`
         @keyframes fade-in-down { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fade-in-up { from { opacity: 0; transform: translateY(20px); } to- { opacity: 1; transform: translateY(0); } }
