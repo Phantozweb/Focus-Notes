@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import Autoplay from "embla-carousel-autoplay";
 import { differenceInDays } from 'date-fns';
 
@@ -85,10 +85,12 @@ function WelcomeModal({ open, onOpenChange }: { open: boolean, onOpenChange: (op
           </div>
         </div>
         <DialogFooter>
-          <Button onClick={() => onOpenChange(false)}>
-            <ArrowRight className="mr-2 h-4 w-4" />
-            Continue to App
-          </Button>
+          <DialogClose asChild>
+            <Button onClick={() => onOpenChange(false)}>
+              <ArrowRight className="mr-2 h-4 w-4" />
+              Continue to App
+            </Button>
+          </DialogClose>
         </DialogFooter>
       </DialogContent>
     </Dialog>
