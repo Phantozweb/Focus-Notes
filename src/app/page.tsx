@@ -15,15 +15,23 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import Autoplay from "embla-carousel-autoplay";
 import { differenceInDays } from 'date-fns';
+import { Progress } from '@/components/ui/progress';
+
 
 function WelcomeModal({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
   const router = useRouter();
-  const startDate = new Date('2024-12-12');
+  // Updated start date to August 12, 2024
+  const startDate = new Date('2024-08-12');
   const [daysPassed, setDaysPassed] = React.useState(0);
+  const [progress, setProgress] = React.useState(13);
+
 
   React.useEffect(() => {
     // This will only run on the client side
-    setDaysPassed(differenceInDays(new Date(), startDate));
+    setDaysPassed(Math.max(0, differenceInDays(new Date(), startDate)));
+    // Animate progress bar
+    const timer = setTimeout(() => setProgress(35), 500);
+    return () => clearTimeout(timer);
   }, [startDate]);
 
   const handleLinkClick = (url: string) => {
@@ -43,11 +51,21 @@ function WelcomeModal({ open, onOpenChange }: { open: boolean, onOpenChange: (op
           </DialogDescription>
         </DialogHeader>
         <div className="py-4 space-y-6">
-            <div className="text-center bg-muted p-4 rounded-lg">
-                <p className="font-semibold text-lg text-foreground">Project Started: <span className="font-bold text-primary/90">December 12, 2024</span></p>
-                <p className="font-bold text-4xl text-primary">{daysPassed >= 0 ? daysPassed : 0}</p>
+            <div className="text-center bg-muted p-4 rounded-lg border">
+                <p className="font-semibold text-lg text-foreground">Project Started: <span className="font-bold text-primary/90">August 12, 2024</span></p>
+                <p className="font-bold text-4xl text-primary">{daysPassed}</p>
                 <p className="text-muted-foreground">Days of Innovation & Community Feedback</p>
             </div>
+
+            <div className="space-y-2">
+                <div className="flex justify-between items-center px-1">
+                    <h3 className="font-semibold text-foreground">Project Progress</h3>
+                    <span className="font-bold text-primary">{progress}% Complete</span>
+                </div>
+                <Progress value={progress} className="w-full" />
+                <p className="text-xs text-muted-foreground px-1">We're working hard on new features, including advanced analytics and custom templates!</p>
+            </div>
+
           <div>
             <h3 className="font-semibold mb-3 text-foreground">Focus CaseX is part of a larger ecosystem:</h3>
             <div className="space-y-4">
