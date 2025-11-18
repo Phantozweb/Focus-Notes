@@ -348,16 +348,18 @@ export default function HomePage() {
       </section>
 
       {/* FAQ Section */}
-      <section id="faq" className="py-20 md:py-28">
+      <section id="faq" className="py-20 md:py-28 bg-background">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-primary">Frequently Asked Questions</h2>
           </div>
-          <Accordion type="single" collapsible className="w-full">
+          <Accordion type="single" collapsible className="w-full space-y-4">
             {faqs.map((faq, index) => (
-              <AccordionItem key={index} value={`item-${index}`}>
-                <AccordionTrigger className="text-lg text-left hover:no-underline">{faq.question}</AccordionTrigger>
-                <AccordionContent className="text-base text-muted-foreground">
+              <AccordionItem key={index} value={`item-${index}`} className="bg-muted/50 dark:bg-card border border-border/70 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                <AccordionTrigger className="text-lg font-medium text-left hover:no-underline px-6 py-4">
+                  {faq.question}
+                </AccordionTrigger>
+                <AccordionContent className="text-base text-muted-foreground px-6">
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>
