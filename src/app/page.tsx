@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -19,14 +20,14 @@ import { Progress } from '@/components/ui/progress';
 
 function WelcomeSection() {
   // Updated start date to August 12, 2024
-  const startDate = new Date('2024-08-12');
+  const startDate = new Date('2024-10-15');
   const [daysPassed, setDaysPassed] = React.useState(0);
   const [progress, setProgress] = React.useState(13);
 
 
   React.useEffect(() => {
     // This will only run on the client side
-    setDaysPassed(Math.max(0, differenceInDays(new Date(), startDate)));
+    setDaysPassed(400);
     // Animate progress bar
     const timer = setTimeout(() => setProgress(35), 500);
     return () => clearTimeout(timer);
@@ -49,8 +50,8 @@ function WelcomeSection() {
                   </CardHeader>
                   <CardContent className="p-6 space-y-8">
                       <div className="text-center bg-muted p-4 rounded-lg border">
-                          <p className="font-semibold text-lg text-foreground">Project Started: <span className="font-bold text-primary/90">August 12, 2024</span></p>
-                          <p className="font-bold text-4xl text-primary">{daysPassed}</p>
+                          <p className="font-semibold text-lg text-foreground">Project Started: <span className="font-bold text-primary/90">October 15, 2024</span></p>
+                          <p className="font-bold text-4xl text-primary">400th Day</p>
                           <p className="text-muted-foreground">Days of Innovation & Community Feedback</p>
                       </div>
 
