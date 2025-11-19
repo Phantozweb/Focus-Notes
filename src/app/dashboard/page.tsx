@@ -12,7 +12,6 @@ import useLocalStorage from '@/hooks/use-local-storage';
 import type { StoredOptometryCase } from '@/types/case';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
-import { Suspense } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { exportToCsv } from '@/lib/csv-export';
@@ -27,7 +26,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import dynamic from 'next/dynamic';
 import { Loader2 } from 'lucide-react';
 import { trackActivity } from '@/lib/tracker';
 
@@ -535,27 +533,6 @@ const PageContent = () => {
     return <DashboardContent />;
 };
 
-const DynamicPageContent = dynamic(() => Promise.resolve(PageContent), {
-  ssr: false,
-  loading: () => (
-    <div className="flex h-full w-full items-center justify-center gap-2">
-      <Loader2 className="h-6 w-6 animate-spin" />
-      <p>Loading Dashboard...</p>
-    </div>
-  ),
-});
-
 export default function DashboardPage() {
-    return (
-        <Suspense fallback={
-            <div className="flex h-full w-full items-center justify-center gap-2">
-                <Loader2 className="h-6 w-6 animate-spin" />
-                <p>Loading...</p>
-            </div>
-        }>
-            <DynamicPageContent />
-        </Suspense>
-    );
+    return <PageContent />;
 }
-
-    
