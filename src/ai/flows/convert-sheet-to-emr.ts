@@ -49,6 +49,7 @@ export async function convertSheetToEmr(input: ConvertSheetToEmrInput): Promise<
   if (!input.imageDataUri && !input.rawText) {
     throw new Error("Input must contain either an image URI or raw text.");
   }
+
   
   const result = await prompt(input);
   const output = result.output;
